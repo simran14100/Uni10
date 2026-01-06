@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const ReviewSchema = new mongoose.Schema(
   {
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true, index: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
     text: { type: String, required: true, minlength: 20, maxlength: 1000 },
     images: { type: [String], default: [] },
-    status: { type: String, enum: ['pending', 'published', 'rejected'], default: 'pending', index: true },
+    status: { type: String, enum: ['pending', 'published', 'rejected'], default: 'pending' },
     rating: { type: Number, min: 1, max: 5 },
     comment: { type: String },
     approved: { type: Boolean, default: true },

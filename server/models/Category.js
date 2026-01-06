@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const CategorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
-    slug: { type: String, unique: true, index: true },
+    slug: { type: String, unique: true },
     description: { type: String },
     active: { type: Boolean, default: true },
     // Parent category reference (null for top-level categories)
