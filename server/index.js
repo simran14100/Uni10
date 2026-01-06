@@ -39,6 +39,7 @@ console.log('[CWD]', process.cwd());
 
 
 
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -88,9 +89,19 @@ console.log('[CORS] Enabled with options:', corsOptions);
 // Serve uploaded files from server/uploads (same as multer destination)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Also expose uploads under /api/uploads for frontends that proxy only /api
-app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
-// Upload routes (POST for admin)
 app.use('/api/uploads', uploadsRoutes);
+
+/* -------------------------- SERVE CLIENT-SIDE BUILD ------------------------- */
+// Serve static files from the client-side build directory
+app.use(express.static(path.join(__dirname, '..', 'dist')));
+
+// For any other requests, serve the index.html from the client-side build
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'));
+});
 
 /* ---------------------------- CORE MIDDLEWARES -------------------------- */
 app.use(cookieParser());
@@ -114,6 +125,9 @@ app.get('/api/_debug/env', (_req, res) => {
     },
   });
 });
+
+
+
 
 
 
