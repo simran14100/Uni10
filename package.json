@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npx nodemon index.js\" \"vite --port 8080\"",
+    "dev": "concurrently \"./node_modules/.bin/nodemon server/index.js\" \"vite --port 8080\"",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
