@@ -1,0 +1,186 @@
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, Menu, User, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+interface NavbarProps {
+  cartItemCount?: number;
+}
+
+export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+ 
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  // safe cart context
+  const cart = (() => {
+    try {
+      return useCart();
+    } catch {
+      return null as any;
+    }
+  })();
+
+  const liveCount = cart ? cart.count : cartItemCount;
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F5F3ED] text-black border-b border-[#E0DBCF]">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2"
+            aria-label="UNI10 Home"
+          >
+            <img
+              src="/uni10-logo.png"
+              alt="UNI10"
+              className="h-11 md:h-12 lg:h-[52px] w-auto select-none"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </Link>
+
+          {/* Desktop Navigation (unchanged, only md+ visible) */}
+          <div className="hidden md:flex items-center gap-2">
+            {[
+              { to: "/", label: "Home" },
+              { to: "/shop", label: "Shop" },
+              { to: "/shop/new-arrivals", label: "New Arrivals" },
+              { to: "/wishlist", label: "Wishlist" },
+              { to: "/contact", label: "Contact" },
+            ].map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="text-base font-semibold px-4 py-2 rounded-full text-black/80 hover:text-primary hover:bg-black/10 transition"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-1 md:gap-2">
+            {user ? (
+              <>
+                {/* Wishlist: mobile pe hidden, desktop pe same jaisa */}
+                <Link to="/wishlist">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden md:inline-flex text-black/90 hover:text-black hover:bg-black/10"
+                  >
+                    <Heart className="h-5 w-5" />
+                  </Button>
+                </Link>
+
+                {/* Support: pehle se hi sirf md+ pe dikh raha tha */}
+                <Link to="/account/support" className="hidden md:block">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-black/90 hover:text-black hover:bg-black/10"
+                  >
+                    Support
+                  </Button>
+                </Link>
+
+                {/* Dashboard / User Profile */}
+                <Link to="/dashboard">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-black/90 hover:text-black hover:bg-black/10"
+                  >
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
+
+ 
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-black/90 hover:text-black hover:bg-black/10"
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
+
+            {/* Cart (same desktop + mobile) */}
+            <Link to="/cart">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative text-black/90 hover:text-black hover:bg-black/10"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {liveCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
+                    {liveCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
+            {/* Mobile Menu Toggle (only mobile) */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden text-black/90 hover:text-black hover:bg-black/10"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Menu (sirf md:hidden, desktop untouched) */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-black/10 bg-[#F5F3ED]">
+            <div className="flex flex-col gap-1">
+              {[
+                { to: "/", label: "Home" },
+                { to: "/shop", label: "Shop" },
+                { to: "/shop/new-arrivals", label: "New Arrivals" },
+                { to: "/wishlist", label: "Wishlist" },
+                { to: "/contact", label: "Contact" },
+                ...(user
+                  ? [{ to: "/account/support", label: "Support Tickets" }]
+                  : []),
+              ].map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="text-base font-semibold px-2 py-2 rounded-md text-black/90 hover:text-primary hover:bg-black/10 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};

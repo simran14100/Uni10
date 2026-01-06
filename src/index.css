@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* Pure white for input fields */
+    --foreground: 220 10% 3%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 10% 3%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 3%;
+
+    --primary: 210 20% 25%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 210 20% 90%;
+    --secondary-foreground: 210 20% 10%;
+
+    --muted: 210 20% 95%;
+    --muted-foreground: 210 20% 50%;
+
+    --accent: 210 20% 90%;
+    --accent-foreground: 210 20% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 20% 85%;
+    --input: 210 20% 85%;
+    --ring: 210 20% 25%;
+    
+    /* Logo specific color */
+    --logo-yellow: 43 96% 56%;
+
+    --radius: 0.5rem;
+
+    /* Cosmic gradients */
+    --gradient-cosmic: linear-gradient(135deg, hsl(240 40% 8%), hsl(280 40% 12%));
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 7% / 0.8), hsl(0 0% 7%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 10% / 0.6), hsl(0 0% 8% / 0.8));
+    
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(0 84% 60% / 0.15);
+    --shadow-elegant: 0 10px 40px hsl(0 0% 0% / 0.5);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Fix for browser autofill background color */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px hsl(var(--card)) inset !important;
+    -webkit-text-fill-color: hsl(var(--foreground)) !important;
+    background-color: hsl(var(--card)) !important;
+  }
+}
