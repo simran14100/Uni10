@@ -95,8 +95,10 @@ app.use('/api/uploads', uploadsRoutes);
 // Serve static files from the client-side build directory
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
+// API routes (or other specific routes) should go here
+
 // For any other requests, serve the index.html from the client-side build
-app.get('*', (req, res, next) => {
+app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
