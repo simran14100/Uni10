@@ -39,6 +39,7 @@ import ReviewsList from "@/components/ReviewsList";
 import { AvailableCoupons } from "@/components/AvailableCoupons";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
+import { ShareButton } from "@/components/ShareButton";
 import { useCouponRefresh } from "@/hooks/useCouponRefresh";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
@@ -683,9 +684,16 @@ const ProductDetail = () => {
               <p className="text-xs sm:text-sm text-gray-600 uppercase tracking-wider mb-2 break-words">
                 {product.category}
               </p>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter mb-2 sm:mb-4 break-words text-gray-900">
-                {title}
-              </h1>
+              <div className="flex items-center justify-between mb-2 sm:mb-4">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter break-words text-gray-900">
+                  {title}
+                </h1>
+                <ShareButton
+                  productName={title}
+                  productUrl={window.location.href}
+                  productImage={img}
+                />
+              </div>
               <div className="flex items-baseline gap-3 mb-4 sm:mb-6">
                 <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                   ₹{(() => {
