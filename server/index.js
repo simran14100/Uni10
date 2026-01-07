@@ -93,7 +93,6 @@ console.log('[CORS] Enabled with options:', corsOptions);
 // Serve uploaded files from server/uploads (same as multer destination)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Also expose uploads under /api/uploads for frontends that proxy only /api
-app.use('/api/uploads', uploadsRoutes);
 
 /* -------------------------- SERVE CLIENT-SIDE BUILD ------------------------- */
 // Serve static files from the client-side build directory
@@ -128,6 +127,7 @@ app.get('/api/_debug/env', (_req, res) => {
       RZP_KEY_SECRET: mask(process.env.RAZORPAY_KEY_SECRET || ''),
       RZP_CURRENCY: process.env.RAZORPAY_CURRENCY || '(empty)',
       MONGODB_URI_EXISTS: !!process.env.MONGODB_URI,
+      JWT_SECRET: mask(process.env.JWT_SECRET || ''),
     },
   });
 });
