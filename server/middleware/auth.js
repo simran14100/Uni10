@@ -2,6 +2,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 
+function mask(v) {
+  if (!v || v.length < 6) return v ? '***' : '(empty)';
+  return v.slice(0, 4) + '***' + v.slice(-2);
+}
+console.log('[AUTH] JWT_SECRET in auth.js:', mask(JWT_SECRET));
+
 async function authOptional(req, res, next) {
   const authHeader = req.headers && req.headers.authorization;
   const token = (req.cookies && req.cookies.token) || (authHeader ? (authHeader.split(' ')[1] || null) : null) || req.query.token || null;
