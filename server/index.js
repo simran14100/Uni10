@@ -166,6 +166,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api', influencerDataRoutes);
+app.use('/api/uploads', uploadsRoutes);
 
 /* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
 // Add this BEFORE starting the server to serve index.html with injected meta tags

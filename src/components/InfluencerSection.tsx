@@ -29,7 +29,7 @@ export const InfluencerSection = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api('/api/admin/influencer-data');
+        const res = await api('/api/influencer-data/public');
         if (!res.ok) throw new Error(res.json?.message || 'Failed to fetch influencer data');
         setInfluencerData(res.json.data);
       } catch (err: any) {

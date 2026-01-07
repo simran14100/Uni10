@@ -5,6 +5,16 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Public route to get all influencer data (no auth required)
+router.get('/influencer-data/public', async (req, res) => {
+  try {
+    const influencerData = await InfluencerData.find().populate('productId', 'title images');
+    res.status(200).json({ ok: true, data: influencerData });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error.message });
+  }
+});
+
 // GET all influencer data
 router.get('/admin/influencer-data', requireAuth, requireAdmin, async (req, res) => {
   try {
