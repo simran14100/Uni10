@@ -63,9 +63,6 @@ const ReviewsList = ({ productId }: ReviewsListProps) => {
     }
   };
 
-  const renderImage = (src: string) => {
-    return src.startsWith('http') ? src : `${src.startsWith('/') ? '' : '/'}${src}`;
-  };
 
   if (error) {
     return (
@@ -116,7 +113,7 @@ const ReviewsList = ({ productId }: ReviewsListProps) => {
                     {review.images.map((img, idx) => (
                       <div key={idx} className="aspect-square rounded-md overflow-hidden bg-muted">
                         <img
-                          src={renderImage(img)}
+                          src={img}
                           alt={`Review ${idx + 1}`}
                           className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                           onError={(e) => {
