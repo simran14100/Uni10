@@ -1325,11 +1325,11 @@ const Admin = () => {
     try {
       const base = API_BASE || '';
       const baseNormalized = base.endsWith('/') ? base.slice(0, -1) : base;
-      const primaryUrl = base ? `${baseNormalized}/api/uploads` : '';
+      const primaryUrl = base ? `${baseNormalized}/uploads` : '';
 
       if (base && isLocalhost(base) && !location.hostname.includes('localhost') && !location.hostname.includes('127.0.0.1')) {
         try {
-          const relJson = await tryUpload('/api/uploads');
+          const relJson = await tryUpload('/uploads');
           const url = relJson?.url || relJson?.data?.url;
           return url && url.startsWith('http') ? url : (url ? url : '/placeholder.svg');
         } catch (relErr) {
@@ -1363,7 +1363,7 @@ const Admin = () => {
       }
 
       try {
-        const relJson2 = await tryUpload('/api/uploads');
+        const relJson2 = await tryUpload('/uploads');
         const url = relJson2?.url || relJson2?.data?.url;
         return url && url.startsWith('http') ? url : (url ? url : '/placeholder.svg');
       } catch (finalRelErr) {
@@ -1412,7 +1412,7 @@ const Admin = () => {
         try { const parsed = new URL(s); if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') return `/api${parsed.pathname}`; } catch {}
         return s;
       }
-      if (s.startsWith('/api/uploads')) return s;
+      if (s.startsWith('/uploads')) return s;
       if (s.startsWith('/uploads')) return `/api${s}`;
       if (s.startsWith('uploads')) return `/api/${s}`;
       return s;
@@ -1443,11 +1443,11 @@ const Admin = () => {
     try {
       const base = API_BASE || '';
       const baseNormalized = base.endsWith('/') ? base.slice(0, -1) : base;
-      const primaryUrl = base ? `${baseNormalized}/api/uploads` : '';
+      const primaryUrl = base ? `${baseNormalized}/uploads` : '';
 
       if (base && isLocalhost(base) && !location.hostname.includes('localhost') && !location.hostname.includes('127.0.0.1')) {
         try {
-          const relJson = await tryUpload('/api/uploads');
+          const relJson = await tryUpload('/uploads');
           const url = relJson?.url || relJson?.data?.url;
           const full = normalizeForUi(url);
           setPaymentForm((p) => ({ ...p, upiQrImage: full }));
@@ -1490,7 +1490,7 @@ const Admin = () => {
       }
 
       try {
-        const relJson2 = await tryUpload('/api/uploads');
+        const relJson2 = await tryUpload('/uploads');
         const url = relJson2?.url || relJson2?.data?.url;
         const full = normalizeForUi(url);
         setPaymentForm((p) => ({ ...p, upiQrImage: full }));
@@ -1528,7 +1528,7 @@ const Admin = () => {
         try { const parsed = new URL(s); if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') return `/api${parsed.pathname}`; } catch {}
         return s;
       }
-      if (s.startsWith('/api/uploads')) return s;
+      if (s.startsWith('/uploads')) return s;
       if (s.startsWith('/uploads')) return `/api${s}`;
       if (s.startsWith('uploads')) return `/api/${s}`;
       return s;
@@ -1559,11 +1559,11 @@ const Admin = () => {
     try {
       const base = API_BASE || '';
       const baseNormalized = base.endsWith('/') ? base.slice(0, -1) : base;
-      const primaryUrl = base ? `${baseNormalized}/api/uploads` : '';
+      const primaryUrl = base ? `${baseNormalized}/uploads` : '';
 
       if (base && isLocalhost(base) && !location.hostname.includes('localhost') && !location.hostname.includes('127.0.0.1')) {
         try {
-          const relJson = await tryUpload('/api/uploads');
+          const relJson = await tryUpload('/uploads');
           const url = relJson?.url || relJson?.data?.url;
           const full = normalizeForUi(url);
           setBillingForm((p) => ({ ...p, logo: full }));
@@ -1606,7 +1606,7 @@ const Admin = () => {
       }
 
       try {
-        const relJson2 = await tryUpload('/api/uploads');
+        const relJson2 = await tryUpload('/uploads');
         const url = relJson2?.url || relJson2?.data?.url;
         const full = normalizeForUi(url);
         setBillingForm((p) => ({ ...p, logo: full }));
@@ -3141,7 +3141,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                               try {
                                 const formData = new FormData();
                                 formData.append('file', file);
-                                const response = await fetch('/api/uploads/images', {
+                                const response = await fetch('/uploads/images', {
                                   method: 'POST',
                                   body: formData,
                                   headers: {
@@ -3297,7 +3297,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                               try {
                                 const formData = new FormData();
                                 formData.append('file', file);
-                                const response = await fetch('/api/uploads/images', {
+                                const response = await fetch('/uploads/images', {
                                   method: 'POST',
                                   body: formData,
                                   headers: {

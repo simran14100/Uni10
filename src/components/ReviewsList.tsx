@@ -64,7 +64,7 @@ const ReviewsList = ({ productId }: ReviewsListProps) => {
   };
 
   const renderImage = (src: string) => {
-    return src.startsWith('http') ? src : `/api${src.startsWith('/') ? src : `/${src}`}`;
+    return src.startsWith('http') ? src : `${src.startsWith('/') ? '' : '/'}${src}`;
   };
 
   if (error) {
@@ -121,12 +121,7 @@ const ReviewsList = ({ productId }: ReviewsListProps) => {
                           className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                           onError={(e) => {
                             const el = e.currentTarget as HTMLImageElement;
-                            const cur = String(el.src || '');
-                            const candidate = cur.includes('/api/uploads')
-                              ? cur.replace('/api/uploads', '/uploads')
-                              : (cur.includes('/uploads') ? `/api${cur}` : '/placeholder.svg');
-                            if (candidate !== cur) el.src = candidate;
-                            else el.src = '/placeholder.svg';
+                            el.src = '/placeholder.svg';
                           }}
                         />
                       </div>
