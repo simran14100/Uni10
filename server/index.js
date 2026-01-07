@@ -5,7 +5,11 @@ const path = require('path');
 // 1) Load root .env  => /www/wwwroot/.env
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 // 2) Then load server/.env as fallback (yeh existing values override NAHI karega)
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+    require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+    console.log('[ENV CHECK] Cloudinary Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME ? 'Loaded' : 'Not Set');
+    console.log('[ENV CHECK] Cloudinary API Key:', process.env.CLOUDINARY_API_KEY ? mask(process.env.CLOUDINARY_API_KEY) : 'Not Set');
+    console.log('[ENV CHECK] Cloudinary API Secret:', process.env.CLOUDINARY_API_SECRET ? mask(process.env.CLOUDINARY_API_SECRET) : 'Not Set');
 
 // ✅ add this right after the two dotenv.config(...) lines
 const fs = require('fs');

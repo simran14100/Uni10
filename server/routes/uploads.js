@@ -6,20 +6,25 @@ router.use((req, res, next) => {
   next();
 });
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-const UPLOAD_DIR = path.join(__dirname, '../uploads');
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: function (req, file, cb) {
-    const safe = Date.now() + '-' + file.originalname.replace(/\s+/g, '-');
-    cb(null, safe);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    const isVideo = file.mimetype.startsWith('video/');
+    return {
+      folder: 'uni10_uploads',
+      resource_type: isVideo ? 'video' : 'image',
+      allowed_formats: ['jpg', 'png', 'webp', 'mp4', 'webm', 'mov'],
+    };
   },
 });
 
@@ -39,23 +44,18 @@ const upload = multer({
 // General uploads (admin-only)
 router.post('/', requireAuth, requireAdmin, upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ ok: false, message: 'No file uploaded' });
-  const rel = `/uploads/${req.file.filename}`;
-  const base = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-  const absolute = `${base}${rel}`;
-  const apiUrl = `/api${rel}`; // same-origin path exposed by this server
-  // Return both for maximum compatibility; frontends should prefer 'apiUrl' to avoid mixed-content and localhost issues
-  return res.json({ ok: true, url: apiUrl, rel, absolute });
+  console.log('[Cloudinary Upload Success]', req.file.path);
+  // Cloudinary will provide the file path (URL)
+  return res.json({ ok: true, url: req.file.path });
 });
 
 // Review image uploads (authenticated users)
 router.post('/images', requireAuth, upload.single('file'), (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ ok: false, message: 'No file uploaded' });
-    const rel = `/uploads/${req.file.filename}`;
-    const base = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-    const absolute = `${base}${rel}`;
-    const apiUrl = `/api${rel}`;
-    return res.json({ ok: true, url: apiUrl, rel, absolute });
+    console.log('[Cloudinary Upload Success]', req.file.path);
+    // Cloudinary will provide the file path (URL)
+    return res.json({ ok: true, url: req.file.path });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ ok: false, message: e.message || 'Upload failed' });
@@ -82,11 +82,9 @@ router.post('/admin/video', requireAuth, requireAdmin, (req, res, next) => {
   console.log('[VIDEO UPLOAD] req.file:', req.file);
   console.log('[VIDEO UPLOAD] req.body:', req.body);
   if (!req.file) return res.status(400).json({ ok: false, message: 'No video file uploaded' });
-  const rel = `/uploads/${req.file.filename}`;
-  const base = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-  const absolute = `${base}${rel}`;
-  const apiUrl = `/api${rel}`;
-  return res.json({ ok: true, url: apiUrl, rel, absolute });
+  console.log('[Cloudinary Upload Success]', req.file.path);
+  // Cloudinary will provide the file path (URL)
+  return res.json({ ok: true, url: req.file.path });
 });
 
 module.exports = router;
