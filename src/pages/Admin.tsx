@@ -1292,14 +1292,6 @@ const Admin = () => {
   };
 
   const getUploadUrl = async (file: File): Promise<string> => {
-    const isLocalhost = (url: string) => {
-      try {
-        return url.includes('localhost') || url.includes('127.0.0.1');
-      } catch {
-        return false;
-      }
-    };
-
     const tryUpload = async (uploadUrl: string) => {
       const fd = new FormData();
       fd.append('file', file);
@@ -1322,58 +1314,20 @@ const Admin = () => {
       }
     };
 
+    const base = API_BASE || '';
+    const baseNormalized = base.endsWith('/') ? base.slice(0, -1) : base;
+
+    // Prioritize API_BASE if set, otherwise fallback to relative /api/uploads
+    const uploadPath = baseNormalized ? `${baseNormalized}/api/uploads` : '/api/uploads';
+
     try {
-      const base = API_BASE || '';
-      const baseNormalized = base.endsWith('/') ? base.slice(0, -1) : base;
-      const primaryUrl = base ? `${baseNormalized}/uploads` : '';
-
-      if (base && isLocalhost(base) && !location.hostname.includes('localhost') && !location.hostname.includes('127.0.0.1')) {
-        try {
-          const relJson = await tryUpload('/uploads');
-          const url = relJson?.url || relJson?.data?.url;
-          return url && url.startsWith('http') ? url : (url ? url : '/placeholder.svg');
-        } catch (relErr) {
-          console.warn('Relative upload failed, falling back to API_BASE upload:', relErr?.message || relErr);
-        }
-      }
-
-      if (primaryUrl) {
-        try {
-          const json = await tryUpload(primaryUrl);
-          const url = json?.url || json?.data?.url;
-          if (url) {
-            return url.startsWith('http') ? url : `${baseNormalized}${url}`;
-          }
-        } catch (primaryErr: any) {
-          console.warn('Primary upload failed:', primaryErr?.message || primaryErr);
-
-          try {
-            if (primaryUrl.startsWith('http:') && location.protocol === 'https:') {
-              const httpsUrl = primaryUrl.replace(/^http:/, 'https:');
-              const json2 = await tryUpload(httpsUrl);
-              const url2 = json2?.url || json2?.data?.url;
-              if (url2) {
-                return url2.startsWith('http') ? url2 : `${httpsUrl}${url2}`;
-              }
-            }
-          } catch (httpsErr: any) {
-            console.warn('HTTPS fallback failed:', httpsErr?.message || httpsErr);
-          }
-        }
-      }
-
-      try {
-        const relJson2 = await tryUpload('/uploads');
-        const url = relJson2?.url || relJson2?.data?.url;
-        return url && url.startsWith('http') ? url : (url ? url : '/placeholder.svg');
-      } catch (finalRelErr) {
-        console.warn('Relative /api upload failed as last resort:', finalRelErr?.message || finalRelErr);
-      }
-
-      return '/placeholder.svg';
-    } catch (err: any) {
-      console.warn('getUploadUrl error:', err);
-      return '/placeholder.svg';
+      const json = await tryUpload(uploadPath);
+      const url = json?.url || json?.data?.url;
+      if (!url) throw new Error('No URL returned from upload');
+      return url; // Directly return the URL from the backend (should be Cloudinary URL)
+    } catch (err) {
+      console.error('Upload failed:', err);
+      throw err; // Re-throw to be caught by ImageUploader's onUpload error handling
     }
   };
 

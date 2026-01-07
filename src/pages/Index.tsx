@@ -65,32 +65,11 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const resolveImage = (src?: string) => {
   const s = String(src || "");
   if (!s) return "/placeholder.svg";
+  // If it's already a full URL (from Cloudinary), return it directly
   if (s.startsWith("http")) return s;
-
-  const isLocalBase = (() => {
-    try {
-      return API_BASE.includes("localhost") || API_BASE.includes("127.0.0.1");
-    } catch {
-      return false;
-    }
-  })();
-
-  const isHttpsPage = (() => {
-    try {
-      return location.protocol === "https:";
-    } catch {
-      return false;
-    }
-  })();
-
-  if (s.startsWith("/uploads") || s.startsWith("uploads")) {
-    if (API_BASE && !(isLocalBase && isHttpsPage)) {
-      const base = API_BASE.endsWith("/") ? API_BASE.slice(0, -1) : API_BASE;
-      return s.startsWith("/") ? `${base}${s}` : `${base}/${s}`;
-    }
-    return s.startsWith("/") ? `/api${s}` : `/api/${s}`;
-  }
-  return s;
+  // Otherwise, it's an invalid or relative path, return placeholder for now.
+  // The backend should ensure full Cloudinary URLs are stored.
+  return "/placeholder.svg";
 };
 
 function slugify(input: string) {
