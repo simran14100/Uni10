@@ -8,6 +8,7 @@ const CategorySchema = new mongoose.Schema(
     active: { type: Boolean, default: true },
     // Parent category reference (null for top-level categories)
     parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default: null },
+    imageUrl: { type: String },
   },
   { timestamps: true },
 );

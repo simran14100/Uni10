@@ -10,6 +10,7 @@ function buildCategoryPayload(body = {}) {
   if (typeof body.description !== 'undefined') payload.description = String(body.description || '').trim();
   if (typeof body.active !== 'undefined') payload.active = !!body.active;
   if (typeof body.slug !== 'undefined') payload.slug = String(body.slug || '').trim();
+  if (typeof body.imageUrl !== 'undefined') payload.imageUrl = String(body.imageUrl || '').trim();
   const parentId = body.parentId || body.parent || null;
   if (typeof parentId !== 'undefined') payload.parent = parentId ? String(parentId) : null;
   return payload;
@@ -40,6 +41,7 @@ router.get('/', async (req, res) => {
 router.post('/', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { name } = req.body || {};
+    console.log('[Category POST] req.body:', req.body);
     if (!name) return res.status(400).json({ ok: false, message: 'Missing name' });
     if (!String(name).trim()) return res.status(400).json({ ok: false, message: 'Name cannot be empty' });
 
@@ -66,8 +68,10 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
 // Update category (admin)
 async function updateCategory(req, res) {
   try {
+    console.log('[Category PUT/PATCH] req.body:', req.body);
     const { id } = req.params;
     const updates = buildCategoryPayload(req.body || {});
+    console.log('[Category PUT/PATCH] updates payload:', updates);
     const doc = await Category.findByIdAndUpdate(id, updates, { new: true }).lean();
     if (!doc) return res.status(404).json({ ok: false, message: 'Not found' });
     return res.json({ ok: true, data: doc });

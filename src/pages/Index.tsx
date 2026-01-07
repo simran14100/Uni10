@@ -49,6 +49,7 @@ type CategoryRow = {
   _id?: string;
   id?: string;
   name?: string;
+  imageUrl?: string;
   slug?: string;
   parent?: string | null;
 };
@@ -65,11 +66,32 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const resolveImage = (src?: string) => {
   const s = String(src || "");
   if (!s) return "/placeholder.svg";
-  // If it's already a full URL (from Cloudinary), return it directly
   if (s.startsWith("http")) return s;
-  // Otherwise, it's an invalid or relative path, return placeholder for now.
-  // The backend should ensure full Cloudinary URLs are stored.
-  return "/placeholder.svg";
+
+  const isLocalBase = (() => {
+    try {
+      return API_BASE.includes("localhost") || API_BASE.includes("127.0.0.1");
+    } catch {
+      return false;
+    }
+  })();
+
+  const isHttpsPage = (() => {
+    try {
+      return location.protocol === "https:";
+    } catch {
+      return false;
+    }
+  })();
+
+  if (s.startsWith("/uploads") || s.startsWith("uploads")) {
+    if (API_BASE && !(isLocalBase && isHttpsPage)) {
+      const base = API_BASE.endsWith("/") ? API_BASE.slice(0, -1) : API_BASE;
+      return s.startsWith("/") ? `${base}${s}` : `${base}/${s}`;
+    }
+    return s.startsWith("/") ? `/api${s}` : `/api/${s}`;
+  }
+  return s;
 };
 
 function slugify(input: string) {
@@ -553,13 +575,7 @@ const Index = () => {
                       >
                         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary-foreground flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105">
                           <img
-                            src={resolveImage(
-                              prod?.image_url ||
-                                (Array.isArray(prod?.images)
-                                  ? prod?.images[0]
-                                  : "") ||
-                                "/placeholder.svg"
-                            )}
+                            src={resolveImage(c.imageUrl || "/placeholder.svg")}
                             alt={c.name}
                             className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
                           />

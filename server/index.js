@@ -43,7 +43,6 @@ console.log('[CWD]', process.cwd());
 
 
 
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -100,6 +99,31 @@ app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // API routes (or other specific routes) should go here
 
+/* ---------------------------- CORE MIDDLEWARES -------------------------- */
+app.use(cookieParser());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+
+/* -------------------------------- ROUTES -------------------------------- */
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/invoices', invoicesRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/inquiry', inquiryRoutes);
+app.use('/api/coupons', couponsRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/tracking', trackingRoutes);
+app.use('/api/shipping', shippingRoutes);
+app.use('/api', influencerDataRoutes);
+app.use('/api/uploads', uploadsRoutes);
+
 // For any other requests, serve the index.html from the client-side build
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
@@ -107,12 +131,6 @@ app.use((req, res, next) => {
   }
   res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'));
 });
-
-/* ---------------------------- CORE MIDDLEWARES -------------------------- */
-app.use(cookieParser());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-
 
 
 // Debug env endpoint (masking enabled)
@@ -143,30 +161,16 @@ app.get('/api/_debug/env', (_req, res) => {
 
 
 
-
-
-
-
-
-
-/* -------------------------------- ROUTES -------------------------------- */
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productsRoutes);
-app.use('/api/orders', ordersRoutes);
-app.use('/api/categories', categoriesRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/invoices', invoicesRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/support', supportRoutes);
-app.use('/api/inquiry', inquiryRoutes);
-app.use('/api/coupons', couponsRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/tracking', trackingRoutes);
-app.use('/api/shipping', shippingRoutes);
-app.use('/api', influencerDataRoutes);
-app.use('/api/uploads', uploadsRoutes);
+// General error handling middleware
+app.use((err, req, res, next) => {
+  console.error('[GLOBAL ERROR HANDLER]', err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'An unexpected error occurred';
+  res.status(statusCode).json({ ok: false, message });
+});
 
 /* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
 // Add this BEFORE starting the server to serve index.html with injected meta tags

@@ -469,6 +469,21 @@ const EMPTY_FORM: ProductFormState = {
   },
 };
 
+type CategoryFormState = {
+  name: string;
+  description: string;
+  imageUrl: string;
+  parentId: string | null;
+  id?: string; // For editing existing categories
+};
+
+const EMPTY_CATEGORY_FORM: CategoryFormState = {
+  name: '',
+  description: '',
+  imageUrl: '',
+  parentId: null,
+};
+
 
 const Admin = () => {
   const { isAdmin, loading: authLoading, user: adminUser } = useAdminAuth();
@@ -514,11 +529,14 @@ const Admin = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [catName, setCatName] = useState('');
   const [catDesc, setCatDesc] = useState('');
+  const [categoryForm, setCategoryForm] = useState<CategoryFormState>(EMPTY_CATEGORY_FORM);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [catSaving, setCatSaving] = useState(false);
   const [topCategories, setTopCategories] = useState<any[]>([]);
   const [childrenByParent, setChildrenByParent] = useState<Record<string, any[]>>({});
   const [selectedParentId, setSelectedParentId] = useState<string>('');
   const [subcatName, setSubcatName] = useState('');
+  const [subcatDesc, setSubcatDesc] = useState('');
   const [subcatSaving, setSubcatSaving] = useState(false);
 
   // User edit drawer state
@@ -1262,15 +1280,16 @@ const Admin = () => {
       toast.error('Select a parent category');
       return;
     }
-    if (!subcatName.trim()) {
+    if (!categoryForm.name.trim()) {
       toast.error('Subcategory name is required');
       return;
     }
     try {
       setSubcatSaving(true);
-      await apiFetch(`${ENDPOINTS.categories}`, { method: 'POST', body: JSON.stringify({ name: subcatName.trim(), slug: slugify(subcatName.trim(), { lower: true, strict: true }), parentId: selectedParentId }) });
+      console.log("[addSubcategory] Payload before API call:", { name: categoryForm.name.trim(), slug: slugify(categoryForm.name.trim(), { lower: true, strict: true }), parentId: selectedParentId, description: categoryForm.description, imageUrl: categoryForm.imageUrl });
+      await apiFetch(`${ENDPOINTS.categories}`, { method: 'POST', body: JSON.stringify({ name: categoryForm.name.trim(), slug: slugify(categoryForm.name.trim(), { lower: true, strict: true }), parentId: selectedParentId, description: categoryForm.description, imageUrl: categoryForm.imageUrl }) });
       toast.success('Subcategory added');
-      setSubcatName('');
+      setCategoryForm(EMPTY_CATEGORY_FORM);
       await fetchChildren(selectedParentId);
     } catch (err: any) {
       toast.error(err?.message || 'Failed to add subcategory');
@@ -1279,15 +1298,50 @@ const Admin = () => {
     }
   };
 
-  const editCategoryName = async (id: string, currentName: string) => {
-    const newName = prompt('Edit name', currentName || '');
-    if (!newName) return;
+  const editCategory = (category: any) => {
+    setEditingCategory(category);
+    setCategoryForm({
+      name: category.name,
+      description: category.description || '',
+      imageUrl: category.imageUrl || '',
+      parentId: category.parent || category.parentId || null,
+      id: category._id || category.id,
+    });
+  };
+
+  const handleEditCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory || !categoryForm.name.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+
     try {
-      await apiFetch(`${ENDPOINTS.categories}/${id}`, { method: 'PATCH', body: JSON.stringify({ name: newName.trim(), slug: slugify(newName.trim(), { lower: true, strict: true }) }) });
-      toast.success('Category updated');
+      setCatSaving(true);
+      const payload = {
+        name: categoryForm.name.trim(),
+        slug: slugify(categoryForm.name.trim(), { lower: true, strict: true }),
+        description: categoryForm.description.trim(),
+        imageUrl: categoryForm.imageUrl.trim(),
+        parentId: categoryForm.parentId || null,
+      };
+
+      await apiFetch(`${ENDPOINTS.categories}/${categoryForm.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      });
+      toast.success('Category updated successfully');
+      setEditingCategory(null);
+      setCategoryForm(EMPTY_CATEGORY_FORM);
       await fetchCategories();
+      if (categoryForm.parentId) {
+        void fetchChildren(categoryForm.parentId);
+      }
     } catch (err: any) {
+      console.error('Edit category error:', err);
       toast.error(err?.message || 'Failed to update category');
+    } finally {
+      setCatSaving(false);
     }
   };
 
@@ -2728,11 +2782,14 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                 <Label>Product Images</Label>
                 <ImageUploader
                   images={productForm.images}
-                  onImagesChange={(imgs) => setProductForm((p) => ({
-                    ...p,
-                    images: imgs,
-                    image_url: imgs.length > 0 ? imgs[0] : ''
-                  }))}
+                  onImagesChange={(imgs) => {
+                    const cleanedImgs = imgs.filter(img => img !== '/placeholder.svg');
+                    setProductForm((p) => ({
+                      ...p,
+                      images: cleanedImgs,
+                      image_url: cleanedImgs.length > 0 ? cleanedImgs[0] : ''
+                    }))
+                  }}
                   onUpload={async (files) => {
                     const uploadedUrls: string[] = [];
                     for (const file of files) {
@@ -3095,7 +3152,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                               try {
                                 const formData = new FormData();
                                 formData.append('file', file);
-                                const response = await fetch('/uploads/images', {
+                                const response = await fetch('/api/uploads/images', {
                                   method: 'POST',
                                   body: formData,
                                   headers: {
@@ -3103,13 +3160,23 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                                   },
                                 });
 
-                                if (!response.ok) throw new Error('Upload failed');
+                                if (!response.ok) {
+                                  let errorData;
+                                  try {
+                                    errorData = await response.json();
+                                  } catch (e) {
+                                    throw new Error(`Server error: ${response.statusText}`);
+                                  }
+                                  console.error(`Failed to upload ${file.name}:`, errorData);
+                                  throw new Error(errorData.message || 'Upload failed');
+                                }
                                 const data = await response.json();
                                 if (data.ok && data.url) {
                                   newImages.push(data.url);
                                 }
                               } catch (err) {
-                                alert(`Failed to upload ${file.name}`);
+                                console.error(`Error uploading ${file.name}:`, err);
+                                alert(`Failed to upload ${file.name}: ${(err as Error).message}`);
                               }
                             }
 
@@ -3251,7 +3318,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                               try {
                                 const formData = new FormData();
                                 formData.append('file', file);
-                                const response = await fetch('/uploads/images', {
+                                const response = await fetch('/api/uploads/images', {
                                   method: 'POST',
                                   body: formData,
                                   headers: {
@@ -3950,7 +4017,11 @@ const handleProductSubmit = async (e: React.FormEvent) => {
               <Label htmlFor="catName">Name</Label>
               <Input id="catName" value={catName} onChange={(e)=>setCatName(e.target.value)} required />
             </div>
-            <div className="md:col-span-1 flex items-end">
+            <div className="md:col-span-2">
+              <Label htmlFor="catDesc">Description</Label>
+              <Textarea id="catDesc" value={catDesc} onChange={(e)=>setCatDesc(e.target.value)} />
+            </div>
+            <div className="md:col-span-3 flex items-end">
               <Button type="submit" disabled={catSaving} className="w-full">
                 {catSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Add Category
@@ -3983,9 +4054,34 @@ const handleProductSubmit = async (e: React.FormEvent) => {
             </div>
             <div>
               <Label>Subcategory Name</Label>
-              <Input value={subcatName} onChange={(e)=>setSubcatName(e.target.value)} required />
+              <Input value={categoryForm.name} onChange={(e)=>setCategoryForm(p => ({ ...p, name: e.target.value }))} required />
             </div>
-            <div className="flex items-end">
+            <div>
+              <Label htmlFor="catDesc">Description</Label>
+              <Textarea id="catDesc" value={categoryForm.description} onChange={(e)=>setCategoryForm(p => ({ ...p, description: e.target.value }))} />
+            </div>
+            <div className="md:col-span-3">
+              <Label>Subcategory Image</Label>
+              <ImageUploader
+                images={categoryForm.imageUrl ? [categoryForm.imageUrl] : []}
+                onUpload={async (files) => {
+                  const uploadedUrls: string[] = [];
+                  for (const file of files) {
+                    try {
+                      const url = await getUploadUrl(file);
+                      uploadedUrls.push(url);
+                    } catch (err) {
+                      console.error('Failed to upload file:', err);
+                    }
+                  }
+                  setCategoryForm(p => ({ ...p, imageUrl: uploadedUrls.length > 0 ? uploadedUrls[0] : '' }));
+                  return uploadedUrls;
+                }}
+                isLoading={uploadingImage}
+                maxImages={1}
+              />
+            </div>
+            <div className="md:col-span-3 flex items-end">
               <Button type="submit" disabled={subcatSaving} className="w-full">
                 {subcatSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Add Subcategory
@@ -3994,6 +4090,72 @@ const handleProductSubmit = async (e: React.FormEvent) => {
           </form>
         </CardContent>
       </Card>
+
+      {/* Edit Category Dialog */}
+      <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{editingCategory?.parent ? 'Edit Subcategory' : 'Edit Category'}</DialogTitle>
+            <DialogDescription>
+              Make changes to your {editingCategory?.parent ? 'subcategory' : 'category'} here.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditCategorySubmit} className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="editCatName" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="editCatName"
+                value={categoryForm.name}
+                onChange={(e) => setCategoryForm(p => ({ ...p, name: e.target.value }))}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="editCatDesc" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                id="editCatDesc"
+                value={categoryForm.description}
+                onChange={(e) => setCategoryForm(p => ({ ...p, description: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">
+                Image
+              </Label>
+              <div className="col-span-3">
+                <ImageUploader
+                images={categoryForm.imageUrl ? [categoryForm.imageUrl] : []}
+                onUpload={async (files) => {
+                  const uploadedUrls: string[] = [];
+                  for (const file of files) {
+                    try {
+                      const url = await getUploadUrl(file);
+                      uploadedUrls.push(url);
+                    } catch (err) {
+                      console.error('Failed to upload file:', err);
+                    }
+                  }
+                  setCategoryForm(p => ({ ...p, imageUrl: uploadedUrls.length > 0 ? uploadedUrls[0] : '' }));
+                  return uploadedUrls;
+                }}
+                  isLoading={uploadingImage}
+                  maxImages={1}
+                />
+              </div>
+            </div>
+            <Button type="submit" disabled={catSaving}>
+              {catSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save changes
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-3">
         {topCategories.length === 0 && (
@@ -4008,9 +4170,12 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold">{(c as any).name}</h3>
+                    {c.imageUrl && (
+                      <img src={c.imageUrl} alt={c.name} className="w-12 h-12 object-contain mt-2 rounded" />
+                    )}
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => editCategoryName(cid, (c as any).name)}>
+                    <Button size="sm" variant="outline" onClick={() => editCategory(c)}>
                       <Edit className="h-4 w-4 mr-1" /> Edit
                     </Button>
                     <Button size="icon" variant="destructive" onClick={() => deleteCategory(cid)}>
@@ -4033,7 +4198,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                           <div key={sid} className="flex items-center justify-between rounded border p-2">
                             <div className="text-sm">{(sc as any).name}</div>
                             <div className="flex gap-2">
-                              <Button size="sm" variant="outline" onClick={() => editCategoryName(sid, (sc as any).name)}>
+                              <Button size="sm" variant="outline" onClick={() => editCategory(sc)}>
                                 <Edit className="h-4 w-4 mr-1" /> Edit
                               </Button>
                               <Button size="icon" variant="destructive" onClick={() => deleteCategory(sid)}>

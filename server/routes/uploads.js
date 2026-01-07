@@ -33,9 +33,11 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB for videos
   fileFilter: function (req, file, cb) {
     const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']; // Added video mimes
-    if (allowedMimes.includes(file.mimetype)) {
+    console.log('File mimetype:', file.mimetype);
+    if (allowedMimes.includes(file.mimetype.toLowerCase())) {
       cb(null, true);
     } else {
+      console.log('Disallowed mimetype:', file.mimetype);
       cb(new Error('Only JPEG, PNG, WebP images, MP4, WebM, and MOV videos are allowed'));
     }
   }
@@ -50,16 +52,28 @@ router.post('/', requireAuth, requireAdmin, upload.single('file'), (req, res) =>
 });
 
 // Review image uploads (authenticated users)
-router.post('/images', requireAuth, upload.single('file'), (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ ok: false, message: 'No file uploaded' });
-    console.log('[Cloudinary Upload Success]', req.file.path);
-    // Cloudinary will provide the file path (URL)
+router.post('/images', requireAuth, (req, res) => {
+  console.log('[UPLOADS /images] Request received.');
+  upload.single('file')(req, res, async function (err) {
+    if (err instanceof multer.MulterError) {
+      console.error('[MULTER ERROR /images]', err);
+      return res.status(400).json({ ok: false, message: err.message });
+    } else if (err) {
+      console.error('[UNKNOWN UPLOAD ERROR /images]', err);
+      return res.status(500).json({ ok: false, message: err.message });
+    }
+
+    if (!req.file) {
+      console.log('[UPLOADS /images] No file uploaded after multer processing.');
+      return res.status(400).json({ ok: false, message: 'No file uploaded' });
+    }
+
+    console.log('[UPLOADS /images] File processed by multer. Uploading to Cloudinary...', req.file.path);
+    // At this point, req.file should contain the Cloudinary response if storage is CloudinaryStorage
+    // The path property of req.file is the URL from Cloudinary
+    console.log('[Cloudinary Upload Success /images]', req.file.path);
     return res.json({ ok: true, url: req.file.path });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ ok: false, message: e.message || 'Upload failed' });
-  }
+  });
 });
 
 // Admin video uploads

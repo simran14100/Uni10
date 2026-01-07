@@ -12,7 +12,7 @@ interface ImagePreview {
 
 interface ImageUploaderProps {
   images: string[];
-  onImagesChange: (images: string[]) => void;
+  onImagesChange?: (images: string[]) => void;
   maxImages?: number;
   onUpload?: (files: File[]) => Promise<string[]>;
   isLoading?: boolean;
@@ -63,7 +63,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             uploadFiles(fileArray, updatedPreviews);
           } else {
             const urls = updatedPreviews.map(p => p.url);
-            onImagesChange(urls);
+            if (onImagesChange) { onImagesChange(urls); }
           }
         }
       };
@@ -87,7 +87,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         .concat(uploadedUrls.map(url => ({ url })));
       
       setPreviews(finalPreviews);
-      onImagesChange(finalPreviews.map(p => p.url));
+      if (onImagesChange) { onImagesChange(finalPreviews.map(p => p.url)); }
       toast.success(`${files.length} image(s) uploaded`);
     } catch (error: any) {
       const errorMsg = error?.message || 'Upload failed';
@@ -96,14 +96,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       // Remove failed uploads from previews
       const successCount = updatedPreviews.length - files.length;
       setPreviews(updatedPreviews.slice(0, successCount));
-      onImagesChange(updatedPreviews.slice(0, successCount).map(p => p.url));
+      if (onImagesChange) { onImagesChange(updatedPreviews.slice(0, successCount).map(p => p.url)); }
     }
   };
 
   const removeImage = (index: number) => {
     const updated = previews.filter((_, i) => i !== index);
     setPreviews(updated);
-    onImagesChange(updated.map(p => p.url));
+    if (onImagesChange) { onImagesChange(updated.map(p => p.url)); }
   };
 
   const moveImage = (fromIndex: number, toIndex: number) => {
@@ -111,7 +111,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     const [moved] = updated.splice(fromIndex, 1);
     updated.splice(toIndex, 0, moved);
     setPreviews(updated);
-    onImagesChange(updated.map(p => p.url));
+    if (onImagesChange) { onImagesChange(updated.map(p => p.url)); }
   };
 
   const setPrimaryImage = (index: number) => {
