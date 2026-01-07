@@ -75,7 +75,7 @@ export const InfluencerSection = () => {
         <Carousel opts={{ align: "start", loop: true }} className="w-full max-w-5xl mx-auto">
           <CarouselContent className="-ml-4">
             {influencerData.map((item) => (
-              <CarouselItem key={item._id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+              <CarouselItem key={item._id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                 <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
                   <CardContent className="p-0 flex-grow flex flex-col">
                     <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>{/* 16:9 Aspect Ratio */}
@@ -95,8 +95,8 @@ export const InfluencerSection = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="absolute -left-12 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border-2 bg-white shadow-md transition-all duration-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" />
-          <CarouselNext className="absolute -right-12 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border-2 bg-white shadow-md transition-all duration-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" />
+          <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 bg-white shadow-md transition-all duration-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:-left-12 sm:h-10 sm:w-10" />
+          <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 bg-white shadow-md transition-all duration-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:-right-12 sm:h-10 sm:w-10" />
         </Carousel>
       </div>
     </section>

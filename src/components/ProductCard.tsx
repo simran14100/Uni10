@@ -58,7 +58,7 @@ export const ProductCard = ({ id, name, price, image, category, to, slug, images
   const linkTo = to || (slug && String(slug).trim() ? `/products/${slug}` : `/products/${id}`);
 
   return (
-    <Card className="group overflow-hidden rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 relative bg-white">
+    <Card className="group overflow-hidden rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 relative bg-white sm:max-w-xs">
       <Link to={linkTo} className="block">
         <div className="aspect-square overflow-hidden bg-gray-100 relative flex items-center justify-center rounded-t-xl">
           {discountedPrice && (
@@ -84,39 +84,39 @@ export const ProductCard = ({ id, name, price, image, category, to, slug, images
           </button>
         </div>
       </Link>
-      <div className="p-4 bg-white rounded-b-xl flex flex-col justify-between flex-grow">
-        <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">
+      <div className="p-3 sm:p-4 bg-white rounded-b-xl flex flex-col justify-between flex-grow">
+        <p className="text-xs sm:text-sm text-gray-500 uppercase tracking-widest mb-1">
           {category}
         </p>
         <Link to={linkTo}>
-          <h3 className="font-bold text-lg text-gray-800 hover:text-primary transition-colors line-clamp-2 min-h-[3rem]">
+          <h3 className="font-bold text-base sm:text-lg text-gray-800 hover:text-primary transition-colors line-clamp-2 min-h-[3rem]">
             {name}
           </h3>
         </Link>
-        <div className="flex items-center justify-between mt-auto">
-          <div className="flex items-center">
-            {rating && (
-              <div className="flex items-center text-sm text-yellow-500">
-                {'★'.repeat(Math.floor(rating))}
-                {'☆'.repeat(5 - Math.floor(rating))}
-                <span className="ml-1 text-gray-500 uppercase">({rating})</span>
-              </div>
-            )}
-            <p className="text-xl font-bold text-gray-800 uppercase ml-4">
-              {discountedPrice ? (
-                <>
-                  <span className="line-through text-gray-400 text-base mr-2">₹{price.toLocaleString('en-IN')}</span>
-                  ₹{discountedPrice.toLocaleString('en-IN')}
-                </>
-              ) : (
-                `₹${price.toLocaleString('en-IN')}`
+          <div className="flex flex-col items-start md:flex-row md:items-center md:justify-between mt-auto space-y-2 md:space-y-0">
+            <div className="flex items-center">
+              {rating && (
+                <div className="flex items-center text-sm text-yellow-500">
+                  {'★'.repeat(Math.floor(rating))}
+                  {'☆'.repeat(5 - Math.floor(rating))}
+                  <span className="ml-1 text-gray-500 uppercase">({rating})</span>
+                </div>
               )}
-            </p>
+              <p className="text-lg sm:text-xl font-bold text-gray-800 uppercase ml-2 sm:ml-4">
+                {discountedPrice ? (
+                  <>
+                    <span className="line-through text-gray-400 text-sm sm:text-base mr-1 sm:mr-2">₹{price.toLocaleString('en-IN')}</span>
+                    ₹{discountedPrice.toLocaleString('en-IN')}
+                  </>
+                ) : (
+                  `₹${price.toLocaleString('en-IN')}`
+                )}
+              </p>
+            </div>
+            <Button onClick={handleAdd} size="icon" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md scale-100 sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity sm:duration-300 sm:scale-100">
+              <ShoppingCart className="h-5 w-5" />
+            </Button>
           </div>
-          <Button onClick={handleAdd} size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md scale-100 group-hover:scale-100">
-            <ShoppingCart className="h-5 w-5" />
-          </Button>
-        </div>
       </div>
     </Card>
   );
