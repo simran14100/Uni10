@@ -180,6 +180,26 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({ ok: false, message });
 });
 
+function logRoutes() {
+  app._router.stack.forEach(function (middleware) {
+    if (middleware.route) { // routes registered directly on the app
+      console.log(`[ROUTE] ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+    } else if (middleware.name === 'router') { // router middleware 
+      middleware.handle.stack.forEach(function (handler) {
+        const route = handler.route;
+        if (route) {
+          // Adjust middleware.regexp.source to correctly extract the mounted path
+          const mountedPath = middleware.regexp.source
+            .replace('^\\/', '/')
+            .replace('\\/?(?:(?=/)|$)', '')
+            .replace('\\b/?(?!\\/|$)', ''); // Remove trailing slashes and regex artifacts
+          console.log(`[ROUTE] ${Object.keys(route.methods).join(', ').toUpperCase()} ${mountedPath === '/' ? '' : mountedPath}${route.path}`);
+        }
+      });
+    }
+  });
+}
+
 async function start() {
   const uri = process.env.MONGODB_URI;
   console.log('[MONGODB_URI]', uri ? 'Loaded' : 'Not Set', uri || '(empty)');
@@ -191,6 +211,7 @@ async function start() {
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
       console.log('Static uploads available at /uploads and /api/uploads');
+      logRoutes(); // Call logRoutes after server starts
     });
     return;
   }
@@ -270,6 +291,7 @@ async function start() {
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
       console.log('Static uploads available at /uploads and /api/uploads');
+      logRoutes(); // Call logRoutes after server starts
     });
   } catch (err) {
     console.error('Failed to connect to MongoDB', err);
@@ -301,5 +323,3 @@ function logRoutes() {
     }
   });
 }
-
-logRoutes();
