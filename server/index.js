@@ -105,9 +105,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 /* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
-// Add this BEFORE starting the server to serve index.html with injected meta tags
-const { seoMetaInjectionMiddleware } = require('./middleware/seoMetaInjection');
 // This middleware handles frontend routes and injects product-specific meta tags
+const { seoMetaInjectionMiddleware } = require('./middleware/seoMetaInjection');
 app.use(seoMetaInjectionMiddleware);
 
 /* -------------------------------- ROUTES -------------------------------- */
@@ -129,24 +128,9 @@ app.use('/api/shipping', shippingRoutes);
 app.use('/api/uploads', uploadsRoutes);
 app.use('/api', influencerDataRoutes);
 
-// Log all registered routes for debugging
-app._router.stack.forEach(function (middleware) {
-  if (middleware.route) { // routes registered directly on the app
-    console.log(`[ROUTE] ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
-  } else if (middleware.name === 'router') { // router middleware 
-    middleware.handle.stack.forEach(function (handler) {
-      const route = handler.route;
-      if (route) {
-        // Adjust middleware.regexp.source to correctly extract the mounted path
-        const mountedPath = middleware.regexp.source
-          .replace('^\\/', '/')
-          .replace('\\/?(?:(?=/)|$)', '')
-          .replace('\\b/?(?!\\/|$)', ''); // Remove trailing slashes and regex artifacts
-        console.log(`[ROUTE] ${Object.keys(route.methods).join(', ').toUpperCase()} ${mountedPath === '/' ? '' : mountedPath}${route.path}`);
-      }
-    });
-  }
-});
+
+
+// For any other requests, serve the index.html from the client-side build
 
 // For any other requests, serve the index.html from the client-side build
 app.use((req, res, next) => {
@@ -297,3 +281,25 @@ async function start() {
 }
 
 start();
+
+function logRoutes() {
+  app._router.stack.forEach(function (middleware) {
+    if (middleware.route) { // routes registered directly on the app
+      console.log(`[ROUTE] ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+    } else if (middleware.name === 'router') { // router middleware 
+      middleware.handle.stack.forEach(function (handler) {
+        const route = handler.route;
+        if (route) {
+          // Adjust middleware.regexp.source to correctly extract the mounted path
+          const mountedPath = middleware.regexp.source
+            .replace('^\\/', '/')
+            .replace('\\/?(?:(?=/)|$)', '')
+            .replace('\\b/?(?!\\/|$)', ''); // Remove trailing slashes and regex artifacts
+          console.log(`[ROUTE] ${Object.keys(route.methods).join(', ').toUpperCase()} ${mountedPath === '/' ? '' : mountedPath}${route.path}`);
+        }
+      });
+    }
+  });
+}
+
+logRoutes();
