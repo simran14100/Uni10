@@ -73,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (ok) {
       try {
         if (json?.token && typeof window !== 'undefined') localStorage.setItem('token', json.token);
+        setUser(json?.user); // Update user state on successful login
       } catch {}
     }
     return { error: ok ? null : json, user: json?.user };

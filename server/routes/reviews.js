@@ -261,4 +261,25 @@ router.post('/admin/reviews/reply', requireAuth, requireAdmin, async (req, res) 
   }
 });
 
+// Get recent public reviews for homepage display
+router.get('/recent', async (req, res) => {
+  try {
+    const limit = Number(req.query.limit || 5); // Default to 5 recent reviews
+    const reviews = await Review.find({ status: 'published', approved: true })
+      .sort({ createdAt: -1 }) // Most recent first
+      .limit(limit)
+      .populate('productId', 'title slug images') // Populate product title, slug, and images
+      .populate('userId', 'name') // Populate reviewer name
+      .lean();
+
+    // Filter out reviews where productId couldn't be populated (e.g., product deleted)
+    const filteredReviews = reviews.filter(review => review.productId && review.productId.title && review.productId.slug);
+
+    return res.json({ ok: true, data: filteredReviews });
+  } catch (e) {
+    console.error('Fetch recent reviews error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;

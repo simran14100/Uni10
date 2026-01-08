@@ -12,6 +12,7 @@ import { ProductSlider } from "@/components/ProductSlider";
 import { InfluencerSection } from "@/components/InfluencerSection";
 import AboutUsSection from "@/components/AboutUsSection";
 import { FeatureSection } from "@/components/FeatureSection";
+import { RecentReviewsSection } from "@/components/RecentReviewsSection";
 
 // ✅ UPDATED FEATURE IMAGES
 // HOODIES -> new image
@@ -24,6 +25,7 @@ import coordFeatureImg from "@/assets/IMG_4098.jpg";
 import { NewsTicker } from "@/components/NewsTicker";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import {  Carousel,
   CarouselContent,
   CarouselItem,
@@ -200,6 +202,7 @@ const Index = () => {
   }, []);
 
   // Fetch Featured Products
+  const { user } = useAuth();
   useEffect(() => {
     let ignore = false;
     (async () => {
@@ -226,7 +229,7 @@ const Index = () => {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [user]);
 
   // Fetch New Arrivals
   useEffect(() => {
@@ -264,7 +267,7 @@ const Index = () => {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [user]);
 
   // Fetch categories + products for each category (parallel)
   useEffect(() => {
@@ -749,6 +752,8 @@ const Index = () => {
 </section>
 
       <FeatureSection />
+
+      <RecentReviewsSection />
 
    
       <Footer />

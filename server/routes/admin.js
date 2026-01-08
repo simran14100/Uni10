@@ -8,6 +8,7 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 const nodemailer = require('nodemailer');
 const Page = require('../models/Page');
 const slugify = require('slugify');
+const mongoose = require('mongoose');
 
 // GET /api/admin/stats/overview?range=7d|30d|90d
 router.get('/stats/overview', async (req, res) => {
@@ -340,6 +341,45 @@ router.post('/notify', requireAuth, requireAdmin, async (req, res) => {
 
 const Review = require('../models/Review');
 
+// Admin: create a new product review
+router.post('/reviews/create', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { productId, rating, text, images, comment, status } = req.body || {};
+
+    if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ ok: false, message: 'Valid productId is required' });
+    }
+    if (typeof rating !== 'number' || rating < 1 || rating > 5) {
+      return res.status(400).json({ ok: false, message: 'Rating must be a number between 1 and 5' });
+    }
+    if (typeof text !== 'string' || text.trim().length < 20 || text.trim().length > 1000) {
+      return res.status(400).json({ ok: false, message: 'Review text must be between 20 and 1000 characters' });
+    }
+
+    const review = new Review({
+      productId,
+      userId: req.user._id, // Admin creating the review
+      rating,
+      text: String(text).trim(),
+      images: Array.isArray(images) ? images.map(String) : [],
+      comment: typeof comment === 'string' ? comment.trim() : undefined,
+      status: ['pending', 'published', 'rejected'].includes(String(status)) ? String(status) : 'published', // Admin reviews are published by default
+      approved: true, // Admin reviews are approved by default
+    });
+
+    await review.save();
+
+    const populatedReview = await Review.findById(review._id)
+      .populate('userId', 'name email')
+      .lean();
+
+    return res.json({ ok: true, data: populatedReview });
+  } catch (e) {
+    console.error('Admin create review error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
 // Admin: reply to user review (mirror endpoint for /api/admin)
 router.post('/reviews/reply', requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -357,6 +397,54 @@ router.post('/reviews/reply', requireAuth, requireAdmin, async (req, res) => {
     return res.json({ ok: true, data: updated });
   } catch (e) {
     console.error('Admin reply error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// Admin: Update a product review
+router.put('/reviews/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, text, images, comment, status } = req.body || {};
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ ok: false, message: 'Valid review ID is required' });
+    }
+
+    const updates = {};
+    if (typeof rating === 'number' && rating >= 1 && rating <= 5) {
+      updates.rating = rating;
+    }
+    if (typeof text === 'string' && text.trim().length >= 20 && text.trim().length <= 1000) {
+      updates.text = String(text).trim();
+    }
+    if (Array.isArray(images)) {
+      updates.images = images.map(String).filter(Boolean);
+    }
+    // Allow null/undefined to clear comment
+    if (comment !== undefined) {
+      updates.comment = typeof comment === 'string' ? comment.trim() : undefined;
+    }
+    if (typeof status === 'string' && ['pending', 'published', 'rejected'].includes(status)) {
+      updates.status = status;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ ok: false, message: 'No valid fields supplied for update' });
+    }
+
+    const updatedReview = await Review.findByIdAndUpdate(id, updates, { new: true })
+      .populate('userId', 'name email')
+      .populate('productId', 'title slug images')
+      .lean();
+
+    if (!updatedReview) {
+      return res.status(404).json({ ok: false, message: 'Review not found' });
+    }
+
+    return res.json({ ok: true, data: updatedReview });
+  } catch (e) {
+    console.error('Admin update review error:', e);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });

@@ -6,6 +6,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { AdminPages } from '@/components/AdminPages';
 import { AdminInfluencerData } from '@/components/AdminInfluencerData';
+import { AdminCreateReview } from '@/components/AdminCreateReview';
+import { AdminEditReviewModal } from '@/components/AdminEditReviewModal';
 import { Pagination } from '@/components/Pagination';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Product, Order, User } from '@/types/database.types';
@@ -129,6 +131,7 @@ const NAV_ITEMS = [
     { id: 'tracking', label: 'Order Tracking', icon: Truck },
     { id: 'users', label: 'Users', icon: Users2 },
     { id: 'reviews', label: 'User Reviews', icon: Star },
+    { id: 'create-review', label: 'Create Review', icon: Plus },
     { id: 'notifications', label: 'Notifications', icon: Megaphone },
     { id: 'home', label: 'Home Ticker & New Arrivals', icon: LayoutDashboard },
     { id: 'support', label: 'Support Center', icon: MessageCircle },
@@ -568,10 +571,10 @@ const Admin = () => {
   type AdminReview = { _id: string; text: string; rating?: number; createdAt: string; userId?: { name?: string; email?: string }; replies?: Array<{ authorId?: { name?: string; email?: string }, text: string, createdAt: string }> };
   const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [replyOpen, setReplyOpen] = useState(false);
-  const [replyText, setReplyText] = useState('');
   const [activeReview, setActiveReview] = useState<AdminReview | null>(null);
   const [confirmCloseDialogOpen, setConfirmCloseDialogOpen] = useState(false);
+  const [editReviewOpen, setEditReviewOpen] = useState(false);
+  const [currentReviewToEdit, setCurrentReviewToEdit] = useState<AdminReview | null>(null);
 
   const filteredNotifyUsers = useMemo(() => {
     const q = notifySearch.trim().toLowerCase();
@@ -591,6 +594,35 @@ const Admin = () => {
   const allNotifySelected = useMemo(() => (
     allNotifyIds.length > 0 && allNotifyIds.every((id) => notifySelectedIds.has(String(id)))
   ), [allNotifyIds, notifySelectedIds]);
+
+  const openEditReview = (review: AdminReview) => {
+    setCurrentReviewToEdit(review);
+    setEditReviewOpen(true);
+  };
+
+  const handleReviewSave = (updatedReview: AdminReview) => {
+    setReviews((prev) =>
+      prev.map((r) => (r._id === updatedReview._id ? updatedReview : r))
+    );
+    setEditReviewOpen(false);
+  };
+
+  const handleReviewDelete = async (reviewId: string) => {
+    if (!window.confirm('Are you sure you want to delete this review?')) {
+      return;
+    }
+    try {
+      const { ok, json } = await api(`/api/admin/reviews/${reviewId}`, { method: 'DELETE' });
+      if (ok) {
+        setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+        toast({ title: 'Review Deleted', description: 'Review removed successfully.' });
+      } else {
+        toast({ title: 'Deletion Failed', description: json?.message || 'Failed to delete review.', variant: 'destructive' });
+      }
+    } catch (error: any) {
+      toast({ title: 'Deletion Error', description: error.message || 'An unexpected error occurred.', variant: 'destructive' });
+    }
+  };
 
   const toggleNotifySelectAll = (checked: boolean) => {
     setNotifySelectedIds(new Set(checked ? allNotifyIds.map(String) : []));
@@ -1828,6 +1860,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
           body: JSON.stringify(payload),
         });
         toast.success('Product updated successfully');
+        await fetchAdminResources();
       } else {
         await apiFetch(ENDPOINTS.products, {
           method: 'POST',
@@ -1841,7 +1874,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
       setIsDialogOpen(false);
       setHasUnsavedChanges(false);
       resetForm();
-      void fetchAdminResources();
+      await fetchAdminResources();
     } catch (error: any) {
       toast.error(`Failed to save product: ${error?.message ?? 'Unknown error'}`);
     } finally {
@@ -5102,42 +5135,6 @@ const handleProductSubmit = async (e: React.FormEvent) => {
   };
 
 
-  const openReply = (rev: AdminReview) => {
-    setActiveReview(rev);
-    setReplyText('');
-    setReplyOpen(true);
-  };
-
-  const sendReviewReply = async () => {
-    if (!activeReview || !replyText.trim()) {
-      toast.error('Please write a reply');
-      return;
-    }
-    try {
-      const updated = await apiFetch<AdminReview>(`/api/admin/reviews/reply`, {
-        method: 'POST',
-        body: JSON.stringify({ reviewId: activeReview._id, text: replyText.trim() }),
-      });
-      setReviews((prev) => prev.map((r) => (r._id === activeReview._id ? (updated as any) : r)));
-      setReplyOpen(false);
-      toast.success('Reply sent');
-    } catch (e:any) {
-      toast.error(e?.message || 'Failed to send reply');
-    }
-  };
-
-  const deleteReview = async (id: string) => {
-    if (!confirm('Delete this review?')) return;
-    try {
-      await apiFetch(`/api/reviews/${id}`, { method: 'DELETE' });
-      setReviews((prev) => prev.filter((r) => r._id !== id));
-      toast.success('Review deleted');
-    } catch (e:any) {
-      toast.error(e?.message || 'Failed to delete');
-    }
-  };
-
-
 
 
 
@@ -5208,10 +5205,10 @@ const handleProductSubmit = async (e: React.FormEvent) => {
 
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => openReply(r)}>
-                      Reply
+                    <Button size="sm" variant="outline" onClick={() => openEditReview(r)}>
+                      Edit
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => deleteReview(r._id)}>
+                    <Button size="sm" variant="destructive" onClick={() => handleReviewDelete(r._id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -5235,33 +5232,6 @@ const handleProductSubmit = async (e: React.FormEvent) => {
     </CardContent>
   </Card>
 
-  <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Reply to Review</DialogTitle>
-        <DialogDescription className="text-slate-600 dark:text-slate-300">
-          Send a response to the user. This will appear under their review.
-        </DialogDescription>
-      </DialogHeader>
-
-      <div className="space-y-2">
-        <Label>Reply</Label>
-        <Textarea
-          value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
-          placeholder="Write your reply..."
-          className="min-h-[120px] text-slate-800 dark:text-slate-200"
-        />
-      </div>
-
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => setReplyOpen(false)}>
-          Cancel
-        </Button>
-        <Button onClick={sendReviewReply}>Send Reply</Button>
-      </div>
-    </DialogContent>
-  </Dialog>
 </div>
 
   );
@@ -5388,6 +5358,8 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         return renderUsers();
       case 'reviews':
         return renderReviews();
+      case 'create-review':
+        return <AdminCreateReview onReviewCreated={() => setActiveSection('reviews')} />;
       case 'notifications':
         return renderNotifications();
       case 'support':
@@ -5616,6 +5588,13 @@ const handleProductSubmit = async (e: React.FormEvent) => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      <AdminEditReviewModal
+        review={currentReviewToEdit}
+        isOpen={editReviewOpen}
+        onClose={() => setEditReviewOpen(false)}
+        onSave={handleReviewSave}
+      />
 
       <Footer />
     </div>
