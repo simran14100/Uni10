@@ -104,6 +104,11 @@ app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+/* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
+// Add this BEFORE starting the server to serve index.html with injected meta tags
+const { seoMetaInjectionMiddleware } = require('./middleware/seoMetaInjection');
+// This middleware handles frontend routes and injects product-specific meta tags
+app.use(seoMetaInjectionMiddleware);
 
 /* -------------------------------- ROUTES -------------------------------- */
 app.use('/api/auth', authRoutes);
@@ -191,13 +196,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({ ok: false, message });
 });
 
-/* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
-// Add this BEFORE starting the server to serve index.html with injected meta tags
-const { seoMetaInjectionMiddleware } = require('./middleware/seoMetaInjection');
-// This middleware handles frontend routes and injects product-specific meta tags
-app.use(seoMetaInjectionMiddleware);
-
-/* ------------------------------ START APP ------------------------------- */
 async function start() {
   const uri = process.env.MONGODB_URI;
   console.log('[MONGODB_URI]', uri ? 'Loaded' : 'Not Set', uri || '(empty)');
