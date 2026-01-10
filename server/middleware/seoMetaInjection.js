@@ -14,7 +14,7 @@ let cachedIndexHtml = null;
 const getIndexHtml = () => {
   if (cachedIndexHtml) return cachedIndexHtml;
   
-  const indexPath = path.join(__dirname, '../../index.html');
+  const indexPath = path.join(__dirname, '../../dist/index.html'); // Correct path to dist/index.html
   try {
     cachedIndexHtml = fs.readFileSync(indexPath, 'utf-8');
     return cachedIndexHtml;
@@ -150,19 +150,17 @@ const seoMetaInjectionMiddleware = async (req, res, next) => {
   let html = getIndexHtml();
   
   if (!html) {
-    return res.status(500).send('Internal Server Error');
+    console.error('Failed to get index.html for SEO injection');
+    return next(); // Proceed without SEO if index.html is not available
   }
 
   try {
     const baseUrl = req.protocol + '://' + req.get('host');
-    html = await injectMetaTags(html, req.path, baseUrl);
-    
-    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-    return res.send(html);
+    res.locals.seoHtml = await injectMetaTags(html, req.path, baseUrl);
+    return next();
   } catch (err) {
     console.error('Error in SEO meta injection middleware:', err);
-    return res.status(500).send('Internal Server Error');
+    return next(); // Proceed without SEO if there's an error
   }
 };
 

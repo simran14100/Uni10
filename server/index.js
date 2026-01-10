@@ -133,6 +133,12 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
+
+  if (res.locals.seoHtml) {
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    return res.send(res.locals.seoHtml);
+  }
+  
   res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'));
 });
 
