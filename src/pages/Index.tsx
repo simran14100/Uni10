@@ -9,10 +9,10 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImg from "@/assets/hero-cosmic.jpg";
 import { ProductSlider } from "@/components/ProductSlider";
-import { InfluencerSection } from "@/components/InfluencerSection";
+import InfluencerSection from "@/components/InfluencerSection";
 import AboutUsSection from "@/components/AboutUsSection";
 import { FeatureSection } from "@/components/FeatureSection";
-import { RecentReviewsSection } from "@/components/RecentReviewsSection";
+import RecentReviewsSection from "@/components/RecentReviewsSection";
 
 // ✅ UPDATED FEATURE IMAGES
 // HOODIES -> new image
@@ -465,8 +465,8 @@ const Index = () => {
       <section className="bg-[#f5f2ee] py-12 sm:py-16 lg:py-20">
   <div className="container mx-auto px-4 sm:px-6">
     {/* Header */}
-    <div className="flex justify-between items-center mb-8 sm:mb-12">
-      <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+    <div className="flex items-center mb-8 sm:mb-12 justify-center">
+      <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-center">
         <span className="text-black">Collection</span>
       </h2>
     </div>
@@ -529,9 +529,9 @@ const Index = () => {
 </section>
 
       {/* Categories grid with product showcase */}
-        <section className="mx-auto px-2 sm:px-4 pb-12 sm:pb-24 pt-12 sm:pt-24">
-        <div className="text-center mb-8 sm:mb-10">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-2">
+        <section className="mx-auto px-2 sm:px-4 pb-6 sm:pb-12 pt-6 sm:pt-12">
+        <div className="text-center mb-6 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">
             Categories
           </h2>
           <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
@@ -540,7 +540,7 @@ const Index = () => {
         </div>
 
         {catsLoading ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6 mb-8 sm:mb-12">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6 mb-8 sm:mb-12 mt-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
@@ -576,11 +576,11 @@ const Index = () => {
                         to={to}
                         className="flex flex-col items-center justify-center space-y-2"
                       >
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary-foreground flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105">
+                        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl bg-primary-foreground flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105">
                           <img
                             src={resolveImage(c.imageUrl || "/placeholder.svg")}
                             alt={c.name}
-                            className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
+                            className="w-full h-full object-contain"
                           />
                         </div>
                         <span className="text-xs sm:text-sm font-medium text-center line-clamp-2">
@@ -598,82 +598,8 @@ const Index = () => {
         )}
       </section>
 
-      <AboutUsSection />
-
-      {/* New Arrivals */}
-      <section className="container mx-auto px-4 py-16 md:py-24 bg-background rounded-xl shadow-sm">
-        <div className="text-center mb-10 md:mb-16">
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
-            New <span className="text-primary">Arrivals</span>
-          </h2>
-          <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
-            Discover our latest additions and stay ahead of the trends. Fresh styles just dropped!
-          </p>
-        </div>
-
-        {newArrivalsLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-lg bg-gray-200"
-              />
-            ))}
-          </div>
-        ) : newArrivalsError ? (
-          <div className="text-center py-12 text-destructive-foreground">
-            {newArrivalsError}
-          </div>
-        ) : (
-          <div className="relative">
-            <Carousel opts={{ align: "start", loop: true }} className="w-full">
-              <CarouselContent className="-ml-4 sm:-ml-6">
-                {newArrivals.map((product) => {
-                  const card = mapToCard(product);
-                  const to = `/product/${card.id}`;
-                  return (
-                    <CarouselItem
-                      key={String(product._id || product.id)}
-                      className="pl-4 sm:pl-6 basis-1/2 md:basis-1/3 lg:basis-1/4"
-                    >
-                      <ProductCard {...card} to={to} />
-                    </CarouselItem>
-                  );
-                })}
-              </CarouselContent>
-              
-              {/* Navigation Buttons - Desktop */}
-              <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-              </div>
-              
-              {/* Navigation Buttons - Mobile */}
-              <div className="flex sm:hidden justify-center gap-2 mt-6">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-              </div>
-            </Carousel>
-            
-            <div className="text-center mt-10 md:mt-16">
-              <Link
-                to="/shop/new-arrivals"
-                className="inline-flex items-center text-sm font-medium text-primary hover:text-gray-900 transition-colors group"
-              >
-                View All Products
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        )}
-      </section>
-
-  
-      {/* From these categories */}
-      <InfluencerSection />
-
-      {/* Banner Section */}
-      <section className="container mx-auto px-4 py-20">
+   {/* Banner Section */}
+   <section className="container mx-auto px-4 py-20">
   <div className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 md:p-12">
     {/* Decorative accent */}
     <div className="absolute top-8 left-8 text-red-600 text-6xl font-bold opacity-50">///</div>
@@ -750,6 +676,81 @@ const Index = () => {
     </div>
   </div>
 </section>
+      
+
+      {/* New Arrivals */}
+      <section className="container mx-auto px-4 py-16 md:py-24 bg-background rounded-xl shadow-sm">
+        <div className="text-center mb-10 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
+            New <span className="text-primary">Arrivals</span>
+          </h2>
+          <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
+            Discover our latest additions and stay ahead of the trends. Fresh styles just dropped!
+          </p>
+        </div>
+
+        {newArrivalsLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square rounded-lg bg-gray-200"
+              />
+            ))}
+          </div>
+        ) : newArrivalsError ? (
+          <div className="text-center py-12 text-destructive-foreground">
+            {newArrivalsError}
+          </div>
+        ) : (
+          <div className="relative">
+            <Carousel opts={{ align: "start", loop: true }} className="w-full">
+              <CarouselContent className="-ml-4 sm:-ml-6">
+                {newArrivals.map((product) => {
+                  const card = mapToCard(product);
+                  const to = `/product/${card.id}`;
+                  return (
+                    <CarouselItem
+                      key={String(product._id || product.id)}
+                      className="pl-4 sm:pl-6 basis-1/2 md:basis-1/3 lg:basis-1/4"
+                    >
+                      <ProductCard {...card} to={to} />
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              
+              {/* Navigation Buttons - Desktop */}
+              <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+              </div>
+              
+              {/* Navigation Buttons - Mobile */}
+              <div className="flex sm:hidden justify-center gap-2 mt-6">
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+              </div>
+            </Carousel>
+            
+            <div className="text-center mt-10 md:mt-16">
+              <Link
+                to="/shop/new-arrivals"
+                className="inline-flex items-center text-sm font-medium text-primary hover:text-gray-900 transition-colors group"
+              >
+                View All Products
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        )}
+      </section>
+
+  
+      {/* From these categories */}
+      <InfluencerSection />
+
+      <AboutUsSection />
 
       <FeatureSection />
 

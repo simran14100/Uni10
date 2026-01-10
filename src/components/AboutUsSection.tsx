@@ -17,40 +17,17 @@ const AboutUsSection = () => {
               and our silhouettes are high on the trend quotient. Elevate your every day
               look with our stylish and functional essentials, travel wear, and lounge
               wear. You'll always be adventure-ready with UNI10.
+            
+
+We source luxe, sustainable fabrics—from buttery-soft premium cottons and breathable linens to innovative technical blends that offer stretch and structure. Our silhouettes are meticulously cut to flatter the form, offering a modern, trend-aware fit that prioritizes freedom of movement without sacrificing a polished aesthetic.
+
+UNI10 is more than apparel; it's an enabler of experience. We outfit you for the fluidity of contemporary life, ensuring you are prepared, confident, and impeccably styled for any scenario. Our mission is to ensure that you never have to choose between looking exceptional and feeling empowered to move.
+
+Elevate your everyday. Embrace the fluid. Be adventure-ready, always—with UNI10.
             </p>
 
             {/* Features Grid */}
-            <div className="grid grid-cols-5 gap-4 lg:gap-6 pt-4">
-              {/* Feature 1 */}
-              <div className="flex flex-col items-center gap-2">
-                <Plane className="w-8 h-8 lg:w-10 lg:h-10 stroke-[1.5]" />
-                <span className="text-[10px] lg:text-xs font-light text-center leading-tight">On the move</span>
-              </div>
-              
-              {/* Feature 2 */}
-              <div className="flex flex-col items-center gap-2">
-                <Luggage className="w-8 h-8 lg:w-10 lg:h-10 stroke-[1.5]" />
-                <span className="text-[10px] lg:text-xs font-light text-center leading-tight">Travel Friendly</span>
-              </div>
-              
-              {/* Feature 3 */}
-              <div className="flex flex-col items-center gap-2">
-                <Package className="w-8 h-8 lg:w-10 lg:h-10 stroke-[1.5]" />
-                <span className="text-[10px] lg:text-xs font-light text-center leading-tight">Utilitarian Designs</span>
-              </div>
-              
-              {/* Feature 4 */}
-              <div className="flex flex-col items-center gap-2">
-                <Feather className="w-8 h-8 lg:w-10 lg:h-10 stroke-[1.5]" />
-                <span className="text-[10px] lg:text-xs font-light text-center leading-tight">Light weight</span>
-              </div>
-              
-              {/* Feature 5 */}
-              <div className="flex flex-col items-center gap-2">
-                <Home className="w-8 h-8 lg:w-10 lg:h-10 stroke-[1.5]" />
-                <span className="text-[10px] lg:text-xs font-light text-center leading-tight">Home Grown</span>
-              </div>
-            </div>
+         
           </div>
 
           {/* Right Section: Image Gallery */}

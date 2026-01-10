@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card';
 import { Star, Loader2, Quote } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Link } from 'react-router-dom';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+
+// Add this type for the API utility
+declare const api: (url: string) => Promise<{ok: boolean, json: any}>;
 
 const TRUNCATE_LENGTH = 120;
 
@@ -21,92 +18,82 @@ interface Review {
   };
   userId: {
     _id: string;
-    name: string;
+    name?: string; // Make name optional if username is preferred
     email?: string;
+    profileImage?: string;
   };
+  username?: string; // Add top-level username
+  email?: string; // Add top-level email
   createdAt: string;
   images?: string[];
 }
 
-interface ReviewContentProps {
+interface ReviewCardProps {
   review: Review;
+  color: 'red' | 'blue';
 }
 
-const ReviewContent = ({ review }: ReviewContentProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const isTruncated = review.text.length > TRUNCATE_LENGTH;
-  const displayedText = isExpanded || !isTruncated
-    ? review.text
-    : `${review.text.slice(0, TRUNCATE_LENGTH)}...`;
+const ReviewCard = ({ review, color }: ReviewCardProps) => {
+  const bgColor = color === 'blue' ? 'bg-[#1a1d2e]' : 'bg-red-600';
+  const borderColor = color === 'blue' ? 'border-gray-600' : 'border-red-500';
+  const quoteColor = color === 'blue' ? 'text-gray-600' : 'text-red-400';
 
   return (
-    <div className="space-y-3">
-      {/* Rating Stars */}
-      <div className="flex items-center gap-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={cn(
-              'h-5 w-5 transition-colors',
-              i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'
-            )}
-          />
-        ))}
+    <div className={`relative ${bgColor} rounded-3xl p-8 h-full min-h-[320px] flex flex-col`}>
+      {/* Top Left Quote */}
+      <Quote className={`absolute top-6 left-6 h-10 w-10 ${quoteColor} opacity-40`} />
+
+      {/* Curved Border Frame */}
+      <div className={`absolute top-4 left-4 right-4 bottom-4 border-2 ${borderColor} rounded-3xl pointer-events-none`} />
+
+      {/* Profile Image - Positioned at top */}
+      <div className="relative z-10 flex justify-center mb-6">
+        <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg">
+          {review.userId?.profileImage ? (
+            <img src={review.userId.profileImage} alt={review.username || review.userId.name || 'Anonymous'} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-2xl font-bold">
+              {(review.username || review.userId?.name)?.charAt(0).toUpperCase() || '?'}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Review Text with Quote Icon */}
-      <div className="relative">
-        <Quote className="absolute -top-1 -left-1 h-8 w-8 text-gray-200 dark:text-gray-700" />
-        <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 pl-6 italic">
-          "{displayedText}"
+      {/* Review Text */}
+      <div className="relative z-10 flex-1 flex items-center mb-6">
+        <p className="text-white text-sm leading-relaxed text-center px-2">
+          {review.text}
         </p>
       </div>
 
-      {/* Read More Button */}
-      {isTruncated && (
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-        >
-          {isExpanded ? '← Show Less' : 'Read More →'}
-        </button>
-      )}
-
-      {/* Customer Info */}
-      <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-        <p className="font-semibold text-sm text-gray-900 dark:text-white">
-          {review.userId?.name || 'Anonymous'}
+      {/* User Name and Rating at Bottom */}
+      <div className="relative z-10 text-center space-y-2">
+        <p className="text-white font-bold text-lg">
+          {review.username || review.userId?.name || 'Anonymous'}
         </p>
-        {review.userId?.email && (
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {review.userId.email}
-          </p>
-        )}
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-          {new Date(review.createdAt).toLocaleDateString('en-US', { 
-            month: 'long', 
-            day: 'numeric', 
-            year: 'numeric' 
-          })}
-        </p>
+        
+        {/* Rating Stars */}
+        <div className="flex items-center justify-center gap-1">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`h-4 w-4 ${
+                i < review.rating 
+                  ? 'fill-yellow-400 text-yellow-400' 
+                  : 'fill-gray-400 text-gray-400'
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Product Link */}
-      {review.productId?.title && (
-        <Link 
-          to={`/product/${review.productId.slug}`} 
-          className="inline-flex items-center text-xs text-gray-600 dark:text-gray-400 hover:text-primary transition-colors group"
-        >
-          <span className="group-hover:underline">Reviewed: {review.productId.title}</span>
-          <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-        </Link>
-      )}
+      {/* Bottom Right Quote */}
+      <Quote className={`absolute bottom-6 right-6 h-10 w-10 ${quoteColor} opacity-40 transform rotate-180`} />
     </div>
   );
 };
 
-export const RecentReviewsSection = () => {
-  const { toast } = useToast();
+export default function RecentReviewsSection() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -115,38 +102,42 @@ export const RecentReviewsSection = () => {
     const fetchRecentReviews = async () => {
       try {
         setLoading(true);
-        const { ok, json } = await api('/api/reviews/recent?limit=6');
-        if (ok) {
-          setReviews(json.data);
+        
+        // Check if api utility is available
+        if (typeof api === 'function') {
+          const { ok, json } = await api('/api/reviews/recent?limit=6');
+          if (ok) {
+            setReviews(json.data);
+          } else {
+            setError(json?.message || 'Failed to fetch recent reviews.');
+          }
         } else {
-          setError(json?.message || 'Failed to fetch recent reviews.');
-          toast({
-            title: 'Error',
-            description: json?.message || 'Failed to fetch recent reviews.',
-            variant: 'destructive',
-          });
+          // Fallback to fetch
+          const response = await fetch('/api/reviews/recent?limit=6');
+          const json = await response.json();
+          
+          if (response.ok) {
+            setReviews(json.data);
+          } else {
+            setError(json?.message || 'Failed to fetch recent reviews.');
+          }
         }
       } catch (err: any) {
         setError(err.message || 'An unexpected error occurred.');
-        toast({
-          title: 'Error',
-          description: err.message || 'An unexpected error occurred.',
-          variant: 'destructive',
-        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecentReviews();
-  }, [toast]);
+  }, []);
 
   if (loading) {
     return (
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto text-center">
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
-          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Loading customer reviews...</p>
+          <Loader2 className="mx-auto h-10 w-10 animate-spin text-blue-600" />
+          <p className="mt-4 text-sm text-gray-600">Loading customer reviews...</p>
         </div>
       </section>
     );
@@ -154,7 +145,7 @@ export const RecentReviewsSection = () => {
 
   if (error) {
     return (
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto text-center">
           <p className="text-red-500 text-sm">Error: {error}</p>
         </div>
@@ -164,82 +155,44 @@ export const RecentReviewsSection = () => {
 
   if (reviews.length === 0) {
     return (
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto text-center">
-          <p className="text-gray-500 dark:text-gray-400">No reviews yet. Be the first to share your experience!</p>
+          <p className="text-gray-500">No reviews yet. Be the first to share your experience!</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-2">
-            <Star className="h-4 w-4 fill-primary text-primary" />
-            <span className="text-sm font-medium text-primary">Customer Reviews</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full mb-2">
+            <Star className="h-4 w-4 fill-blue-600 text-blue-600" />
+            <span className="text-sm font-medium text-blue-600">Customer Reviews</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
             What Our Customers Say
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-gray-600 max-w-2xl mx-auto">
             Real experiences from real customers. See why they love shopping with us.
           </p>
         </div>
 
-        {/* Reviews Carousel */}
-        <div className="relative max-w-7xl mx-auto">
-          <Carousel 
-            opts={{ 
-              align: "start", 
-              loop: true,
-              skipSnaps: false,
-            }} 
-            className="w-full"
-          >
-            <CarouselContent className="-ml-4">
-              {reviews.map((review) => {
-                const reviewImage = review.images?.[0];
-                const productImage = review.productId?.images?.[0];
-                const displayImage = reviewImage || productImage;
-
-                return (
-                  <CarouselItem 
-                    key={review._id} 
-                    className="pl-4 basis-full md:basis-1/2 lg:basis-1/3"
-                  >
-                    <Card className="h-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-                      {displayImage && (
-                        <div className="relative flex items-center justify-center min-h-[14rem] overflow-hidden bg-gray-100 dark:bg-gray-700">
-                          <img
-                            src={displayImage}
-                            alt={review.productId?.title || 'Product'}
-                            className="max-w-full max-h-[14rem] object-contain transition-transform duration-500 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </div>
-                      )}
-                      
-                      <CardContent className="p-6">
-                        <ReviewContent review={review} />
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-
-            {/* Navigation Buttons */}
-            <CarouselPrevious className="hidden md:flex -left-5 h-11 w-11 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl hover:scale-110 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300" />
-            <CarouselNext className="hidden md:flex -right-5 h-11 w-11 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl hover:scale-110 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300" />
-          </Carousel>
+        {/* Reviews Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-12">
+          {reviews.map((review, index) => {
+            const color = index % 2 === 0 ? 'red' : 'blue';
+            return (
+              <ReviewCard key={review._id} review={review} color={color} />
+            );
+          })}
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-12">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div className="text-center">
+          <p className="text-sm text-gray-600 mb-4">
             Join thousands of satisfied customers
           </p>
           <div className="flex items-center justify-center gap-6 text-sm">
@@ -249,10 +202,10 @@ export const RecentReviewsSection = () => {
                   <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
-              <span className="font-semibold text-gray-900 dark:text-white">4.9/5</span>
+              <span className="font-semibold text-gray-900">4.9/5</span>
             </div>
-            <div className="h-4 w-px bg-gray-300 dark:bg-gray-700" />
-            <span className="text-gray-600 dark:text-gray-400">
+            <div className="h-4 w-px bg-gray-300" />
+            <span className="text-gray-600">
               Based on {reviews.length}+ reviews
             </span>
           </div>
@@ -260,4 +213,4 @@ export const RecentReviewsSection = () => {
       </div>
     </section>
   );
-};
+}
