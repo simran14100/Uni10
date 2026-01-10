@@ -8,18 +8,20 @@ import {
 } from "@/components/ui/carousel";
 import { products } from "@/data/products";
 import Autoplay from "embla-carousel-autoplay";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export const ProductSlider = () => {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const headings = [
-    "DEFINE YOUR UNIVERSE",
-    "Discover The Premium",
-    "Elevate Your Space with",
+    "Own the sky",
+    "TRAVEL-READY CO-ORDS",
+    "NOBERO'S ACTIVE WEAR",
   ];
   const subHeadings = [
-    "",
-    "Furniture in Our Partroll Store",
-    "Elegant Furniture Designs",
+    "In style",
+    "BUY 2 OR MORE GET 10%OFF",
+    "JUST LAUNCHED",
   ];
 
   const plugin = React.useRef(
@@ -42,19 +44,19 @@ export const ProductSlider = () => {
         <CarouselContent>
           {products.map((product, index) => (
             <CarouselItem key={product.id}>
-              <div className="relative h-[600px] w-full">
+              <div className="relative min-h-[600px] max-h-[700px] w-full flex items-center justify-center overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/20"></div>
               </div>
+             
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white text-[#283e74] shadow-md hover:bg-gray-100 transition-all duration-300" />
+        <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white text-[#283e74] shadow-md hover:bg-gray-100 transition-all duration-300" />
       </Carousel>
     </div>
   );
