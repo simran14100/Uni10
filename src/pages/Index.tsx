@@ -529,7 +529,7 @@ const Index = () => {
 </section>
 
       {/* Categories grid with product showcase */}
-        <section className="container mx-auto px-2 sm:px-4 pb-12 sm:pb-24 pt-12 sm:pt-24">
+        <section className="mx-auto px-2 sm:px-4 pb-12 sm:pb-24 pt-12 sm:pt-24">
         <div className="text-center mb-8 sm:mb-10">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-2">
             Categories
@@ -570,17 +570,17 @@ const Index = () => {
                   return (
                     <CarouselItem
                       key={String(c._id || c.id || c.slug || c.name)}
-                      className="pl-2 basis-1/4 sm:basis-1/6 md:basis-1/8 lg:basis-[10%]"
+                      className="pl-2 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6"
                     >
                       <Link
                         to={to}
                         className="flex flex-col items-center justify-center space-y-2"
                       >
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary-foreground flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary-foreground flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105">
                           <img
                             src={resolveImage(c.imageUrl || "/placeholder.svg")}
                             alt={c.name}
-                            className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+                            className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
                           />
                         </div>
                         <span className="text-xs sm:text-sm font-medium text-center line-clamp-2">
@@ -591,8 +591,8 @@ const Index = () => {
                   );
                 })}
               </CarouselContent>
-              <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 border-gray-300 bg-white hover:border-[#ba8c5c] transition-all" />
-              <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 border-gray-300 bg-white hover:border-[#ba8c5c] transition-all" />
+              <CarouselPrevious className="absolute -left-6 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 border-gray-300 bg-white hover:border-[#ba8c5c] transition-all" />
+              <CarouselNext className="absolute -right-6 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 border-gray-300 bg-white hover:border-[#ba8c5c] transition-all" />
             </Carousel>
           </div>
         )}

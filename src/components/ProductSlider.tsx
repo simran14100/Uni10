@@ -48,16 +48,7 @@ export const ProductSlider = () => {
                   alt={product.name}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center flex-col text-white">
-                  <h2 className="text-5xl font-bold mb-2">
-                    {headings[index % headings.length]}
-                  </h2>
-                  <h3 className="text-3xl">
-                    {subHeadings[index % subHeadings.length]}
-                  </h3>
-                  <p className="text-xl mt-4">{product.name}</p>
-                  <p className="text-lg">{product.category}</p>
-                </div>
+                <div className="absolute inset-0 bg-black/20"></div>
               </div>
             </CarouselItem>
           ))}
