@@ -41,8 +41,6 @@ console.log('[CWD]', process.cwd());
 
 
 
-
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -104,10 +102,6 @@ app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-/* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
-// This middleware handles frontend routes and injects product-specific meta tags
-const { seoMetaInjectionMiddleware } = require('./middleware/seoMetaInjection');
-app.use(seoMetaInjectionMiddleware);
 
 /* -------------------------------- ROUTES -------------------------------- */
 app.use('/api/auth', authRoutes);
@@ -129,8 +123,10 @@ app.use('/api/uploads', uploadsRoutes);
 app.use('/api', influencerDataRoutes);
 
 
-
-// For any other requests, serve the index.html from the client-side build
+/* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
+// This middleware handles frontend routes and injects product-specific meta tags
+const { seoMetaInjectionMiddleware } = require('./middleware/seoMetaInjection');
+app.use(seoMetaInjectionMiddleware);
 
 // For any other requests, serve the index.html from the client-side build
 app.use((req, res, next) => {
@@ -157,11 +153,6 @@ app.get('/api/_debug/env', (_req, res) => {
     },
   });
 });
-
-
-
-
-
 
 
 
@@ -281,4 +272,3 @@ async function start() {
 }
 
 start();
-
