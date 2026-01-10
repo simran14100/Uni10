@@ -67,7 +67,7 @@ const influencerDataRoutes = require('./routes/influencerData');
 const seoRoutes = require('./routes/seo');
 
 const app = express();
-const PORT = process.env.PORT || 5055;
+const PORT = process.env.PORT || 5001;
 
 /* --------------------------- LOG EACH REQUEST --------------------------- */
 app.use((req, _res, next) => {

@@ -21,6 +21,8 @@ interface ProductDetail {
 export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) => {
   const { toast } = useToast();
   const [productId, setProductId] = useState("");
+  const [username, setUsername] = useState(""); // New state for username
+  const [email, setEmail] = useState(""); // New state for email
   const [allProducts, setAllProducts] = useState<ProductDetail[]>([]); // New state for all products
   const [allProductsLoading, setAllProductsLoading] = useState(false); // New state for all products loading
   const [rating, setRating] = useState(0);
@@ -117,10 +119,10 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
     e.preventDefault();
     setLoading(true);
 
-    if (!productId || !rating || !text) {
+    if (!productId || !username || !email || !rating || !text) {
       toast({
         title: "Missing fields",
-        description: "A product, Rating, and Review Text are required.",
+        description: "A product, Username, Email, Rating, and Review Text are required.",
         variant: "destructive",
       });
       setLoading(false);
@@ -130,6 +132,8 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
     try {
       const payload = {
         productId,
+        username,
+        email,
         rating,
         text,
         images: images.length > 0 ? images : undefined,
@@ -156,6 +160,8 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
 
       // Clear form
       setProductId("");
+      setUsername(""); // Clear username
+      setEmail(""); // Clear email
       setRating(0);
       setText("");
       setImages([]);
@@ -198,6 +204,27 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
           {!productId && allProducts.length > 0 && (
             <p className="text-red-500 text-sm mt-2">Please select a product from the list.</p>
           )}
+        </div>
+        <div>
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter reviewer's username"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter reviewer's email"
+            required
+          />
         </div>
         <div>
           <Label>Rating</Label>

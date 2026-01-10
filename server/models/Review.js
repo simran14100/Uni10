@@ -4,6 +4,8 @@ const ReviewSchema = new mongoose.Schema(
   {
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    username: { type: String, required: true },
+    email: { type: String, required: true },
     orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
     text: { type: String, required: true, minlength: 20, maxlength: 1000 },
     images: { type: [String], default: [] },

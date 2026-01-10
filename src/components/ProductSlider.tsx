@@ -11,7 +11,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-export const ProductSlider = () => {
+export const ProductSlider = ({ className }: { className?: string }) => {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const headings = [
     "Own the sky",
@@ -33,7 +33,7 @@ export const ProductSlider = () => {
   };
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className={`relative w-full overflow-hidden ${className}`}>
       <Carousel
         plugins={[plugin.current]}
         onSelect={handleSlideChange}
@@ -44,11 +44,11 @@ export const ProductSlider = () => {
         <CarouselContent>
           {products.map((product, index) => (
             <CarouselItem key={product.id}>
-              <div className="relative min-h-[600px] max-h-[700px] w-full flex items-center justify-center overflow-hidden">
+              <div className="relative w-full">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                 />
               </div>
              

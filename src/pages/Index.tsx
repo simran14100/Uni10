@@ -458,7 +458,7 @@ const Index = () => {
       {/* Ticker line – header ke niche */}
 
       {/* Product Slider Section */}
-      <ProductSlider />
+      <ProductSlider className="pt-16" />
     
 
       {/* Featured Products */}
@@ -684,7 +684,7 @@ const Index = () => {
       <div className="relative flex justify-center">
         <div className="relative">
           <div className="w-64 h-64 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform border-4 border-gray-800">
-            <div className="text-gray-800 text-6xl">🪑</div>
+            <img src={hoodiesFeatureImg} alt="Black Hoodie" className="w-40 h-40 object-contain" />
           </div>
           {/* Discount Badge */}
           <div className="absolute -top-4 -right-4 bg-red-600 rounded-lg px-6 py-3 shadow-lg">

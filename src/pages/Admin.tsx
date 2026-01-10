@@ -7,7 +7,7 @@ import { Footer } from '@/components/Footer';
 import { AdminPages } from '@/components/AdminPages';
 import { AdminInfluencerData } from '@/components/AdminInfluencerData';
 import { AdminCreateReview } from '@/components/AdminCreateReview';
-import { AdminEditReviewModal } from '@/components/AdminEditReviewModal';
+import { AdminEditReviewModal, AdminReview } from '@/components/AdminEditReviewModal';
 import { Pagination } from '@/components/Pagination';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Product, Order, User } from '@/types/database.types';
@@ -614,12 +614,12 @@ const Admin = () => {
       const { ok, json } = await api(`/api/admin/reviews/${reviewId}`, { method: 'DELETE' });
       if (ok) {
         setReviews((prev) => prev.filter((r) => r._id !== reviewId));
-        toast({ title: 'Review Deleted', description: 'Review removed successfully.' });
+        toast.success('Review Deleted', { description: 'Review removed successfully.' });
       } else {
-        toast({ title: 'Deletion Failed', description: json?.message || 'Failed to delete review.', variant: 'destructive' });
+        toast.error('Deletion Failed', { description: json?.message || 'Failed to delete review.' });
       }
     } catch (error: any) {
-      toast({ title: 'Deletion Error', description: error.message || 'An unexpected error occurred.', variant: 'destructive' });
+      toast.error('Deletion Error', { description: error.message || 'An unexpected error occurred.' });
     }
   };
 
@@ -2654,9 +2654,9 @@ const handleProductSubmit = async (e: React.FormEvent) => {
               config={{ revenue: { label: 'Revenue', color: 'hsl(var(--primary))' }, orders: { label: 'Orders', color: 'hsl(var(--muted-foreground))' } }}
               className="w-full aspect-[16/7]"
             >
-              {({ width, height }) => (
-                chartType === 'line' ? (
-                  <LineChart data={overviewData?.series || []} margin={{ left: 12, right: 12 }}>
+              <div className="h-full w-full">
+                {chartType === 'line' ? (
+                  <LineChart data={overviewData?.series || []} margin={{ left: 12, right: 12 }} width={500} height={300}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tickMargin={8} />
                     <YAxis yAxisId="left" />
@@ -2667,7 +2667,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                     <Line yAxisId="right" type="monotone" dataKey="orders" stroke="var(--color-orders)" dot={false} />
                   </LineChart>
                 ) : (
-                  <BarChart data={overviewData?.series || []} margin={{ left: 12, right: 12 }}>
+                  <BarChart data={overviewData?.series || []} margin={{ left: 12, right: 12 }} width={500} height={300}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tickMargin={8} />
                     <YAxis yAxisId="left" />
@@ -2677,8 +2677,8 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                     <Bar yAxisId="left" dataKey="revenue" fill="var(--color-revenue)" radius={[4,4,0,0]} />
                     <Bar yAxisId="right" dataKey="orders" fill="var(--color-orders)" radius={[4,4,0,0]} />
                   </BarChart>
-                )
-              )}
+                )}
+              </div>
             </ChartContainer>
           )}
         </CardContent>
@@ -5167,11 +5167,11 @@ const handleProductSubmit = async (e: React.FormEvent) => {
           <TableBody>
             {reviews.map((r) => (
               <TableRow key={r._id} className="hover:bg-muted/50">
-                <TableCell className="font-medium">{r.userId?.name || "-"}</TableCell>
+                <TableCell className="font-medium">{r.username || "-"}</TableCell>
 
                 {/* stronger color than 'muted' so it stays readable */}
                 <TableCell className="text-slate-600 dark:text-slate-300">
-                  {r.userId?.email || "-"}
+                  {r.email || "-"}
                 </TableCell>
 
                 <TableCell className="max-w-[420px]">

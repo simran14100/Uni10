@@ -344,7 +344,7 @@ const Review = require('../models/Review');
 // Admin: create a new product review
 router.post('/reviews/create', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { productId, rating, text, images, comment, status } = req.body || {};
+    const { productId, rating, text, images, comment, status, username, email } = req.body || {};
 
     if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({ ok: false, message: 'Valid productId is required' });
@@ -359,6 +359,8 @@ router.post('/reviews/create', requireAuth, requireAdmin, async (req, res) => {
     const review = new Review({
       productId,
       userId: req.user._id, // Admin creating the review
+      username: String(username).trim(),
+      email: String(email).trim(),
       rating,
       text: String(text).trim(),
       images: Array.isArray(images) ? images.map(String) : [],
@@ -405,7 +407,7 @@ router.post('/reviews/reply', requireAuth, requireAdmin, async (req, res) => {
 router.put('/reviews/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { rating, text, images, comment, status } = req.body || {};
+    const { rating, text, images, comment, status, username, email } = req.body || {};
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ ok: false, message: 'Valid review ID is required' });
@@ -427,6 +429,12 @@ router.put('/reviews/:id', requireAuth, requireAdmin, async (req, res) => {
     }
     if (typeof status === 'string' && ['pending', 'published', 'rejected'].includes(status)) {
       updates.status = status;
+    }
+    if (typeof username === 'string' && username.trim().length > 0) {
+      updates.username = username.trim();
+    }
+    if (typeof email === 'string' && email.trim().length > 0) {
+      updates.email = email.trim();
     }
 
     if (Object.keys(updates).length === 0) {

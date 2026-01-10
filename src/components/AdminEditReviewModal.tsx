@@ -10,10 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { Loader2, Upload, X } from 'lucide-react';
 
-interface AdminReview {
+export interface AdminReview {
   _id: string;
   productId: { _id: string; title: string; slug: string; };
   userId: { _id: string; name: string; email: string; };
+  username: string;
+  email: string;
   rating: number;
   text: string;
   images: string[];
@@ -32,6 +34,8 @@ interface AdminEditReviewModalProps {
 export const AdminEditReviewModal = ({ review, isOpen, onClose, onSave }: AdminEditReviewModalProps) => {
   const { toast } = useToast();
   const [currentRating, setCurrentRating] = useState(0);
+  const [currentUsername, setCurrentUsername] = useState('');
+  const [currentEmail, setCurrentEmail] = useState('');
   const [currentText, setCurrentText] = useState('');
   const [currentImages, setCurrentImages] = useState<string[]>([]);
   const [currentComment, setCurrentComment] = useState<string | undefined>(undefined);
@@ -42,6 +46,8 @@ export const AdminEditReviewModal = ({ review, isOpen, onClose, onSave }: AdminE
   useEffect(() => {
     if (review) {
       setCurrentRating(review.rating);
+      setCurrentUsername(review.username || '');
+      setCurrentEmail(review.email || '');
       setCurrentText(review.text);
       setCurrentImages(review.images || []);
       setCurrentComment(review.comment);
@@ -116,6 +122,8 @@ export const AdminEditReviewModal = ({ review, isOpen, onClose, onSave }: AdminE
     setLoading(true);
     try {
       const payload = {
+        username: currentUsername.trim(),
+        email: currentEmail.trim(),
         rating: currentRating,
         text: currentText.trim(),
         images: currentImages,
@@ -146,6 +154,27 @@ export const AdminEditReviewModal = ({ review, isOpen, onClose, onSave }: AdminE
           <DialogTitle>Edit Review for "{review.productId.title}"</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="username" className="text-right">Username</Label>
+            <Input
+              id="username"
+              value={currentUsername}
+              onChange={(e) => setCurrentUsername(e.target.value)}
+              required
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="email" className="text-right">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={currentEmail}
+              onChange={(e) => setCurrentEmail(e.target.value)}
+              required
+              className="col-span-3"
+            />
+          </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="rating" className="text-right">Rating</Label>
             <div className="col-span-3">
