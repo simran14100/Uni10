@@ -102,3 +102,4 @@ router.post('/admin/video', requireAuth, requireAdmin, (req, res, next) => {
 });
 
 module.exports = router;
+module.exports.upload = upload;

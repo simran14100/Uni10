@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import heroImg from "@/assets/hero-cosmic.jpg";
 import { ProductSlider } from "@/components/ProductSlider";
 import InfluencerSection from "@/components/InfluencerSection";
+import InfluencerImageGrid from "@/components/InfluencerImageGrid";
 import AboutUsSection from "@/components/AboutUsSection";
 import { FeatureSection } from "@/components/FeatureSection";
 import RecentReviewsSection from "@/components/RecentReviewsSection";
@@ -749,6 +750,7 @@ const Index = () => {
   
       {/* From these categories */}
       <InfluencerSection />
+      <InfluencerImageGrid />
 
       <AboutUsSection />
 

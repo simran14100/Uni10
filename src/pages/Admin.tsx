@@ -6,6 +6,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { AdminPages } from '@/components/AdminPages';
 import { AdminInfluencerData } from '@/components/AdminInfluencerData';
+import InfluencerImageSection from '@/components/InfluencerImageSection';
 import { AdminCreateReview } from '@/components/AdminCreateReview';
 import { AdminEditReviewModal, AdminReview } from '@/components/AdminEditReviewModal';
 import { Pagination } from '@/components/Pagination';
@@ -45,7 +46,7 @@ import {
     Upload,
     Video,
     SquarePen,
-    TrendingUp, ShoppingCart, Users, BarChartIcon,
+    TrendingUp, ShoppingCart, Users, BarChartIcon, Image,
   } from 'lucide-react';
 import {
   Dialog,
@@ -141,6 +142,7 @@ const NAV_ITEMS = [
     { id: 'razorpaySettings', label: 'Razorpay Settings', icon: CreditCard },
     { id: 'shiprocket', label: 'Shiprocket Settings', icon: Truck },
     { id: 'influencer-data', label: 'Influencer Data', icon: Video },
+    { id: 'influencer-images', label: 'Influencer Images', icon: Image },
 ] as const;
 
 function createDefaultPaymentSettings(): PaymentSettingsForm {
@@ -5377,7 +5379,8 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         return renderHomeSettings();
       case 'influencer-data':
         return <AdminInfluencerData />;
-      default:
+      case 'influencer-images':
+        return <InfluencerImageSection />;
         return null;
     }
   };

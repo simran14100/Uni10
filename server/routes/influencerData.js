@@ -9,7 +9,6 @@ const router = express.Router();
 router.get('/influencer-data/public', async (req, res) => {
   try {
     const influencerData = await InfluencerData.find().populate('productId', 'title images');
-    console.log('[Influencer Data - Public]', influencerData.map(item => ({ videoUrl: item.videoUrl, productName: item.productId?.title, productId: item.productId?._id })));
     res.status(200).json({ ok: true, data: influencerData });
   } catch (error) {
     res.status(500).json({ ok: false, message: error.message });
@@ -32,7 +31,7 @@ router.get('/admin/influencer-data', requireAuth, requireAdmin, async (req, res)
 // GET a single influencer data entry by ID
 router.get('/admin/influencer-data/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const influencerDataItem = await InfluencerData.findById(req.params.id).populate('productId', 'title images');
+    const influencerDataItem = await InfluencerData.findById(req.params.id).populate('productId', 'name images');
     if (!influencerDataItem) {
       return res.status(404).json({ ok: false, message: 'Influencer data not found' });
     }
@@ -78,7 +77,7 @@ router.put('/admin/influencer-data/:id', requireAuth, requireAdmin, async (req, 
       req.params.id,
       { videoUrl, productId },
       { new: true, runValidators: true }
-    ).populate('productId', 'title images');
+    ).populate('productId', 'name images');
     
     if (!updatedInfluencerData) {
       return res.status(404).json({ ok: false, message: 'Influencer data not found' });

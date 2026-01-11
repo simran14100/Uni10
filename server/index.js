@@ -65,6 +65,7 @@ const trackingRoutes = require('./routes/tracking');
 const shippingRoutes = require('./routes/shipping');
 const influencerDataRoutes = require('./routes/influencerData');
 const seoRoutes = require('./routes/seo');
+const influencerImageRoutes = require('./routes/influencerImage');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -121,6 +122,7 @@ app.use('/api/tracking', trackingRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/uploads', uploadsRoutes);
 app.use('/api', influencerDataRoutes);
+app.use('/api', influencerImageRoutes);
 
 
 /* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */
