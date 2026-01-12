@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { ProductCard } from "@/components/ProductCard";
 import { SearchInput } from "@/components/SearchInput";
 import { Pagination } from "@/components/Pagination";
+import RecentReviewsSection from "@/components/RecentReviewsSection";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -60,12 +61,42 @@ const resolveImage = (src?: string) => {
 };
 
 // ✅ Category normalizer – case, space, special chars, last "s" remove
-const normalizeCategory = (value: string) =>
-  String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "") // spaces, - etc hatao
-    .replace(/s$/, ""); // last s hatao (tshirts -> tshirt, hoodies -> hoodie)
+const normalizeCategory = (value: string) => String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "").replace(/s$/, ""); // last s hatao (tshirts -> tshirt, hoodies -> hoodie)
+
+  function slugify(input: string) {
+    return String(input || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
+  // Helpers to map product row to ProductCard props
+  const mapToCard = (p: ProductRow) => {
+    const id = String(p._id || p.id || "");
+    const title = p.title || p.name || "";
+    const rawImg =
+      p.image_url ||
+      (Array.isArray(p.images) ? p.images[0] : "") ||
+      (p as any).image ||
+      "/placeholder.svg";
+
+    const img = resolveImage(rawImg);
+    const originalPrice = Number(p.price || 0);
+    const discountedPrice = Math.round(originalPrice * 0.8); // 20% discount for demonstration
+    const rating = (Math.random() * (5 - 3) + 3).toFixed(1); // Random rating between 3 and 5
+
+    return {
+      id,
+      name: title,
+      price: originalPrice,
+      image: img,
+      category: p.category || "",
+      slug: p.slug || "",
+      images: Array.isArray(p.images) ? p.images : [],
+      discountedPrice: discountedPrice,
+      rating: Number(rating),
+    };
+  };
 
 interface ShopPageProps {
   sortBy?: "newest" | "all";
@@ -636,23 +667,11 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                   {paginatedProducts.map((p) => {
-                    const id = String(p._id || p.id || "");
-                    const title = p.title || p.name || "";
-                    const rawImg =
-                      p.image_url ||
-                      (Array.isArray(p.images) ? p.images[0] : "") ||
-                      "/placeholder.svg";
-                    const img = resolveImage(rawImg);
+                    const card = mapToCard(p);
                     return (
                       <ProductCard
-                        key={id}
-                        id={id}
-                        name={title}
-                        price={Number(p.price || 0)}
-                        image={img}
-                        category={p.category || ""}
-                        slug={p.slug || ""}
-                        images={p.images}
+                        key={card.id}
+                        {...card}
                       />
                     );
                   })}
@@ -676,6 +695,8 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
           </div>
         </div>
       </main>
+
+      <RecentReviewsSection />
 
       <Footer />
     </div>

@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Star, Loader2, Quote } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // Add this type for the API utility
 declare const api: (url: string) => Promise<{ok: boolean, json: any}>;
@@ -180,14 +187,30 @@ export default function RecentReviewsSection() {
           </p>
         </div>
 
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-12">
-          {reviews.map((review, index) => {
-            const color = index % 2 === 0 ? 'red' : 'blue';
-            return (
-              <ReviewCard key={review._id} review={review} color={color} />
-            );
-          })}
+        {/* Reviews Slider */}
+        <div className="relative max-w-7xl mx-auto mb-12">
+          <Carousel opts={{ align: "start", loop: true }} className="w-full">
+            <CarouselContent className="-ml-4 md:-ml-6">
+              {reviews.map((review, index) => {
+                const color = index % 2 === 0 ? 'red' : 'blue';
+                return (
+                  <CarouselItem key={review._id} className="pl-4 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3">
+                    <ReviewCard review={review} color={color} />
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            {/* Navigation Buttons - Desktop */}
+            <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
+              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-blue-600  transition-all" />
+              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-blue-600  transition-all" />
+            </div>
+            {/* Navigation Buttons - Mobile */}
+            <div className="flex sm:hidden justify-center gap-2 mt-6">
+              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-blue-600  transition-all" />
+              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-blue-600  transition-all" />
+            </div>
+          </Carousel>
         </div>
 
         {/* Bottom CTA */}

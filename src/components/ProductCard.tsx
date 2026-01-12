@@ -93,7 +93,19 @@ export const ProductCard = ({ id, name, price, image, category, to, slug, images
             {name}
           </h3>
         </Link>
-          <div className="flex flex-col items-start md:flex-row md:items-center md:justify-between mt-auto space-y-2 md:space-y-0">
+        <div className="flex items-center mt-2 mb-2">
+          <p className="text-lg sm:text-xl font-bold text-gray-800 uppercase">
+            {discountedPrice ? (
+              <>
+                <span className="line-through text-gray-400 text-sm sm:text-base mr-1 sm:mr-2 whitespace-nowrap">₹{price.toLocaleString('en-IN')}</span>
+                <span className="whitespace-nowrap">₹{discountedPrice.toLocaleString('en-IN')}</span>
+              </>
+            ) : (
+              <span className="whitespace-nowrap">₹{price.toLocaleString('en-IN')}</span>
+            )}
+          </p>
+        </div>
+          <div className="flex items-center justify-between mt-auto">
             <div className="flex items-center">
               {rating && (
                 <div className="flex items-center text-sm text-yellow-500">
@@ -102,19 +114,9 @@ export const ProductCard = ({ id, name, price, image, category, to, slug, images
                   <span className="ml-1 text-gray-500 uppercase">({rating})</span>
                 </div>
               )}
-              <p className="text-lg sm:text-xl font-bold text-gray-800 uppercase ml-2 sm:ml-4">
-                {discountedPrice ? (
-                  <>
-                    <span className="line-through text-gray-400 text-sm sm:text-base mr-1 sm:mr-2">₹{price.toLocaleString('en-IN')}</span>
-                    ₹{discountedPrice.toLocaleString('en-IN')}
-                  </>
-                ) : (
-                  `₹${price.toLocaleString('en-IN')}`
-                )}
-              </p>
             </div>
-            <Button onClick={handleAdd} size="icon" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md scale-100 sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity sm:duration-300 sm:scale-100">
-              <ShoppingCart className="h-5 w-5" />
+            <Button onClick={handleAdd} size="icon" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md w-10 h-10 hidden sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity sm:duration-300">
+              <ShoppingCart className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
           </div>
       </div>

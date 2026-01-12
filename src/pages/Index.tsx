@@ -466,7 +466,7 @@ const Index = () => {
       <section className="bg-[#f5f2ee] py-12 sm:py-16 lg:py-20">
   <div className="container mx-auto px-4 sm:px-6">
     {/* Header */}
-    <div className="flex items-center mb-8 sm:mb-12 justify-center">
+    <div className="flex items-center mb-16 sm:mb-20 justify-center">
       <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-center">
         <span className="text-black">Collection</span>
       </h2>
@@ -531,7 +531,7 @@ const Index = () => {
 
       {/* Categories grid with product showcase */}
         <section className="mx-auto px-2 sm:px-4 pb-6 sm:pb-12 pt-6 sm:pt-12">
-        <div className="text-center mb-6 sm:mb-6">
+        <div className="text-center mb-20">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">
             Categories
           </h2>
@@ -601,46 +601,46 @@ const Index = () => {
 
    {/* Banner Section */}
    <section className="container mx-auto px-4 py-20">
-  <div className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 md:p-12">
+  <div className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4 md:p-12">
     {/* Decorative accent */}
     <div className="absolute top-8 left-8 text-red-600 text-6xl font-bold opacity-50">///</div>
-    <div className="absolute bottom-0 right-0 w-64 h-64 bg-red-600 rounded-tl-full opacity-20"></div>
+    <div className="absolute bottom-0 right-0 w-32 h-32 md:w-64 md:h-64 bg-red-600 rounded-tl-full opacity-20"></div>
     
-    <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+    <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
       {/* Product Image */}
       <div className="relative flex justify-center">
         <div className="relative">
-          <div className="w-64 h-64 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform border-4 border-gray-800">
-            <img src={hoodiesFeatureImg} alt="Black Hoodie" className="w-40 h-40 object-contain" />
+          <div className="w-48 h-48 md:w-64 md:h-64 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform border-4 border-gray-800">
+            <img src={hoodiesFeatureImg} alt="Black Hoodie" className="w-32 h-32 md:w-40 md:h-40 object-contain" />
           </div>
           {/* Discount Badge */}
-          <div className="absolute -top-4 -right-4 bg-red-600 rounded-lg px-6 py-3 shadow-lg">
-            <div className="text-2xl font-bold text-white">40% Off</div>
+          <div className="absolute -top-3 -right-3 bg-red-600 rounded-lg px-4 py-2 shadow-lg">
+            <div className="text-xl font-bold text-white">40% Off</div>
           </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="text-white">
-        <p className="text-sm font-medium mb-2 text-red-500">Deal of the Week</p>
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+        <p className="text-xs font-medium mb-1 text-red-500">Deal of the Week</p>
+        <h2 className="text-2xl md:text-5xl font-bold mb-3 leading-tight">
           Deal of the Week Let's
           <br />
           Shopping <span className="text-red-600">Today</span>
         </h2>
         
-        <div className="flex items-center gap-4 mb-6">
-          <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg">
+        <div className="flex flex-col items-center sm:items-start gap-3 mb-4">
+          <button className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg text-sm">
             Shop Now
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xl line-through opacity-75">₹450</span>
-            <span className="text-3xl font-bold text-red-500">₹350</span>
+            <span className="text-base line-through opacity-75">₹450</span>
+            <span className="text-xl font-bold text-red-500">₹350</span>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="flex justify-between text-xs mb-2">
             <span>Available: 15</span>
             <span>Already Sold: 85</span>
@@ -651,27 +651,29 @@ const Index = () => {
         </div>
 
         {/* Countdown Timer */}
-        <div>
-          <p className="text-sm mb-2 font-medium">Hurry Up:</p>
-          <p className="text-xs mb-3 opacity-90">Offer ends in</p>
-          <div className="flex gap-3">
-            <div className="bg-white text-gray-900 rounded-full w-14 h-14 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-xl font-bold">20</div>
-              <div className="text-[10px]">Days</div>
+        <div className="flex justify-center mt-4">
+          <div>
+          <p className="text-sm mb-1 font-medium">Hurry Up:</p>
+          <p className="text-xs mb-2 opacity-90">Offer ends in</p>
+          <div className="flex gap-2">
+            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-base font-bold">20</div>
+              <div className="text-[8px]">Days</div>
             </div>
-            <div className="bg-white text-gray-900 rounded-full w-14 h-14 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-xl font-bold">12</div>
-              <div className="text-[10px]">Hours</div>
+            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-base font-bold">12</div>
+              <div className="text-[8px]">Hours</div>
             </div>
-            <div className="bg-white text-gray-900 rounded-full w-14 h-14 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-xl font-bold">42</div>
-              <div className="text-[10px]">Mins</div>
+            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-base font-bold">42</div>
+              <div className="text-[8px]">Mins</div>
             </div>
-            <div className="bg-white text-gray-900 rounded-full w-14 h-14 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-xl font-bold">23</div>
-              <div className="text-[10px]">Sec</div>
+            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-base font-bold">23</div>
+              <div className="text-[8px]">Sec</div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

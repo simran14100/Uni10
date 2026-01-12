@@ -126,18 +126,7 @@ export default function InfluencerSection() {
                       <h3 className="text-xl font-bold text-gray-900">
                         {selectedVideo.productId?.title || 'Featured Product'}
                       </h3>
-                      <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-lg">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-semibold text-gray-900">4.7</span>
-                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                      <Clock className="h-4 w-4" />
-                      <span>5 mins</span>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed">
-                      Watch this comprehensive review and discover why this product is loved by our community.
-                    </p>
                   </div>
                 </div>
               )}
@@ -164,16 +153,7 @@ export default function InfluencerSection() {
                           <h4 className="font-bold text-white text-sm mb-1 line-clamp-2">
                             {item.productId?.title || 'Product Review'}
                           </h4>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs font-medium text-white">4.7</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-white text-xs">
-                              <Clock className="h-3 w-3" />
-                              <span>5 mins</span>
-                            </div>
-                          </div>
+                          
                         </div>
                       </div>
                     </div>
@@ -184,25 +164,7 @@ export default function InfluencerSection() {
           </div>
         </div>
 
-        {/* Bottom Stats */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-8 px-8 py-4 bg-white rounded-2xl shadow-md">
-            <div className="text-left">
-              <p className="text-3xl font-bold text-purple-600">{influencerData.length}+</p>
-              <p className="text-sm text-gray-600">Video Reviews</p>
-            </div>
-            <div className="h-12 w-px bg-gray-200" />
-            <div className="text-left">
-              <p className="text-3xl font-bold text-purple-600">50K+</p>
-              <p className="text-sm text-gray-600">Total Views</p>
-            </div>
-            <div className="h-12 w-px bg-gray-200" />
-            <div className="text-left">
-              <p className="text-3xl font-bold text-purple-600">4.8</p>
-              <p className="text-sm text-gray-600">Avg Rating</p>
-            </div>
-          </div>
-        </div>
+       
       </div>
     </section>
   );

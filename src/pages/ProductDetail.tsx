@@ -669,8 +669,8 @@ const ProductDetail = () => {
             Back to Shop
           </Link>
 
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 sm:gap-8 md:gap-12 w-full bg-white p-6 sm:p-8 md:p-12 rounded-lg shadow-md">
-            <div className="min-w-0 p-4">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 sm:gap-8 md:gap-12 w-full bg-white p-4 sm:p-6 md:p-12 rounded-lg shadow-md">
+            <div className="min-w-0 order-2 md:order-1">
               <ProductImageGallery
                 images={product?.images || []}
                 productTitle={title}
@@ -680,12 +680,12 @@ const ProductDetail = () => {
               />
             </div>
 
-            <div className="min-w-0 p-4 sm:p-6 md:p-8 border border-gray-200 rounded-lg">
-              <p className="text-xs sm:text-sm text-gray-600 uppercase tracking-wider mb-2 break-words">
+            <div className="min-w-0 p-4 sm:p-5 md:p-8 border border-gray-200 rounded-lg order-1 md:order-2">
+              <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
                 {product.category}
               </p>
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter break-words text-gray-900">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <h1 className="text-xl sm:text-2xl md:text-4xl font-black tracking-tighter break-words text-gray-900">
                   {title}
                 </h1>
                 <ShareButton
@@ -694,8 +694,8 @@ const ProductDetail = () => {
                   productImage={img}
                 />
               </div>
-              <div className="flex items-baseline gap-3 mb-4 sm:mb-6">
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+              <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
+                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
                   ₹{(() => {
                     const basePrice = Number(product.price ?? 0);
                     let final = basePrice;
@@ -714,19 +714,21 @@ const ProductDetail = () => {
                 </p>
                 {product?.discount?.value && product.discount.value > 0 && (
                   <div className="flex items-baseline">
-                    <span className="text-sm sm:text-base text-gray-500 line-through mr-2">
+                    <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
                       ₹{Number(product.price ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </span>
-                    <span className="text-sm font-medium text-red-600">
+                    <span className="text-xs font-medium text-red-600">
                       {product.discount.type === 'percentage' ? `${product.discount.value}% OFF` : `₹${product.discount.value} OFF`}
                     </span>
                   </div>
                 )}
               </div>
+              <p className="text-xs text-gray-500 mb-1">Lowest price in last 30 days</p>
+              <p className="text-xs text-gray-500 mb-4">826 people bought this in last 7 days</p>
               {product.paragraph1 && (
-  <div className="flex items-start gap-2 text-sm mb-2">
+  <div className="flex items-start gap-1 text-xs mb-1">
     <span className="text-red-800 mt-0.5">
-      <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
       </svg>
     </span>
@@ -735,9 +737,9 @@ const ProductDetail = () => {
 )}
 
 {product.paragraph2 && (
-  <div className="flex items-start gap-2 text-sm mb-2">
+  <div className="flex items-start gap-1 text-xs mb-1">
     <span className="text-gray-900 mt-0.5">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
       </svg>
     </span>
@@ -752,10 +754,10 @@ const ProductDetail = () => {
                   {outOfStock ? "Not Available" : "Available"}
                 </Badge>
               </div>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6">
+              <p className="text-xs text-muted-foreground mb-4 sm:mb-6">
                 {product.description && product.description.length > 150
                   ? (<> {`${product.description.substring(0, 150)}...`} <span
-                      className="text-primary text-sm cursor-pointer hover:underline"
+                      className="text-primary text-xs cursor-pointer hover:underline"
                       onClick={() => {
                         descriptionRef.current?.scrollIntoView({ behavior: 'smooth' });
                         setActiveTab("description");
@@ -784,11 +786,11 @@ const ProductDetail = () => {
                   : [];
 
                 return colorOptions.length > 0 ? (
-                  <div className="mb-4 sm:mb-6">
-                    <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3">
+                  <div className="mb-3 sm:mb-4">
+                    <label className="block text-xs font-semibold mb-2">
                       Color
                     </label>
-                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                    <div className="flex flex-wrap gap-2">
                       {colorOptions.map((colorOpt) => {
                         const c = colorOpt.name;
                         const colorStock = Array.isArray(product.colorInventory)
@@ -809,7 +811,7 @@ const ProductDetail = () => {
                               });
                             }}
                             className={cn(
-                              "flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border text-xs sm:text-sm transition-colors",
+                              "flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs transition-colors",
                               isOutOfStock
                                 ? "opacity-50 cursor-not-allowed bg-muted border-border text-muted-foreground"
                                 : selectedColor === c
@@ -818,11 +820,11 @@ const ProductDetail = () => {
                             )}
                           >
                             <span
-                              className="h-4 w-4 rounded-full border border-current"
+                              className="h-3 w-3 rounded-full border border-current"
                               style={{ backgroundColor: colorOpt.code ? colorOpt.code : colorToCss(c) }}
                             />
                             <span>{c}</span>
-                            {isOutOfStock && <span className="text-xs">Out of Stock</span>}
+                            {isOutOfStock && <span className="text-[10px]">Out of Stock</span>}
                           </button>
                         );
                       })}
@@ -836,8 +838,8 @@ const ProductDetail = () => {
                 Array.isArray(product?.sizeInventory) &&
                 product.sizeInventory.length > 0 && (
                   <div className="mb-2 sm:mb-3">
-                    <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
-                      <label className="block text-xs sm:text-sm font-semibold">
+                    <div className="flex items-center justify-between mb-1 sm:mb-2 gap-2">
+                      <label className="block text-xs font-semibold">
                         Size
                       </label>
                       {product.sizeChart ? (
@@ -846,7 +848,7 @@ const ProductDetail = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setShowSizeChartTable(true)}
-                          className="text-xs h-auto p-1"
+                          className="text-[10px] h-auto p-0.5"
                         >
                           <Ruler className="h-3 w-3 mr-1" />
                           Size Chart
@@ -858,7 +860,7 @@ const ProductDetail = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setShowSizeChart(true)}
-                            className="text-xs h-auto p-1"
+                            className="text-[10px] h-auto p-0.5"
                           >
                             <Ruler className="h-3 w-3 mr-1" />
                             Size Chart
@@ -866,7 +868,7 @@ const ProductDetail = () => {
                         )
                       )}
                     </div>
-                    <div className="flex flex-wrap gap-2 sm:gap-3 pb-2 sm:pb-3">
+                    <div className="flex flex-wrap gap-2 pb-2 sm:pb-3">
                       {product.sizeInventory.map((sizeItem) => {
                         const isOutOfStock = sizeItem.qty === 0;
                         const isLowStock =
@@ -881,7 +883,7 @@ const ProductDetail = () => {
                                 setSizeStockError("");
                               }}
                               className={cn(
-                                "px-3 sm:px-4 py-1.5 sm:py-2 rounded border text-xs sm:text-sm font-medium transition-colors",
+                                "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded border text-xs font-medium transition-colors",
                                 isOutOfStock
                                   ? "opacity-50 cursor-not-allowed bg-muted border-border text-muted-foreground"
                                   : selectedSize === sizeItem.code
@@ -892,12 +894,12 @@ const ProductDetail = () => {
                               {sizeItem.label}
                             </button>
                             {isOutOfStock && (
-                              <span className="text-xs text-destructive font-medium whitespace-nowrap mt-1 block">
+                              <span className="text-[10px] text-destructive font-medium whitespace-nowrap mt-1 block">
                                 Out of stock
                               </span>
                             )}
                             {isLowStock && !isOutOfStock && (
-                              <span className="text-xs text-orange-600 font-medium whitespace-nowrap mt-1 block">
+                              <span className="text-[10px] text-orange-600 font-medium whitespace-nowrap mt-1 block">
                                 Only {sizeItem.qty} left
                               </span>
                             )}
@@ -906,7 +908,7 @@ const ProductDetail = () => {
                       })}
                     </div>
                     {sizeStockError && (
-                      <p className="text-xs text-destructive mt-4">
+                      <p className="text-xs text-destructive mt-3">
                         {sizeStockError}
                       </p>
                     )}
@@ -918,8 +920,8 @@ const ProductDetail = () => {
                 Array.isArray(product?.sizes) &&
                 product.sizes.length > 0 && (
                   <div className="mb-2 sm:mb-3">
-                    <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
-                      <label className="block text-xs sm:text-sm font-semibold">
+                    <div className="flex items-center justify-between mb-1 sm:mb-2 gap-2">
+                      <label className="block text-xs font-semibold">
                         Size
                       </label>
                       {product.sizeChart ? (
@@ -928,7 +930,7 @@ const ProductDetail = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setShowSizeChartTable(true)}
-                          className="text-xs h-auto p-1"
+                          className="text-[10px] h-auto p-0.5"
                         >
                           <Ruler className="h-3 w-3 mr-1" />
                           Size Chart
@@ -940,7 +942,7 @@ const ProductDetail = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setShowSizeChart(true)}
-                            className="text-xs h-auto p-1"
+                            className="text-[10px] h-auto p-0.5"
                           >
                             <Ruler className="h-3 w-3 mr-1" />
                             Size Chart
@@ -948,7 +950,7 @@ const ProductDetail = () => {
                         )
                       )}
                     </div>
-                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                    <div className="flex flex-wrap gap-2">
                       {product.sizes.map((sz) => (
                         <button
                           key={sz}
@@ -958,7 +960,7 @@ const ProductDetail = () => {
                             setSizeStockError("");
                           }}
                           className={cn(
-                            "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded border text-xs sm:text-sm",
+                            "px-2 py-1 rounded border text-xs",
                             selectedSize === sz
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-transparent border-border"
@@ -971,22 +973,22 @@ const ProductDetail = () => {
                   </div>
                 )}
 
-              <div className="mb-2 sm:mb-3">
-                <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3">
+              <div className="mb-3 sm:mb-4">
+                <label className="block text-xs font-semibold mb-2">
                   Quantity
                 </label>
-                <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={() =>
                       setQuantity((q) => Math.max(1, q - 1))
                     }
-                    className="h-9 w-9 sm:h-10 sm:w-10"
+                    className="h-8 w-8 sm:h-9 sm:w-9"
                   >
                     -
                   </Button>
-                  <span className="font-semibold min-w-[40px] text-center text-sm sm:text-base">
+                  <span className="font-semibold min-w-[30px] text-center text-sm sm:text-base">
                     {quantity}
                   </span>
                   <Button
@@ -995,7 +997,7 @@ const ProductDetail = () => {
                     onClick={() =>
                       setQuantity((q) => q + 1)
                     }
-                    className="h-9 w-9 sm:h-10 sm:w-10"
+                    className="h-8 w-8 sm:h-9 sm:w-9"
                   >
                     +
                   </Button>
@@ -1004,7 +1006,7 @@ const ProductDetail = () => {
 
              
 
-              <div className="space-y-3 sm:space-y-4 mt-8">
+              <div className="space-y-2 sm:space-y-3 mt-6">
                 {outOfStock ||
                 (product?.trackInventoryBySize && !selectedSize) ? (
                   <TooltipProvider>
@@ -1013,10 +1015,10 @@ const ProductDetail = () => {
                         <span className="w-full block">
                             <Button
                             size="lg"
-                            className="w-full text-xs sm:text-sm h-12 sm:h-14 bg-primary hover:bg-primary/90 text-primary-foreground text-base font-medium"
+                            className="w-full text-xs sm:text-sm h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium"
                             disabled
                           >
-                            <ShoppingCart className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />
+                            <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                             Add to Cart
                           </Button>
                         </span>
@@ -1031,10 +1033,10 @@ const ProductDetail = () => {
                 ) : (
                   <Button
                     size="lg"
-                    className="w-full text-xs sm:text-sm h-12 sm:h-14 bg-primary hover:bg-primary/90 text-primary-foreground text-base font-medium"
+                    className="w-full text-xs sm:text-sm h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium"
                     onClick={handleAddToCart}
                   >
-                    <ShoppingCart className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />
+                    <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                     Add to Cart
                   </Button>
                 )}
@@ -1045,7 +1047,7 @@ const ProductDetail = () => {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full text-xs sm:text-sm h-12 sm:h-14 border-primary text-primary hover:bg-primary/5 text-base font-medium"
+                    className="w-full text-xs sm:text-sm h-11 sm:h-12 border-primary text-primary hover:bg-primary/5 text-sm font-medium"
                     onClick={handleBuyNow}
                   >
                     Buy Now
@@ -1055,7 +1057,7 @@ const ProductDetail = () => {
                   <Button
                     size="lg"
                     variant={isVerifiedBuyer ? "secondary" : "outline"}
-                    className="w-full text-xs sm:text-sm h-9 sm:h-11"
+                    className="w-full text-xs sm:text-sm h-10 sm:h-11"
                     onClick={() => setShowReviewModal(true)}
                     disabled={!isVerifiedBuyer}
                   >
@@ -1071,7 +1073,7 @@ const ProductDetail = () => {
                           <Button
                             size="lg"
                             variant="outline"
-                            className="w-full text-xs sm:text-sm h-9 sm:h-11"
+                            className="w-full text-xs sm:text-sm h-10 sm:h-11"
                             disabled
                           >
                             Write a Review
@@ -1086,18 +1088,18 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              <div className="border-t border-b border-border py-4 grid grid-cols-3 gap-4">
+              <div className="border-t border-b border-border py-3 grid grid-cols-3 gap-2">
                 <div className="flex flex-col items-center justify-center text-center">
-                  <Banknote className="w-6 h-6 text-primary mb-1 sm:mb-2" />
-                  <span className="text-xs sm:text-sm font-medium">CASH ON DELIVERY</span>
+                  <Banknote className="w-5 h-5 text-primary mb-1" />
+                  <span className="text-[10px] sm:text-xs font-medium">CASH ON DELIVERY</span>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center">
-                  <Truck className="w-6 h-6 text-primary mb-1 sm:mb-2" />
-                  <span className="text-xs sm:text-sm font-medium">FREE SHIPPING</span>
+                  <Truck className="w-5 h-5 text-primary mb-1" />
+                  <span className="text-[10px] sm:text-xs font-medium">FREE SHIPPING</span>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center">
-                  <RefreshCcw className="w-6 h-6 text-primary mb-1 sm:mb-2" />
-                  <span className="text-xs sm:text-sm font-medium">EASY RETURNS</span>
+                  <RefreshCcw className="w-5 h-5 text-primary mb-1" />
+                  <span className="text-[10px] sm:text-xs font-medium">EASY RETURNS</span>
                 </div>
               </div>
             </div>
@@ -1106,86 +1108,86 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto w-full mt-8 sm:mt-12">
+        <div className="max-w-7xl mx-auto w-full mt-6 sm:mt-8">
           <div className="flex flex-col md:flex-row bg-white rounded-lg shadow border border-gray-200">
-            <div className="md:w-1/4 lg:w-1/5 p-4 sm:p-5 md:p-6">
+            <div className="md:w-1/4 lg:w-1/5 p-3 sm:p-4 md:p-6">
               <button
                 type="button"
                 onClick={() => setActiveTab("description")}
                 className={cn(
-                  "w-full text-left py-2 px-3 rounded-md text-sm font-medium transition-colors mb-2 flex items-center justify-between",
+                  "w-full text-left py-1.5 px-2.5 rounded-md text-xs font-medium transition-colors mb-1.5 flex items-center justify-between",
                   activeTab === "description"
                     ? "bg-gray-800 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 )}
               >
                 Description
-                <ArrowRight className="h-4 w-4 text-gray-400" />
+                <ArrowRight className="h-3 w-3 text-gray-400" />
               </button>
               {(product?.highlights?.length || product?.specs?.length) > 0 && (
                 <button
                   type="button"
                   onClick={() => setActiveTab("additional")}
                   className={cn(
-                    "w-full text-left py-2 px-3 rounded-md text-sm font-medium transition-colors mb-2 flex items-center justify-between",
+                    "w-full text-left py-1.5 px-2.5 rounded-md text-xs font-medium transition-colors mb-1.5 flex items-center justify-between",
                     activeTab === "additional"
                       ? "bg-gray-800 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   )}
                 >
                   Additional Information
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
+                  <ArrowRight className="h-3 w-3 text-gray-400" />
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => setActiveTab("reviews")}
                 className={cn(
-                  "w-full text-left py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-between",
+                  "w-full text-left py-1.5 px-2.5 rounded-md text-xs font-medium transition-colors flex items-center justify-between",
                   activeTab === "reviews"
                     ? "bg-gray-800 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 )}
               >
                 Reviews ({product?.reviewCount || 0})
-                <ArrowRight className="h-4 w-4 text-gray-400" />
+                <ArrowRight className="h-3 w-3 text-gray-400" />
               </button>
             </div>
-            <div className="md:w-3/4 lg:w-4/5 p-4 sm:p-6 md:p-8">
+            <div className="md:w-3/4 lg:w-4/5 p-4 sm:p-5 md:p-8">
   {activeTab === "description" && (
-    <div ref={descriptionRef} className="space-y-6 animate-in fade-in duration-300">
+    <div ref={descriptionRef} className="space-y-4 animate-in fade-in duration-300">
       <div>
-        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
           Product Description
         </h3>
-        <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
       </div>
       
       {product?.longDescription ? (
         <div className="prose prose-sm sm:prose-base max-w-none">
-          <div className="text-gray-700 leading-relaxed space-y-4 bg-gradient-to-br from-gray-50 to-white p-6 sm:p-8 rounded-xl border border-gray-100 shadow-sm">
+          <div className="text-gray-700 leading-relaxed space-y-3 bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
             {descriptionExpanded || product.longDescription.length <= 250 ? (
-              <p className="whitespace-pre-wrap break-words text-sm sm:text-base leading-7 text-gray-600 overflow-wrap-break-word px-2">
+              <p className="whitespace-pre-wrap break-words text-xs sm:text-sm leading-6 text-gray-600 overflow-wrap-break-word px-1">
                 {escapeHtml(product.longDescription)}
               </p>
             ) : (
-              <p className="whitespace-pre-wrap break-words text-sm sm:text-base leading-7 text-gray-600 overflow-wrap-break-word px-2">
+              <p className="whitespace-pre-wrap break-words text-xs sm:text-sm leading-6 text-gray-600 overflow-wrap-break-word px-1">
                 {escapeHtml(product.longDescription.substring(0, 250))}...
               </p>
             )}
             {product.longDescription.length > 250 && (
               <button
                 onClick={() => setDescriptionExpanded((v) => !v)}
-                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold mt-4 text-sm px-5 py-2.5 rounded-lg hover:bg-primary/5 transition-all border border-primary/20 hover:border-primary/40"
+                className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 font-semibold mt-3 text-xs px-4 py-2 rounded-lg hover:bg-primary/5 transition-all border border-primary/20 hover:border-primary/40"
               >
                 {descriptionExpanded ? (
                   <>
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-3 w-3" />
                     Show less
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-3 w-3" />
                     Read full description
                   </>
                 )}
@@ -1194,14 +1196,14 @@ const ProductDetail = () => {
           </div>
         </div>
       ) : (
-        <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
+        <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
           <div className="max-w-md mx-auto">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <p className="text-gray-500 text-sm font-medium">No detailed description available</p>
+            <p className="text-gray-500 text-xs font-medium">No detailed description available</p>
           </div>
         </div>
       )}
@@ -1209,32 +1211,32 @@ const ProductDetail = () => {
   )}
 
   {activeTab === "additional" && (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-300">
       <div>
-        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
           Additional Information
         </h3>
-        <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
       </div>
       
       {product?.highlights && product.highlights.length > 0 && (
         <div className="min-w-0">
-          <h4 className="text-lg sm:text-xl font-bold mb-5 text-gray-900 flex items-center gap-2">
-            <span className="w-1 h-6 bg-primary rounded-full"></span>
+          <h4 className="text-base sm:text-lg font-bold mb-4 text-gray-900 flex items-center gap-1.5">
+            <span className="w-0.5 h-5 bg-primary rounded-full"></span>
             Key Highlights
           </h4>
-          <div className="grid gap-3">
+          <div className="grid gap-2.5">
             {product.highlights.map((highlight, idx) => (
               <div 
                 key={idx} 
-                className="group flex items-start gap-4 p-4 sm:p-5 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+                className="group flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200"
               >
-                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center mt-0.5 group-hover:scale-110 transition-transform">
-                  <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center mt-0.5 group-hover:scale-110 transition-transform">
+                  <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </span>
-                <span className="text-gray-700 leading-relaxed text-sm sm:text-base font-medium">
+                <span className="text-gray-700 leading-relaxed text-xs sm:text-sm font-medium">
                   {highlight}
                 </span>
               </div>
@@ -1245,8 +1247,8 @@ const ProductDetail = () => {
       
       {product?.specs && product.specs.length > 0 && (
         <div className="min-w-0">
-          <h4 className="text-lg sm:text-xl font-bold mb-5 text-gray-900 flex items-center gap-2">
-            <span className="w-1 h-6 bg-primary rounded-full"></span>
+          <h4 className="text-base sm:text-lg font-bold mb-4 text-gray-900 flex items-center gap-1.5">
+            <span className="w-0.5 h-5 bg-primary rounded-full"></span>
             Technical Specifications
           </h4>
           <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
@@ -1260,10 +1262,10 @@ const ProductDetail = () => {
                       idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
                     )}
                   >
-                    <td className="px-5 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-bold text-gray-900 w-2/5">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold text-gray-900 w-2/5">
                       {spec.key}
                     </td>
-                    <td className="px-5 sm:px-8 py-4 sm:py-5 text-sm sm:text-base text-gray-600 font-medium">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 font-medium">
                       {spec.value}
                     </td>
                   </tr>
@@ -1275,14 +1277,14 @@ const ProductDetail = () => {
       )}
       
       {(!product?.highlights?.length && !product?.specs?.length) && (
-        <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
+        <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
           <div className="max-w-md mx-auto">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-gray-500 text-sm font-medium">No additional information available</p>
+            <p className="text-gray-500 text-xs font-medium">No additional information available</p>
           </div>
         </div>
       )}
@@ -1290,19 +1292,19 @@ const ProductDetail = () => {
   )}
 
   {activeTab === "reviews" && (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-4 animate-in fade-in duration-300">
       <div>
-        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
           Customer Reviews
           {product?.reviewCount > 0 && (
-            <span className="text-lg font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
+            <span className="text-base font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
               {product.reviewCount}
             </span>
           )}
         </h3>
-        <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
       </div>
-      <div className="bg-gradient-to-br from-gray-50 to-white p-6 sm:p-8 rounded-xl border border-gray-100">
+      <div className="bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6 rounded-xl border border-gray-100">
         <ReviewsList 
           key={product?._id || product?.id || ""} 
           productId={product?._id || product?.id || ""} 
