@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { User, Package } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 interface Product {
   _id: string;
@@ -17,7 +18,7 @@ interface InfluencerImageItem {
   updatedAt: string;
 }
 
-export default function InfluencerImageGrid() {
+export default function AllInfluencersPage() {
   const [influencerImages, setInfluencerImages] = useState<InfluencerImageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,35 +49,17 @@ export default function InfluencerImageGrid() {
     <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16">
-          <div className="flex flex-col items-center md:flex-row mb-4 relative">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-4 md:mb-0 md:absolute md:left-1/2 md:-translate-x-1/2">
-              Featured <span className="text-amber-700">Collections</span>
-            </h2>
-            <Link to="/all-influencers" className="md:ml-auto z-10">
-              <button className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-amber-700 hover:bg-amber-800 transition-colors">
-                Show all influencers
-              </button>
-            </Link>
-          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-gray-900">
+            All <span className="text-amber-700">Influencers</span>
+          </h2>
           <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover our curated selection styled by leading fashion influencers
+            Explore all our talented fashion influencers and their curated collections.
           </p>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 animate-pulse">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div 
-                key={i} 
-                className="bg-gray-200 rounded-none overflow-hidden" 
-                style={{ 
-                  gridRow: i % 3 === 0 ? 'span 2' : 'span 1',
-                  height: i % 3 === 0 ? '500px' : '250px' 
-                }}
-              >
-                <div className="w-full h-full bg-gray-300" />
-              </div>
-            ))}
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-amber-700" />
           </div>
         ) : error ? (
           <div className="text-red-500 text-center py-12">
@@ -84,15 +67,16 @@ export default function InfluencerImageGrid() {
           </div>
         ) : influencerImages.length === 0 ? (
           <div className="text-gray-500 text-center py-12">
-            No images available at the moment.
+            No influencers available at the moment.
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-            {influencerImages.slice(0, -2).map((item, index) => (
-              <div
+            {influencerImages.map((item, index) => (
+              <Link
                 key={item._id}
+                to={`/influencer-collections/${item._id}`}
                 className="relative overflow-hidden group cursor-pointer"
-                style={{ 
+                style={{
                   gridRow: index % 3 === 0 ? 'span 2' : 'span 1',
                   minHeight: index % 3 === 0 ? '500px' : '250px'
                 }}
@@ -122,7 +106,7 @@ export default function InfluencerImageGrid() {
                     <Package className="h-4 w-4 text-gray-800" />
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
@@ -130,3 +114,4 @@ export default function InfluencerImageGrid() {
     </section>
   );
 }
+

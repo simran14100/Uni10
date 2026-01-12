@@ -13,6 +13,8 @@ import Shop from "./pages/Shop";
 import NewArrivals from "./pages/NewArrivals";
 import CollectionDetail from "./pages/CollectionDetail";
 import ProductDetail from "./pages/ProductDetail";
+import AllInfluencersPage from "./pages/AllInfluencersPage";
+import InfluencerImageDetailPage from "./pages/InfluencerImageDetailPage";
 import Cart from "./pages/Cart";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -37,6 +39,9 @@ import AdminReturns from "./pages/AdminReturns";
 import OrderSuccess from "./pages/OrderSuccess";
 import AdminTracking from "./pages/AdminTracking";
 import ProductRedirect from "./pages/ProductRedirect";
+import { ShippingPolicyPage } from "./pages/ShippingPolicyPage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./pages/TermsOfServicePage";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +126,8 @@ const App = () => (
               <Route path="/products/:slug" element={<ProductDetail />} />
               <Route path="/products" element={<Products />} />
               <Route path="/collection/:slug" element={<CollectionDetail />} />
+              <Route path="/all-influencers" element={<AllInfluencersPage />} />
+              <Route path="/influencer-collections/:id" element={<InfluencerImageDetailPage />} />
               <Route path="/product/:id" element={<ProductRedirect />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<CheckoutPayment />} />
@@ -145,6 +152,9 @@ const App = () => (
               <Route path="/account/orders/:id/invoice" element={<InvoicePage />} />
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/page/:slug" element={<PageDetail />} />
+              <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="/contact" element={<Contact />} />
               <Route path="/shipping" element={<HelpCenter />} />

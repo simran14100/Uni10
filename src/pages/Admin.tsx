@@ -8,6 +8,10 @@ import { AdminPages } from '@/components/AdminPages';
 import { AdminInfluencerData } from '@/components/AdminInfluencerData';
 import InfluencerImageSection from '@/components/InfluencerImageSection';
 import { AdminCreateReview } from '@/components/AdminCreateReview';
+import { ShippingPolicyPage } from "./ShippingPolicyPage";
+import { AdminShippingPolicyEditor } from "../components/AdminShippingPolicyEditor";
+import { AdminPrivacyPolicyEditor } from "../components/AdminPrivacyPolicyEditor";
+import { AdminTermsOfServiceEditor } from "../components/AdminTermsOfServiceEditor";
 import { AdminEditReviewModal, AdminReview } from '@/components/AdminEditReviewModal';
 import { Pagination } from '@/components/Pagination';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
@@ -46,6 +50,7 @@ import {
     Upload,
     Video,
     SquarePen,
+    FileText,
     TrendingUp, ShoppingCart, Users, BarChartIcon, Image,
   } from 'lucide-react';
 import {
@@ -137,6 +142,9 @@ const NAV_ITEMS = [
     { id: 'home', label: 'Home Ticker & New Arrivals', icon: LayoutDashboard },
     { id: 'support', label: 'Support Center', icon: MessageCircle },
     { id: 'contact', label: 'Contact Settings', icon: MessageCircle },
+    { id: 'shipping-policy', label: 'Shipping Policy', icon: FileText },
+    { id: 'privacy-policy', label: 'Privacy Policy', icon: FileText },
+    { id: 'terms-of-service', label: 'Terms of Service', icon: FileText },
     { id: 'billing', label: 'Company Billing Details', icon: CreditCard },
     { id: 'payment', label: 'Payment Settings', icon: CreditCard },
     { id: 'razorpaySettings', label: 'Razorpay Settings', icon: CreditCard },
@@ -5367,6 +5375,12 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         return null;
       case 'contact':
         return renderContactSettings();
+      case 'shipping-policy':
+        return <AdminShippingPolicyEditor />;
+      case 'privacy-policy':
+        return <AdminPrivacyPolicyEditor />; 
+      case 'terms-of-service':
+        return <AdminTermsOfServiceEditor />; 
       case 'billing':
         return renderBillingSettings();
       case 'payment':

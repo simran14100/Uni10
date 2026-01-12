@@ -129,9 +129,9 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Support & Info */}
+          {/* Company & Info */}
           <div>
-            <h4 className="font-semibold text-white mb-5">Support</h4>
+            <h4 className="font-semibold text-white mb-5">Company</h4>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -141,26 +141,32 @@ export const Footer = () => {
                   Contact Us
                 </Link>
               </li>
-              {pages.map((page) => (
-                <li key={page.id}>
-                  <Link
-                    to={`/page/${page.slug}`}
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    {page.name}
-                  </Link>
-                </li>
-              ))}
-            
-             
               <li>
-                <a
-                  href="/contact"
+                <Link
+                  to="/shipping-policy"
                   className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
                 >
-                  FAQ
-                </a>
+                  Shipping Policy
+                </Link>
               </li>
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms-of-service"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+             
+             
             </ul>
           </div>
 

@@ -139,7 +139,7 @@ export const AvailableCoupons: React.FC<Props> = ({ onUseNow, productPrice, refr
                   >
                     {/* Top Badge */}
                     <div className="flex items-center gap-1.5 mb-2">
-                      <div className="bg-[#FDB022] text-white text-xs font-medium px-2 py-0.5 rounded flex items-center gap-1">
+                      <div className="bg-green-600 text-white text-xs font-medium px-2 py-0.5 rounded flex items-center gap-1">
                         <span className="text-xs">💰</span>
                         <span>Save extra with these offers</span>
                       </div>
@@ -147,7 +147,7 @@ export const AvailableCoupons: React.FC<Props> = ({ onUseNow, productPrice, refr
 
                     {/* Offer Text */}
                     {coupon.offerText && (
-                      <p className="text-base font-bold text-[#059669] dark:text-green-400 mb-1">
+                      <p className="text-base font-bold text-gray-900 dark:text-gray-900 mb-1">
                         {coupon.offerText} ₹{discountedPrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                         {' '}<span className="text-xs text-gray-400 line-through font-normal">₹{productPrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                       </p>
@@ -155,7 +155,7 @@ export const AvailableCoupons: React.FC<Props> = ({ onUseNow, productPrice, refr
 
                     {/* Description */}
                     {coupon.description && (
-                      <p className="text-xs text-[#DC2626] dark:text-red-400 mb-2 flex items-center gap-1">
+                      <p className="text-xs text-red-800 dark:text-red-800 mb-2 flex items-center gap-1">
                         <Flame className="h-3 w-3" /> {coupon.description}
                       </p>
                     )}
