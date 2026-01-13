@@ -8,7 +8,21 @@ const { authOptional, requireAuth, requireAdmin } = require('../middleware/auth'
 // List products: supports active, featured, category, aliases (collection, categorySlug), q, sort, page, limit
 router.get('/', authOptional, async (req, res) => {
   try {
-    const { active, featured, category, collection, categorySlug, q, gender } = req.query;
+    const {
+      active,
+      featured,
+      category,
+      collection,
+      categorySlug,
+      q,
+      gender,
+      colors,
+      color,
+      sizes,
+      size,
+      minPrice,
+      maxPrice,
+    } = req.query;
     const limit = Number(req.query.limit || 50);
     const page = Number(req.query.page || 1);
     const sortParam = String(req.query.sort || ''); // e.g., createdAt:desc
@@ -58,6 +72,53 @@ router.get('/', authOptional, async (req, res) => {
       filter.$or = Array.isArray(filter.$or)
         ? [...filter.$or, { title: qReg }, { category: qReg }]
         : [{ title: qReg }, { category: qReg }];
+    }
+
+    // Color filter (supports colors=Red or color=Red)
+    const colorParam = colors || color;
+    if (colorParam) {
+      const raw = String(colorParam).trim();
+      if (raw) {
+        const escaped = escapeRegExp(raw);
+        // `colors` is an array of strings; match any element (case-insensitive)
+        filter.colors = new RegExp(`^${escaped}$`, 'i');
+      }
+    }
+
+    // Size filter (supports sizes=M or size=M)
+    const sizeParam = sizes || size;
+    if (sizeParam) {
+      const raw = String(sizeParam).trim();
+      if (raw) {
+        const escaped = escapeRegExp(raw);
+        const sizeRegex = new RegExp(`^${escaped}$`, 'i');
+
+        // If inventory-by-size is used, require qty > 0 for that size.
+        // Also support legacy `sizes` array (array of strings).
+        filter.$and = Array.isArray(filter.$and) ? filter.$and : [];
+        filter.$and.push({
+          $or: [
+            { sizes: sizeRegex },
+            {
+              sizeInventory: {
+                $elemMatch: {
+                  qty: { $gt: 0 },
+                  $or: [{ code: sizeRegex }, { label: sizeRegex }],
+                },
+              },
+            },
+          ],
+        });
+      }
+    }
+
+    // Price filter (minPrice/maxPrice)
+    const min = typeof minPrice !== 'undefined' ? Number(minPrice) : undefined;
+    const max = typeof maxPrice !== 'undefined' ? Number(maxPrice) : undefined;
+    if (!Number.isNaN(min) || !Number.isNaN(max)) {
+      filter.price = {};
+      if (!Number.isNaN(min)) filter.price.$gte = min;
+      if (!Number.isNaN(max)) filter.price.$lte = max;
     }
 
     const l = Math.min(200, isNaN(limit) ? 50 : limit);

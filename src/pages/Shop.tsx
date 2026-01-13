@@ -24,6 +24,8 @@ type ProductRow = {
   gender?: string;
   colors?: string[];
   sizes?: string[];
+  trackInventoryBySize?: boolean;
+  sizeInventory?: Array<{ code?: string; label?: string; qty?: number }>;
   image_url?: string;
   images?: string[];
   slug?: string;
@@ -151,9 +153,52 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
     products.forEach(p => p.colors?.forEach(c => colors.add(c)));
     return Array.from(colors).sort();
   }, [products, staticColors]);
-  const availableSizes = useMemo(() => { // Dummy data for sizes
+
+  const getProductSizes = (p: ProductRow) => {
+    const out = new Set<string>();
+    p.sizes?.forEach((s) => {
+      const v = String(s || "").trim();
+      if (v) out.add(v);
+    });
+    p.sizeInventory?.forEach((si) => {
+      // If qty is provided, only expose sizes that are in stock
+      const qty =
+        typeof si?.qty === "number" ? si.qty : si?.qty == null ? undefined : Number(si.qty);
+      if (typeof qty === "number" && qty <= 0) return;
+
+      const label = String(si?.label || "").trim();
+      const code = String(si?.code || "").trim();
+      if (label) out.add(label);
+      // If code differs from label, keep it too (some APIs use code values like "S")
+      if (code && code !== label) out.add(code);
+    });
+    return Array.from(out);
+  };
+
+  const productHasSizeInStock = (p: ProductRow, size: string) => {
+    const wanted = String(size || "").trim().toLowerCase();
+    if (!wanted || wanted === "all") return true;
+
+    // Prefer sizeInventory if present, and treat qty=0 as unavailable
+    if (Array.isArray(p.sizeInventory) && p.sizeInventory.length > 0) {
+      return p.sizeInventory.some((si) => {
+        const qty =
+          typeof si?.qty === "number" ? si.qty : si?.qty == null ? undefined : Number(si.qty);
+        if (typeof qty === "number" && qty <= 0) return false;
+        const label = String(si?.label || "").trim().toLowerCase();
+        const code = String(si?.code || "").trim().toLowerCase();
+        return label === wanted || code === wanted;
+      });
+    }
+
+    return Array.isArray(p.sizes)
+      ? p.sizes.some((s) => String(s || "").trim().toLowerCase() === wanted)
+      : false;
+  };
+
+  const availableSizes = useMemo(() => {
     const sizes = new Set<string>();
-    products.forEach(p => p.sizes?.forEach(s => sizes.add(s)));
+    products.forEach((p) => getProductSizes(p).forEach((s) => sizes.add(s)));
     return ["All", ...Array.from(sizes).sort()];
   }, [products]);
 
@@ -244,6 +289,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
       params.append("minPrice", String(priceRange[0]));
       params.append("maxPrice", String(priceRange[1]));
       params.append("active", "all");
+      params.append("limit", "200");
 
 
       const query = params.toString();
@@ -309,7 +355,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
 
     if (selectedSize !== "All") {
       result = result.filter(
-        (p) => p.sizes?.some(s => s.toLowerCase() === selectedSize.toLowerCase())
+        (p) => productHasSizeInStock(p, selectedSize)
       );
     }
 
