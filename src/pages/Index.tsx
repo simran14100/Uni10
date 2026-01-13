@@ -65,6 +65,25 @@ type FeatureRowData = {
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+const HOME_DEBUG = !!import.meta.env.DEV;
+
+function homeLog(...args: any[]) {
+  if (!HOME_DEBUG) return;
+  // eslint-disable-next-line no-console
+  console.log(...args);
+}
+
+function homeWarn(...args: any[]) {
+  if (!HOME_DEBUG) return;
+  // eslint-disable-next-line no-console
+  console.warn(...args);
+}
+
+function homeError(...args: any[]) {
+  if (!HOME_DEBUG) return;
+  // eslint-disable-next-line no-console
+  console.error(...args);
+}
 
 const resolveImage = (src?: string) => {
   const s = String(src || "");
@@ -211,7 +230,17 @@ const Index = () => {
         setFeaturedLoading(true);
         setFeaturedError(null);
 
-        const { ok, json } = await api("/api/products?featured=true&active=all");
+        const url = "/api/products?featured=true&active=all";
+        homeLog("[Index] Featured: request", { url });
+        const { ok, status, json } = await api(url);
+        homeLog("[Index] Featured: response", {
+          url,
+          ok,
+          status,
+          dataType: Array.isArray(json?.data) ? "array" : typeof json?.data,
+          dataLen: Array.isArray(json?.data) ? json.data.length : undefined,
+          message: json?.message || json?.error,
+        });
         if (!ok)
           throw new Error(json?.message || json?.error || "Failed to load");
 
@@ -219,8 +248,13 @@ const Index = () => {
           ? (json.data as ProductRow[])
           : [];
 
+        if (!Array.isArray(json?.data)) {
+          homeWarn("[Index] Featured: json.data is not an array", { url, json });
+        }
+        homeLog("[Index] Featured: mapped list length", { len: list.length });
         if (!ignore) setFeaturedProducts(list);
       } catch (e: any) {
+        homeError("[Index] Featured: error", e);
         if (!ignore)
           setFeaturedError(e?.message || "Failed to load featured products");
       } finally {
@@ -241,9 +275,17 @@ const Index = () => {
         setNewArrivalsError(null);
 
         const limit = 12;
-        const { ok, json } = await api(
-          `/api/products?sort=createdAt:desc&limit=${limit}&active=all`
-        );
+        const url = `/api/products?sort=createdAt:desc&limit=${limit}&active=all`;
+        homeLog("[Index] NewArrivals: request", { url });
+        const { ok, status, json } = await api(url);
+        homeLog("[Index] NewArrivals: response", {
+          url,
+          ok,
+          status,
+          dataType: Array.isArray(json?.data) ? "array" : typeof json?.data,
+          dataLen: Array.isArray(json?.data) ? json.data.length : undefined,
+          message: json?.message || json?.error,
+        });
         if (!ok)
           throw new Error(json?.message || json?.error || "Failed to load");
 
@@ -251,14 +293,29 @@ const Index = () => {
           ? (json.data as ProductRow[])
           : [];
 
+        if (!Array.isArray(json?.data)) {
+          homeWarn("[Index] NewArrivals: json.data is not an array", {
+            url,
+            json,
+          });
+        }
+        homeLog("[Index] NewArrivals: list before sort", {
+          len: list.length,
+          sampleCreatedAt: list[0]?.createdAt,
+        });
         list = list.sort((a, b) => {
           const da = new Date(a.createdAt || "").getTime();
           const db = new Date(b.createdAt || "").getTime();
           return db - da;
         });
 
+        homeLog("[Index] NewArrivals: list after sort", {
+          len: list.length,
+          firstCreatedAt: list[0]?.createdAt,
+        });
         if (!ignore) setNewArrivals(list.slice(0, limit));
       } catch (e: any) {
+        homeError("[Index] NewArrivals: error", e);
         if (!ignore)
           setNewArrivalsError(e?.message || "Failed to load new arrivals");
       } finally {
@@ -279,7 +336,17 @@ const Index = () => {
         setCatsLoading(true);
         setCatsError(null);
 
-        const { ok, json } = await api("/api/categories");
+        const catsUrl = "/api/categories";
+        homeLog("[Index] Categories: request", { url: catsUrl });
+        const { ok, status, json } = await api(catsUrl);
+        homeLog("[Index] Categories: response", {
+          url: catsUrl,
+          ok,
+          status,
+          dataType: Array.isArray(json?.data) ? "array" : typeof json?.data,
+          dataLen: Array.isArray(json?.data) ? json.data.length : undefined,
+          message: json?.message || json?.error,
+        });
         if (!ok)
           throw new Error(
             json?.message || json?.error || "Failed to load categories"
@@ -290,12 +357,31 @@ const Index = () => {
           : [];
 
         const subcategories = list.filter(cat => cat.parent !== null);
+        if (HOME_DEBUG) {
+          const parentNull = list.filter((c) => c.parent === null).length;
+          const parentNotNull = subcategories.length;
+          homeLog("[Index] Categories: parent stats", {
+            total: list.length,
+            parentNull,
+            parentNotNull,
+          });
+          if (parentNotNull === 0 && list.length > 0) {
+            homeWarn(
+              "[Index] Categories: 0 subcategories found (parent !== null). The carousel will be empty with current logic.",
+              { total: list.length, parentNull }
+            );
+          }
+        }
         if (!ignore) setCats(subcategories);
 
         setMixedLoading(true);
         setMixedError(null);
 
         const catIds = subcategories.map((cat) => cat.slug || cat.name || "");
+        homeLog("[Index] Categories: catIds for product lookup", {
+          len: catIds.length,
+          sample: catIds.slice(0, 5),
+        });
         const productPromises = catIds.map((catId) =>
           api(`/api/products?category=${encodeURIComponent(catId)}&limit=1`)
         );
@@ -311,10 +397,29 @@ const Index = () => {
             if (products.length > 0) {
               catMap.set(catIds[index], products[0]);
             }
+          } else if (HOME_DEBUG) {
+            homeWarn("[Index] Category product lookup failed", {
+              catId: catIds[index],
+              status: res.status,
+              message: res.json?.message || res.json?.error,
+            });
           }
         });
+        homeLog("[Index] Categories: categoryProducts map size", {
+          size: catMap.size,
+        });
 
-        const pre = await api("/api/products?limit=200");
+        const preUrl = "/api/products?limit=200";
+        homeLog("[Index] Mixed: preload request", { url: preUrl });
+        const pre = await api(preUrl);
+        homeLog("[Index] Mixed: preload response", {
+          url: preUrl,
+          ok: pre.ok,
+          status: pre.status,
+          dataType: Array.isArray(pre.json?.data) ? "array" : typeof pre.json?.data,
+          dataLen: Array.isArray(pre.json?.data) ? pre.json.data.length : undefined,
+          message: pre.json?.message || pre.json?.error,
+        });
         if (!pre.ok)
           throw new Error(
             pre.json?.message || pre.json?.error || "Failed to load products"
@@ -323,12 +428,24 @@ const Index = () => {
         const productsAll = Array.isArray(pre.json?.data)
           ? (pre.json.data as ProductRow[])
           : [];
+        if (!Array.isArray(pre.json?.data)) {
+          homeWarn("[Index] Mixed: pre.json.data is not an array", {
+            url: preUrl,
+            json: pre.json,
+          });
+        }
 
         const catNames = new Set<string>(catIds);
         const filtered = productsAll.filter(
           (p) => p.category && catNames.has(String(p.category))
         );
         const enriched = filtered.length ? filtered : productsAll;
+        homeLog("[Index] Mixed: filter stats", {
+          all: productsAll.length,
+          filtered: filtered.length,
+          enriched: enriched.length,
+          catIds: catIds.length,
+        });
 
         const mixed = enriched
           .filter(Boolean)
@@ -344,6 +461,7 @@ const Index = () => {
           setMixedProducts(mixed);
         }
       } catch (e: any) {
+        homeError("[Index] Categories/Mixed: error", e);
         if (!ignore) {
           setCatsError(e?.message || "Failed to load categories");
           setMixedError(e?.message || "Failed to load products");
@@ -621,7 +739,7 @@ const Index = () => {
       </div>
 
       {/* Content */}
-      <div className="text-white">
+      <div className="text-white text-center md:text-left">
         <p className="text-xs font-medium mb-1 text-red-500">Deal of the Week</p>
         <h2 className="text-2xl md:text-5xl font-bold mb-3 leading-tight">
           Deal of the Week Let's

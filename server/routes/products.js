@@ -28,11 +28,16 @@ router.get('/', authOptional, async (req, res) => {
     const sortParam = String(req.query.sort || ''); // e.g., createdAt:desc
 
     const filter = {};
-    // By default, only return active products. Allow overriding with active=false or active=all
-    if (typeof active === 'undefined') {
-      filter.active = true;
-    } else if (String(active).toLowerCase() === 'false' || String(active) === '0') {
-      filter.active = false;
+    // By default, only return "active" products, but treat missing `active` as active for legacy docs.
+    // Allow overriding with active=false or active=all.
+    const andClauses = [];
+    const activeStr = typeof active === 'undefined' ? undefined : String(active).toLowerCase();
+    if (typeof active === 'undefined' || activeStr === 'true' || activeStr === '1') {
+      andClauses.push({ $or: [{ active: true }, { active: { $exists: false } }] });
+    } else if (activeStr === 'false' || activeStr === '0') {
+      andClauses.push({ active: false });
+    } else if (activeStr === 'all') {
+      // no active filter
     }
 
     if (typeof featured !== 'undefined') {
@@ -113,12 +118,28 @@ router.get('/', authOptional, async (req, res) => {
     }
 
     // Price filter (minPrice/maxPrice)
-    const min = typeof minPrice !== 'undefined' ? Number(minPrice) : undefined;
-    const max = typeof maxPrice !== 'undefined' ? Number(maxPrice) : undefined;
-    if (!Number.isNaN(min) || !Number.isNaN(max)) {
+    // NOTE: `Number.isNaN(undefined)` is false, so we must guard by checking the query param exists.
+    const min = typeof minPrice !== 'undefined' && String(minPrice).trim() !== '' ? Number(minPrice) : undefined;
+    const max = typeof maxPrice !== 'undefined' && String(maxPrice).trim() !== '' ? Number(maxPrice) : undefined;
+    const hasMin = typeof min === 'number' && Number.isFinite(min);
+    const hasMax = typeof max === 'number' && Number.isFinite(max);
+    if (hasMin || hasMax) {
       filter.price = {};
-      if (!Number.isNaN(min)) filter.price.$gte = min;
-      if (!Number.isNaN(max)) filter.price.$lte = max;
+      if (hasMin) filter.price.$gte = min;
+      if (hasMax) filter.price.$lte = max;
+    }
+
+    // Merge any AND clauses (e.g., active + size filters) without clobbering existing $or usage.
+    if (andClauses.length) {
+      filter.$and = Array.isArray(filter.$and) ? filter.$and : [];
+      filter.$and.push(...andClauses);
+    }
+
+    // Debug switch: hit /api/products?...&__debugProducts=1 to print query + filter + result length
+    const debugProducts = String(req.query.__debugProducts || '') === '1';
+    if (debugProducts) {
+      console.log('[products] req.query =', req.query);
+      console.log('[products] mongo filter =', JSON.stringify(filter));
     }
 
     const l = Math.min(200, isNaN(limit) ? 50 : limit);
@@ -137,6 +158,7 @@ router.get('/', authOptional, async (req, res) => {
     let query = Product.find(filter);
     if (sort) query = query.sort(sort);
     const docs = await query.skip((p - 1) * l).limit(l).lean();
+    if (debugProducts) console.log('[products] docs length =', Array.isArray(docs) ? docs.length : '(not array)');
     return res.json({ ok: true, data: docs });
   } catch (e) {
     console.error(e);
