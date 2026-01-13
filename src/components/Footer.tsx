@@ -45,7 +45,7 @@ export const Footer = () => {
       ></div>
       <div className="container mx-auto px-8 py-16 md:py-20 relative z-10">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12 w-full">
           {/* Brand Section */}
           <div className="lg:col-span-2">
             {/* Yahan pe image wala logo */}
@@ -91,7 +91,7 @@ export const Footer = () => {
           </div>
 
           {/* Shop and Support Links (Mobile Parallel) */}
-          <div className="grid grid-cols-2 gap-12 md:col-span-1">
+          <div className="grid grid-cols-2 gap-12 md:col-span-1 lg:col-span-2">
           {/* Shop Links */}
           <div>
             <h4 className="font-semibold text-white mb-5">Shop</h4>
@@ -172,7 +172,7 @@ export const Footer = () => {
           </div>
 
           {/* Connect */}
-          <div>
+          <div className="lg:col-span-1">
             <h4 className="font-semibold text-white mb-5">Follow Us</h4>
             <p className="text-sm text-gray-300 mb-4">
               Stay updated with our latest collections and news.
