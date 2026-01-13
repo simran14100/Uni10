@@ -670,17 +670,8 @@ const ProductDetail = () => {
           </Link>
 
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 sm:gap-8 md:gap-12 w-full bg-white p-4 sm:p-6 md:p-12 rounded-lg shadow-md">
-            <div className="min-w-0 order-2 md:order-1">
-              <ProductImageGallery
-                images={product?.images || []}
-                productTitle={title}
-                selectedColor={selectedColor}
-                colorImages={product?.colorImages}
-                colorVariants={product?.colorVariants}
-              />
-            </div>
-
-            <div className="min-w-0 p-4 sm:p-5 md:p-8 border border-gray-200 rounded-lg order-1 md:order-2">
+            {/* Mobile: show key info first, then images, then rest */}
+            <div className="min-w-0 md:hidden p-4 sm:p-5 border border-gray-200 rounded-lg order-1">
               <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
                 {product.category}
               </p>
@@ -723,8 +714,105 @@ const ProductDetail = () => {
                   </div>
                 )}
               </div>
-              <p className="text-xs text-gray-500 mb-1">Lowest price in last 30 days</p>
-              <p className="text-xs text-gray-500 mb-4">826 people bought this in last 7 days</p>
+              {product.paragraph1 && (
+                <div className="flex items-start gap-1 text-xs mb-1">
+                  <span className="text-red-800 mt-0.5">
+                    <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                  <p className="text-red-800 font-medium">{product.paragraph1}</p>
+                </div>
+              )}
+
+              {product.paragraph2 && (
+                <div className="flex items-start gap-1 text-xs mb-1">
+                  <span className="text-gray-900 mt-0.5">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
+                    </svg>
+                  </span>
+                  <p className="text-gray-900 font-medium">{product.paragraph2}</p>
+                </div>
+              )}
+              <div className="mb-3 sm:mb-4">
+                <Badge
+                  variant={outOfStock ? "destructive" : "secondary"}
+                  className="text-xs sm:text-sm"
+                >
+                  {outOfStock ? "Not Available" : "Available"}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4 sm:mb-6">
+                {product.description && product.description.length > 150
+                  ? (<> {`${product.description.substring(0, 150)}...`} <span
+                      className="text-primary text-xs cursor-pointer hover:underline"
+                      onClick={() => {
+                        descriptionRef.current?.scrollIntoView({ behavior: 'smooth' });
+                        setActiveTab("description");
+                      }}
+                    >
+                      Read more
+                    </span></>)
+                  : product.description}
+              </p>
+            </div>
+
+            <div className="min-w-0 order-2 md:order-1">
+              <ProductImageGallery
+                images={product?.images || []}
+                productTitle={title}
+                selectedColor={selectedColor}
+                colorImages={product?.colorImages}
+                colorVariants={product?.colorVariants}
+              />
+            </div>
+
+            <div className="min-w-0 p-4 sm:p-5 md:p-8 border border-gray-200 rounded-lg order-3 md:order-2">
+              {/* Desktop: keep full details in right column */}
+              <div className="hidden md:block">
+              <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
+                {product.category}
+              </p>
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <h1 className="text-xl sm:text-2xl md:text-4xl font-black tracking-tighter break-words text-gray-900">
+                  {title}
+                </h1>
+                <ShareButton
+                  productName={title}
+                  productUrl={window.location.href}
+                  productImage={img}
+                />
+              </div>
+              <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
+                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
+                  ₹{(() => {
+                    const basePrice = Number(product.price ?? 0);
+                    let final = basePrice;
+                    if (product?.discount?.value && product.discount.type === 'percentage') {
+                      final = basePrice - (basePrice * product.discount.value / 100);
+                      const priceStr = final.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                      return priceStr;
+                    } else if (product?.discount?.value && product.discount.type === 'flat') {
+                      final = Math.max(0, basePrice - product.discount.value);
+                      const priceStr = final.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                      return priceStr;
+                    }
+                    const priceStr = basePrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    return priceStr;
+                  })()}
+                </p>
+                {product?.discount?.value && product.discount.value > 0 && (
+                  <div className="flex items-baseline">
+                    <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
+                      ₹{Number(product.price ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </span>
+                    <span className="text-xs font-medium text-red-600">
+                      {product.discount.type === 'percentage' ? `${product.discount.value}% OFF` : `₹${product.discount.value} OFF`}
+                    </span>
+                  </div>
+                )}
+              </div>
               {product.paragraph1 && (
   <div className="flex items-start gap-1 text-xs mb-1">
     <span className="text-red-800 mt-0.5">
@@ -767,6 +855,7 @@ const ProductDetail = () => {
                     </span></>)
                   : product.description}
               </p>
+              </div>
 
               <AvailableCoupons
                 refreshTrigger={refreshKey}
