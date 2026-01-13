@@ -65,7 +65,7 @@ const normalizeCategory = (value: string) => String(value || "").trim().toLowerC
 
   function slugify(input: string) {
     return String(input || "")
-      .toLowerCase()
+    .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
   }

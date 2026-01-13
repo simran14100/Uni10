@@ -92,82 +92,82 @@ export const Footer = () => {
 
           {/* Shop and Support Links (Mobile Parallel) */}
           <div className="grid grid-cols-2 gap-12 md:col-span-1">
-            {/* Shop Links */}
-            <div>
-              <h4 className="font-semibold text-white mb-5">Shop</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    to="/shop"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    All Products
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/shop/new-arrivals"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    New Arrivals
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/products"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    Collections
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/wishlist"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    Wishlist
-                  </Link>
-                </li>
-              </ul>
-            </div>
+          {/* Shop Links */}
+          <div>
+            <h4 className="font-semibold text-white mb-5">Shop</h4>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  to="/shop"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  All Products
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/shop/new-arrivals"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  New Arrivals
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Collections
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/wishlist"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Wishlist
+                </Link>
+              </li>
+            </ul>
+          </div>
 
-            {/* Company & Info */}
-            <div>
+          {/* Company & Info */}
+          <div>
               <h4 className="font-semibold text-white mb-5">Support</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    to="/contact"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/shipping-policy"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    Shipping Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/privacy-policy"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/terms-of-service"
-                    className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
-              </ul>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  to="/contact"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/shipping-policy"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms-of-service"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
             </div>
           </div>
 

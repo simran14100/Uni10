@@ -652,7 +652,7 @@ const Index = () => {
 
         {/* Countdown Timer */}
         <div className="flex justify-center mt-4">
-          <div>
+        <div>
           <p className="text-sm mb-1 font-medium">Hurry Up:</p>
           <p className="text-xs mb-2 opacity-90">Offer ends in</p>
           <div className="flex gap-2">
@@ -672,8 +672,8 @@ const Index = () => {
               <div className="text-base font-bold">23</div>
               <div className="text-[8px]">Sec</div>
             </div>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

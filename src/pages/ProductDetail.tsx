@@ -1132,7 +1132,7 @@ const ProductDetail = () => {
                     "w-full text-left py-1.5 px-2.5 rounded-md text-xs font-medium transition-colors mb-1.5 flex items-center justify-between",
                     activeTab === "additional"
                       ? "bg-gray-800 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   )}
                 >
                   Additional Information
