@@ -43,7 +43,8 @@ export default function AdminTracking() {
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
-  const [statusFilter, setStatusFilter] = useState('');
+  // Radix Select does not allow empty-string item values; use a sentinel for "All".
+  const [statusFilter, setStatusFilter] = useState<'all' | string>('all');
   const [totalPages, setTotalPages] = useState(1);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -66,7 +67,15 @@ export default function AdminTracking() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/admin/orders/stats');
+      const token = localStorage.getItem('token') || '';
+      const response = await fetch('/api/admin/orders/stats', {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      if (response.status === 401 || response.status === 403) {
+        // Not logged in / not admin; don't crash the page.
+        setStats(null);
+        return;
+      }
       const data = await response.json();
       if (data.ok) {
         setStats(data.data);
@@ -82,7 +91,7 @@ export default function AdminTracking() {
 
     try {
       let url = `/api/orders?page=${page}&limit=${limit}`;
-      if (statusFilter) {
+      if (statusFilter && statusFilter !== 'all') {
         url += `&status=${statusFilter}`;
       }
 
@@ -248,7 +257,7 @@ export default function AdminTracking() {
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Statuses</SelectItem>
+                      <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="paid">Paid</SelectItem>
                       <SelectItem value="shipped">Shipped</SelectItem>
