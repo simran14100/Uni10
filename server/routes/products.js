@@ -311,6 +311,18 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
             keywords: body.seo.keywords ? String(body.seo.keywords).trim() : undefined,
           }
         : { title: undefined, description: undefined, keywords: undefined },
+      sizeFit: body.sizeFit && typeof body.sizeFit === 'object'
+        ? {
+            fit: body.sizeFit.fit ? String(body.sizeFit.fit).trim() : undefined,
+            modelWearingSize: body.sizeFit.modelWearingSize ? String(body.sizeFit.modelWearingSize).trim() : undefined,
+          }
+        : { fit: undefined, modelWearingSize: undefined },
+      faq: Array.isArray(body.faq)
+        ? body.faq.map(f => ({
+            question: String(f.question || '').trim(),
+            answer: String(f.answer || '').trim()
+          })).filter(f => f.question && f.answer)
+        : [],
       active: typeof body.active === 'boolean' ? body.active : true,
     };
 
@@ -414,9 +426,21 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
         keywords: body.seo.keywords ? String(body.seo.keywords).trim() : undefined,
       };
     }
+    if (body.sizeFit !== undefined && typeof body.sizeFit === 'object') {
+      updates.sizeFit = {
+        fit: body.sizeFit.fit ? String(body.sizeFit.fit).trim() : undefined,
+        modelWearingSize: body.sizeFit.modelWearingSize ? String(body.sizeFit.modelWearingSize).trim() : undefined,
+      };
+    }
     if (typeof body.sizeChartUrl !== 'undefined') updates.sizeChartUrl = body.sizeChartUrl || undefined;
     if (typeof body.sizeChartTitle !== 'undefined') updates.sizeChartTitle = body.sizeChartTitle || undefined;
     if (body.sizeChart !== undefined) updates.sizeChart = body.sizeChart || undefined;
+    if (Array.isArray(body.faq)) {
+      updates.faq = body.faq.map(f => ({
+        question: String(f.question || '').trim(),
+        answer: String(f.answer || '').trim()
+      })).filter(f => f.question && f.answer);
+    }
 
     // If Admin UI sent categoryId/subcategoryId, resolve to category name/slug
     try {

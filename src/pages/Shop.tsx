@@ -8,7 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
-import { ChevronDown, Filter, XCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronDown, Filter, XCircle, ArrowUpDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -110,9 +111,11 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedGender, setSelectedGender] = useState<string>("All");
+  const [selectedGenderSubcategory, setSelectedGenderSubcategory] = useState<string>("All");
   const [selectedColor, setSelectedColor] = useState<string>("All");
   const [selectedSize, setSelectedSize] = useState<string>("All");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]); // Example price range
+  const [priceSort, setPriceSort] = useState<string>("none"); // "none", "low-to-high", "high-to-low"
 
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,6 +126,13 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
   const [productUpdateKey, setProductUpdateKey] = useState(0); // New state variable for triggering updates
 
   const [showAllColors, setShowAllColors] = useState(false);
+
+  // Type for category with parent property
+  type CategoryWithParent = {
+    name?: string;
+    slug?: string;
+    parent?: string | null;
+  };
 
   const staticColors = useMemo(() => [
     { name: "Multicolor", hex: "#808080" }, // Grey for multicolor
@@ -225,9 +235,11 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
   const handleClearFilters = () => {
     setSelectedCategory("All");
     setSelectedGender("All");
+    setSelectedGenderSubcategory("All");
     setSelectedColor("All");
     setSelectedSize("All");
     setPriceRange([0, 1000]);
+    setPriceSort("none");
     setCurrentPage(1);
   };
 
@@ -260,9 +272,11 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
         const { ok, json } = await api("/api/categories");
         const list =
           ok && Array.isArray(json?.data)
-            ? (json.data as Array<{ name?: string; slug?: string }>)
+            ? (json.data as Array<CategoryWithParent>)
             : [];
-        const names = list
+        // Filter to only show subcategories (where parent !== null)
+        const subcategories = list.filter((c) => c.parent !== null && c.parent !== undefined);
+        const names = subcategories
           .map((c) => String(c.name || c.slug || "").trim())
           .filter(Boolean);
         if (!ignore) setApiCategories(names);
@@ -322,29 +336,73 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
 
   const categories = useMemo(() => {
     const cats = new Set<string>(["All"]);
-    products.forEach((p) => {
-      if (p.category) cats.add(String(p.category));
-    });
+    // Only add categories that are in apiCategories (which are filtered to subcategories only)
     apiCategories.forEach((n) => {
       if (n) cats.add(String(n));
+    });
+    // Also add product categories that match subcategories from API
+    products.forEach((p) => {
+      if (p.category) {
+        const categoryName = String(p.category).trim();
+        // Only add if it matches a subcategory from API
+        if (apiCategories.includes(categoryName)) {
+          cats.add(categoryName);
+        }
+      }
     });
     return Array.from(cats);
   }, [products, apiCategories]);
 
+  // Subcategories filtered by selected gender
+  const genderSubcategories = useMemo(() => {
+    if (selectedGender === "All") return [];
+    
+    const genderLower = selectedGender.toLowerCase();
+    const subcats = new Set<string>(["All"]);
+    
+    // Get subcategories that have products for the selected gender
+    products.forEach((p) => {
+      const productGender = String(p.gender || "").toLowerCase();
+      if (productGender === genderLower && p.category) {
+        const categoryName = String(p.category).trim();
+        // Only add if it matches a subcategory from API
+        if (apiCategories.includes(categoryName)) {
+          subcats.add(categoryName);
+        }
+      }
+    });
+    
+    return Array.from(subcats);
+  }, [products, apiCategories, selectedGender]);
+
   const filteredProducts = useMemo(() => {
-    const normalizedSelectedCategory = normalizeCategory(selectedCategory);
     let result = products;
 
-    if (normalizedSelectedCategory !== "all") {
+    // If gender subcategory is selected, use that instead of main category
+    if (selectedGenderSubcategory !== "All" && selectedGender !== "All") {
+      const normalizedSubcat = normalizeCategory(selectedGenderSubcategory);
       result = result.filter(
-        (p) => normalizeCategory(p.category || "") === normalizedSelectedCategory
+        (p) => {
+          const productGender = String(p.gender || "").toLowerCase();
+          const matchesGender = productGender === selectedGender.toLowerCase();
+          const matchesSubcat = normalizeCategory(p.category || "") === normalizedSubcat;
+          return matchesGender && matchesSubcat;
+        }
       );
-    }
+    } else {
+      // Use main category filter if gender subcategory is not selected
+      const normalizedSelectedCategory = normalizeCategory(selectedCategory);
+      if (normalizedSelectedCategory !== "all") {
+        result = result.filter(
+          (p) => normalizeCategory(p.category || "") === normalizedSelectedCategory
+        );
+      }
 
-    if (selectedGender !== "All") {
-      result = result.filter(
-        (p) => String(p.gender || "").toLowerCase() === selectedGender.toLowerCase()
-      );
+      if (selectedGender !== "All") {
+        result = result.filter(
+          (p) => String(p.gender || "").toLowerCase() === selectedGender.toLowerCase()
+        );
+      }
     }
 
     if (selectedColor !== "All") {
@@ -363,8 +421,15 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
       (p) => (p.price || 0) >= priceRange[0] && (p.price || 0) <= priceRange[1]
     );
 
+    // Apply price sorting
+    if (priceSort === "low-to-high") {
+      result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (priceSort === "high-to-low") {
+      result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0));
+    }
+
     return result;
-  }, [products, selectedCategory, selectedGender, selectedColor, selectedSize, priceRange]);
+  }, [products, selectedCategory, selectedGender, selectedGenderSubcategory, selectedColor, selectedSize, priceRange, priceSort]);
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const startIdx = (currentPage - 1) * PRODUCTS_PER_PAGE;
@@ -396,32 +461,77 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
           </p>
         </div>
 
-        <div className="flex items-center justify-between mb-8">
-          {/* Clear Filters Button (Desktop) */}
-          <Button
-            variant="outline"
-            onClick={handleClearFilters}
-            className="hidden lg:flex items-center shrink-0"
-          >
-            <XCircle className="w-4 h-4 mr-2" /> Clear Filters
-          </Button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8">
+          {/* Left Section: Clear Filters (Desktop) */}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={handleClearFilters}
+              className="hidden lg:flex items-center shrink-0"
+            >
+              <XCircle className="w-4 h-4 mr-2" /> Clear Filters
+            </Button>
+          </div>
 
-          {/* Search Input (Desktop and Mobile) */}
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Search products…"
-            className="flex-grow max-w-sm mx-auto"
-          />
+          {/* Center Section: Search Input */}
+          <div className="flex-1 flex justify-center">
+            <SearchInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search products…"
+              className="w-full max-w-sm"
+            />
+          </div>
 
-          {/* Mobile Filter Trigger */}
-          <div className="lg:hidden ml-4">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="flex items-center">
-                  <Filter className="w-4 h-4 mr-2" /> Filters
-                </Button>
-              </SheetTrigger>
+          {/* Right Section: Sort Dropdown and Mobile Filter */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Sort By Price Dropdown */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                <span className="text-sm font-medium text-muted-foreground hidden lg:block">Sort:</span>
+              </div>
+              <Select 
+                value={priceSort} 
+                onValueChange={(value) => {
+                  setPriceSort(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px] sm:w-[160px] md:w-[200px] h-10 border-2 border-gray-200 hover:border-[#ba8c5c] transition-all duration-200 shadow-sm hover:shadow-md bg-white focus:ring-2 focus:ring-[#ba8c5c] focus:ring-offset-1 rounded-md font-medium">
+                  <SelectValue placeholder="Sort by price" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-2 border-gray-200 shadow-xl rounded-md">
+                  <SelectItem 
+                    value="none" 
+                    className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                  >
+                    Default
+                  </SelectItem>
+                  <SelectItem 
+                    value="low-to-high" 
+                    className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                  >
+                    Price: Low to High
+                  </SelectItem>
+                  <SelectItem 
+                    value="high-to-low" 
+                    className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                  >
+                    Price: High to Low
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Mobile Filter Trigger */}
+            <div className="lg:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="flex items-center">
+                    <Filter className="w-4 h-4 mr-2" /> Filters
+                  </Button>
+                </SheetTrigger>
               <SheetContent side="left" className="w-64 sm:w-80">
                 <SheetHeader className="mb-6">
                   <SheetTitle>Filter Products</SheetTitle>
@@ -448,6 +558,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                           variant={selectedCategory === category ? "default" : "ghost"}
                           onClick={() => {
                             setSelectedCategory(category);
+                            setSelectedGenderSubcategory("All"); // Reset gender subcategory when main category is selected
                             setCurrentPage(1);
                           }}
                           className="w-full justify-start"
@@ -470,6 +581,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                           variant={selectedGender === gender ? "default" : "ghost"}
                           onClick={() => {
                             setSelectedGender(gender);
+                            setSelectedGenderSubcategory("All"); // Reset subcategory when gender changes
                             setCurrentPage(1);
                           }}
                           className="w-full justify-start"
@@ -479,6 +591,31 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                       ))}
                     </CollapsibleContent>
                   </Collapsible>
+
+                  {/* Gender Subcategories Dropdown - Only show when gender is selected */}
+                  {selectedGender !== "All" && genderSubcategories.length > 1 && (
+                    <Collapsible defaultOpen={true}>
+                      <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
+                        {selectedGender} Categories <ChevronDown className="w-4 h-4" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="pt-4 pb-2 space-y-2">
+                        {genderSubcategories.map((subcat) => (
+                          <Button
+                            key={subcat}
+                            variant={selectedGenderSubcategory === subcat ? "default" : "ghost"}
+                            onClick={() => {
+                              setSelectedGenderSubcategory(subcat);
+                              setSelectedCategory("All"); // Reset main category when gender subcategory is selected
+                              setCurrentPage(1);
+                            }}
+                            className="w-full justify-start"
+                          >
+                            {subcat}
+                          </Button>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
 
                   {/* Color Filter */}
                   <Collapsible defaultOpen={true}>
@@ -561,9 +698,54 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
+
+                  {/* Sort By Price (Mobile) */}
+                  <Collapsible defaultOpen={true}>
+                    <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
+                      <div className="flex items-center gap-2">
+                        <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+                        Sort By Price
+                      </div>
+                      <ChevronDown className="w-4 h-4" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4 pb-2">
+                      <Select 
+                        value={priceSort} 
+                        onValueChange={(value) => {
+                          setPriceSort(value);
+                          setCurrentPage(1);
+                        }}
+                      >
+                        <SelectTrigger className="w-full h-11 border-2 border-gray-200 hover:border-[#ba8c5c] transition-all duration-200 shadow-sm hover:shadow-md bg-white focus:ring-2 focus:ring-[#ba8c5c] focus:ring-offset-1 rounded-md font-medium">
+                          <SelectValue placeholder="Sort by price" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-2 border-gray-200 shadow-xl rounded-md">
+                          <SelectItem 
+                            value="none" 
+                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                          >
+                            Default
+                          </SelectItem>
+                          <SelectItem 
+                            value="low-to-high" 
+                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                          >
+                            Price: Low to High
+                          </SelectItem>
+                          <SelectItem 
+                            value="high-to-low" 
+                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                          >
+                            Price: High to Low
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
               </SheetContent>
-            </Sheet>
+              </Sheet>
+            </div>
           </div>
         </div>
 
@@ -605,6 +787,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                       variant={selectedGender === gender ? "default" : "ghost"}
                       onClick={() => {
                         setSelectedGender(gender);
+                        setSelectedGenderSubcategory("All"); // Reset subcategory when gender changes
                         setCurrentPage(1);
                       }}
                       className="w-full justify-start"
@@ -614,6 +797,30 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                   ))}
                 </CollapsibleContent>
               </Collapsible>
+
+              {/* Gender Subcategories Dropdown - Only show when gender is selected */}
+              {selectedGender !== "All" && genderSubcategories.length > 1 && (
+                <Collapsible defaultOpen={true}>
+                  <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
+                    {selectedGender} Categories <ChevronDown className="w-4 h-4" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4 pb-2 space-y-2">
+                    {genderSubcategories.map((subcat) => (
+                      <Button
+                        key={subcat}
+                        variant={selectedGenderSubcategory === subcat ? "default" : "ghost"}
+                        onClick={() => {
+                          setSelectedGenderSubcategory(subcat);
+                          setCurrentPage(1);
+                        }}
+                        className="w-full justify-start"
+                      >
+                        {subcat}
+                      </Button>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
 
               {/* Color Filter */}
               <Collapsible defaultOpen={true}>

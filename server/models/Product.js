@@ -109,6 +109,24 @@ const ProductSchema = new mongoose.Schema(
       default: {},
     },
 
+    sizeFit: {
+      type: {
+        fit: { type: String },
+        modelWearingSize: { type: String },
+      },
+      default: {},
+    },
+
+    faq: {
+      type: [
+        {
+          question: { type: String, required: true },
+          answer: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
+
     active: { type: Boolean, default: true },
     featured: { type: Boolean, default: false },
   },

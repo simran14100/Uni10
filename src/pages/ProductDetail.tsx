@@ -126,6 +126,11 @@ type P = {
   };
   averageRating?: number;
   reviewCount?: number;
+  faq?: Array<{ question: string; answer: string }>;
+  sizeFit?: {
+    fit?: string;
+    modelWearingSize?: string;
+  };
 };
 
 const ProductDetail = () => {
@@ -149,7 +154,8 @@ const ProductDetail = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewKey, setReviewKey] = useState(0);
   const [isVerifiedBuyer, setIsVerifiedBuyer] = useState(false);
-  const [activeTab, setActiveTab] = useState<"description" | "additional" | "reviews">("description");
+  const [activeTab, setActiveTab] = useState<"description" | "additional" | "faq" | "reviews">("description");
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const descriptionRef = useRef<HTMLDivElement>(null);
 
@@ -675,15 +681,10 @@ const ProductDetail = () => {
               <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
                 {product.category}
               </p>
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="mb-2 sm:mb-3">
                 <h1 className="text-xl sm:text-2xl md:text-4xl font-black tracking-tighter break-words text-gray-900">
                   {title}
                 </h1>
-                <ShareButton
-                  productName={title}
-                  productUrl={window.location.href}
-                  productImage={img}
-                />
               </div>
               <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
                 <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
@@ -714,27 +715,36 @@ const ProductDetail = () => {
                   </div>
                 )}
               </div>
-              {product.paragraph1 && (
-                <div className="flex items-start gap-1 text-xs mb-1">
-                  <span className="text-red-800 mt-0.5">
-                    <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
-                    </svg>
-                  </span>
-                  <p className="text-red-800 font-medium">{product.paragraph1}</p>
-                </div>
-              )}
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <div className="flex flex-col gap-1 flex-1">
+                  {product.paragraph1 && (
+                    <div className="flex items-start gap-1 text-xs">
+                      <span className="text-red-800 mt-0.5">
+                        <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                      <p className="text-red-800 font-medium">{product.paragraph1}</p>
+                    </div>
+                  )}
 
-              {product.paragraph2 && (
-                <div className="flex items-start gap-1 text-xs mb-1">
-                  <span className="text-gray-900 mt-0.5">
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
-                    </svg>
-                  </span>
-                  <p className="text-gray-900 font-medium">{product.paragraph2}</p>
+                  {product.paragraph2 && (
+                    <div className="flex items-start gap-1 text-xs">
+                      <span className="text-gray-900 mt-0.5">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
+                        </svg>
+                      </span>
+                      <p className="text-gray-900 font-medium">{product.paragraph2}</p>
+                    </div>
+                  )}
                 </div>
-              )}
+                <ShareButton
+                  productName={title}
+                  productUrl={window.location.href}
+                  productImage={img}
+                />
+              </div>
               <div className="mb-3 sm:mb-4">
                 <Badge
                   variant={outOfStock ? "destructive" : "secondary"}
@@ -756,6 +766,22 @@ const ProductDetail = () => {
                     </span></>)
                   : product.description}
               </p>
+
+              {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
+                <div className="mb-4 text-sm text-gray-900">
+                  <div className="font-bold text-base mb-2">Size &amp; Fit</div>
+                  {product?.sizeFit?.fit && (
+                    <div className="mb-1">
+                      <span className="font-medium">Fit</span> - {product.sizeFit.fit}
+                    </div>
+                  )}
+                  {product?.sizeFit?.modelWearingSize && (
+                    <div>
+                      <span className="font-medium">Size</span> - {product.sizeFit.modelWearingSize}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="min-w-0 order-2 md:order-1">
@@ -774,15 +800,10 @@ const ProductDetail = () => {
               <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
                 {product.category}
               </p>
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="mb-2 sm:mb-3">
                 <h1 className="text-xl sm:text-2xl md:text-4xl font-black tracking-tighter break-words text-gray-900">
                   {title}
                 </h1>
-                <ShareButton
-                  productName={title}
-                  productUrl={window.location.href}
-                  productImage={img}
-                />
               </div>
               <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
                 <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
@@ -813,27 +834,36 @@ const ProductDetail = () => {
                   </div>
                 )}
               </div>
-              {product.paragraph1 && (
-  <div className="flex items-start gap-1 text-xs mb-1">
-    <span className="text-red-800 mt-0.5">
-      <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
-      </svg>
-    </span>
-    <p className="text-red-800 font-medium">{product.paragraph1}</p>
-  </div>
-)}
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <div className="flex flex-col gap-1 flex-1">
+                  {product.paragraph1 && (
+                    <div className="flex items-start gap-1 text-xs">
+                      <span className="text-red-800 mt-0.5">
+                        <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                      <p className="text-red-800 font-medium">{product.paragraph1}</p>
+                    </div>
+                  )}
 
-{product.paragraph2 && (
-  <div className="flex items-start gap-1 text-xs mb-1">
-    <span className="text-gray-900 mt-0.5">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
-      </svg>
-    </span>
-    <p className="text-gray-900 font-medium">{product.paragraph2}</p>
-  </div>
-)}
+                  {product.paragraph2 && (
+                    <div className="flex items-start gap-1 text-xs">
+                      <span className="text-gray-900 mt-0.5">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
+                        </svg>
+                      </span>
+                      <p className="text-gray-900 font-medium">{product.paragraph2}</p>
+                    </div>
+                  )}
+                </div>
+                <ShareButton
+                  productName={title}
+                  productUrl={window.location.href}
+                  productImage={img}
+                />
+              </div>
               <div className="mb-3 sm:mb-4">
                 <Badge
                   variant={outOfStock ? "destructive" : "secondary"}
@@ -855,6 +885,22 @@ const ProductDetail = () => {
                     </span></>)
                   : product.description}
               </p>
+
+              {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
+                <div className="mb-4 text-sm text-gray-900">
+                  <div className="font-bold text-base mb-2">Size &amp; Fit</div>
+                  {product?.sizeFit?.fit && (
+                    <div className="mb-1">
+                      <span className="font-medium">Fit</span> - {product.sizeFit.fit}
+                    </div>
+                  )}
+                  {product?.sizeFit?.modelWearingSize && (
+                    <div>
+                      <span className="font-medium">Size</span> - {product.sizeFit.modelWearingSize}
+                    </div>
+                  )}
+                </div>
+              )}
               </div>
 
               <AvailableCoupons
@@ -1228,6 +1274,21 @@ const ProductDetail = () => {
                   <ArrowRight className="h-3 w-3 text-gray-400" />
                 </button>
               )}
+              {product?.faq && product.faq.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("faq")}
+                  className={cn(
+                    "w-full text-left py-1.5 px-2.5 rounded-md text-xs font-medium transition-colors mb-1.5 flex items-center justify-between",
+                    activeTab === "faq"
+                      ? "bg-gray-800 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  )}
+                >
+                  FAQ ({product.faq.length})
+                  <ArrowRight className="h-3 w-3 text-gray-400" />
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setActiveTab("reviews")}
@@ -1377,6 +1438,59 @@ const ProductDetail = () => {
           </div>
         </div>
       )}
+    </div>
+  )}
+
+  {activeTab === "faq" && product?.faq && product.faq.length > 0 && (
+    <div className="space-y-4 animate-in fade-in duration-300">
+      <div>
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+          Frequently Asked Questions
+        </h3>
+        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+      </div>
+      
+      <div className="space-y-3">
+        {product.faq.map((item, index) => {
+          const isOpen = openFaqIndex === index;
+          return (
+            <div
+              key={index}
+              className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+            >
+              <button
+                type="button"
+                onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                className="w-full text-left p-4 sm:p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              >
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 pr-4">
+                  {item.question}
+                </h4>
+                <ChevronDown
+                  className={cn(
+                    "h-5 w-5 text-gray-500 flex-shrink-0 transition-transform duration-300",
+                    isOpen && "rotate-180"
+                  )}
+                />
+              </button>
+              <div
+                className={cn(
+                  "transition-all duration-300 ease-in-out overflow-hidden",
+                  isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                )}
+              >
+                <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
+                  <div className="border-t border-gray-200 pt-4">
+                    <p className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
+                      {item.answer}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   )}
 

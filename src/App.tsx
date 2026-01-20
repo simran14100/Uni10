@@ -42,6 +42,7 @@ import ProductRedirect from "./pages/ProductRedirect";
 import { ShippingPolicyPage } from "./pages/ShippingPolicyPage";
 import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 import { TermsOfServicePage } from "./pages/TermsOfServicePage";
+import { ReturnPolicyPage } from "./pages/ReturnPolicyPage";
 
 const queryClient = new QueryClient();
 
@@ -153,6 +154,7 @@ const App = () => (
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/page/:slug" element={<PageDetail />} />
               <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+              <Route path="/return-policy" element={<ReturnPolicyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

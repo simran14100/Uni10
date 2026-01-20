@@ -135,11 +135,11 @@ export const AvailableCoupons: React.FC<Props> = ({ onUseNow, productPrice, refr
                 return (
                   <div
                     key={coupon.code}
-                    className="relative px-3 py-2.5 rounded-md border-2 border-[#D4AF37] dark:border-yellow-600 bg-[#FFFEF7] dark:bg-yellow-900/20 flex-shrink-0 w-[240px] snap-start"
+                    className="relative px-3 py-2.5 rounded-lg border-2 border-[#ba8c5c] dark:border-[#ba8c5c]/60 bg-gradient-to-br from-[#FFF8F0] via-white to-[#F5F3ED] dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 flex-shrink-0 w-[240px] snap-start shadow-md hover:shadow-lg transition-all duration-300"
                   >
                     {/* Top Badge */}
                     <div className="flex items-center gap-1.5 mb-2">
-                      <div className="bg-green-600 text-white text-xs font-medium px-2 py-0.5 rounded flex items-center gap-1">
+                      <div className="bg-gradient-to-r from-[#ba8c5c] to-[#d4a574] text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
                         <span className="text-xs">💰</span>
                         <span>Save extra with these offers</span>
                       </div>
@@ -147,21 +147,21 @@ export const AvailableCoupons: React.FC<Props> = ({ onUseNow, productPrice, refr
 
                     {/* Offer Text */}
                     {coupon.offerText && (
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-900 mb-1">
-                        {coupon.offerText} ₹{discountedPrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                        {' '}<span className="text-xs text-gray-400 line-through font-normal">₹{productPrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                      <p className="text-base font-bold text-gray-900 dark:text-white mb-1">
+                        {coupon.offerText} <span className="text-[#ba8c5c] dark:text-[#d4a574]">₹{discountedPrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                        {' '}<span className="text-xs text-gray-500 dark:text-gray-400 line-through font-normal">₹{productPrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                       </p>
                     )}
 
                     {/* Description */}
                     {coupon.description && (
-                      <p className="text-xs text-red-800 dark:text-red-800 mb-2 flex items-center gap-1">
+                      <p className="text-xs text-[#c2410c] dark:text-orange-400 mb-2 flex items-center gap-1 font-medium">
                         <Flame className="h-3 w-3" /> {coupon.description}
                       </p>
                     )}
 
                     {/* Divider */}
-                    <div className="border-t border-dashed border-[#D4AF37]/40 dark:border-gray-600 my-2"></div>
+                    <div className="border-t border-dashed border-[#ba8c5c]/30 dark:border-[#ba8c5c]/40 my-2"></div>
 
                     {/* Code and T&C */}
                     <div className="flex items-center justify-between">
@@ -169,15 +169,15 @@ export const AvailableCoupons: React.FC<Props> = ({ onUseNow, productPrice, refr
                         className="flex items-center gap-1.5 cursor-pointer group/copy"
                         onClick={() => handleUseNow(coupon.code)}
                       >
-                        <p className="text-sm font-semibold text-[#1F2937] dark:text-white">
-                          Code: <span className="text-[#1F2937] dark:text-white">{coupon.code}</span>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                          Code: <span className="text-[#ba8c5c] dark:text-[#d4a574] font-bold">{coupon.code}</span>
                         </p>
-                        <Copy className="h-3.5 w-3.5 text-[#1F2937] dark:text-gray-400 group-hover/copy:text-[#FDB022] transition-colors" />
+                        <Copy className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400 group-hover/copy:text-[#ba8c5c] dark:group-hover/copy:text-[#d4a574] transition-colors" />
                       </div>
                       {coupon.termsAndConditions && (
                         <button
                           onClick={() => handleOpenModal(coupon.termsAndConditions || '')}
-                          className="text-xs text-[#2563EB] dark:text-blue-400 hover:underline focus:outline-none font-medium"
+                          className="text-xs text-[#ba8c5c] dark:text-[#d4a574] hover:text-[#8b6a42] dark:hover:text-[#ba8c5c] hover:underline focus:outline-none font-medium transition-colors"
                         >
                           Offer T&C
                         </button>

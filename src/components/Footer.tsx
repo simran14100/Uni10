@@ -153,6 +153,14 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
+                  to="/return-policy"
+                  className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
+                >
+                  Return Policy
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/privacy-policy"
                   className="text-sm text-gray-300 hover:text-yellow-400 transition-colors font-medium"
                 >

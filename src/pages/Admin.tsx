@@ -11,8 +11,9 @@ import { AdminCreateReview } from '@/components/AdminCreateReview';
 import { ShippingPolicyPage } from "./ShippingPolicyPage";
 import { AdminShippingPolicyEditor } from "../components/AdminShippingPolicyEditor";
 import { AdminPrivacyPolicyEditor } from "../components/AdminPrivacyPolicyEditor";
+import { AdminReturnPolicyEditor } from "../components/AdminReturnPolicyEditor";
 import { AdminTermsOfServiceEditor } from "../components/AdminTermsOfServiceEditor";
-import { AdminEditReviewModal, AdminReview } from '@/components/AdminEditReviewModal';
+import { AdminEditReviewModal, type AdminReview } from '@/components/AdminEditReviewModal';
 import { Pagination } from '@/components/Pagination';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Product, Order, User } from '@/types/database.types';
@@ -143,6 +144,7 @@ const NAV_ITEMS = [
     { id: 'support', label: 'Support Center', icon: MessageCircle },
     { id: 'contact', label: 'Contact Settings', icon: MessageCircle },
     { id: 'shipping-policy', label: 'Shipping Policy', icon: FileText },
+    { id: 'return-policy', label: 'Return Policy', icon: FileText },
     { id: 'privacy-policy', label: 'Privacy Policy', icon: FileText },
     { id: 'terms-of-service', label: 'Terms of Service', icon: FileText },
     { id: 'billing', label: 'Company Billing Details', icon: CreditCard },
@@ -434,6 +436,11 @@ type ProductFormState = {
     description: string;
     keywords: string;
   };
+  sizeFit: {
+    fit: string;
+    modelWearingSize: string;
+  };
+  faq: Array<{ question: string; answer: string }>;
 };
 
 const EMPTY_FORM: ProductFormState = {
@@ -480,6 +487,11 @@ const EMPTY_FORM: ProductFormState = {
     description: '',
     keywords: '',
   },
+  sizeFit: {
+    fit: '',
+    modelWearingSize: '',
+  },
+  faq: [],
 };
 
 type CategoryFormState = {
@@ -577,7 +589,6 @@ const Admin = () => {
   const [notifySending, setNotifySending] = useState(false);
 
   // Reviews (admin)
-  type AdminReview = { _id: string; text: string; rating?: number; createdAt: string; userId?: { name?: string; email?: string }; replies?: Array<{ authorId?: { name?: string; email?: string }, text: string, createdAt: string }> };
   const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [activeReview, setActiveReview] = useState<AdminReview | null>(null);
@@ -842,6 +853,11 @@ const Admin = () => {
       highlights: Array.isArray(product.highlights) ? product.highlights : [],
       longDescription: product.longDescription ?? '',
       specs: Array.isArray(product.specs) ? product.specs : [],
+      faq: Array.isArray((product as any).faq) ? (product as any).faq : [],
+      sizeFit: {
+        fit: (product as any).sizeFit?.fit ?? '',
+        modelWearingSize: (product as any).sizeFit?.modelWearingSize ?? '',
+      },
       discount: product.discount ? {
         type: product.discount.type ?? 'flat',
         value: product.discount.value ?? 0,
@@ -1748,6 +1764,11 @@ const handleDialogOpenChange = (dialogOpen: boolean) => {
               highlights: Array.isArray(productForm.highlights) ? productForm.highlights.filter(h => h.trim()) : [],
               longDescription: productForm.longDescription.trim(),
               specs: Array.isArray(productForm.specs) ? productForm.specs.filter(s => s.key.trim() && s.value.trim()) : [],
+              faq: Array.isArray(productForm.faq) ? productForm.faq.filter(f => f.question.trim() && f.answer.trim()) : [],
+              sizeFit: {
+                fit: productForm.sizeFit.fit.trim() || undefined,
+                modelWearingSize: productForm.sizeFit.modelWearingSize.trim() || undefined,
+              },
               discount: productForm.discount && productForm.discount.value > 0 ? {
                 type: productForm.discount.type,
                 value: productForm.discount.value,
@@ -1852,6 +1873,11 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         highlights: Array.isArray(productForm.highlights) ? productForm.highlights.filter(h => h.trim()) : [],
         longDescription: productForm.longDescription.trim(),
         specs: Array.isArray(productForm.specs) ? productForm.specs.filter(s => s.key.trim() && s.value.trim()) : [],
+        faq: Array.isArray(productForm.faq) ? productForm.faq.filter(f => f.question.trim() && f.answer.trim()) : [],
+        sizeFit: {
+          fit: productForm.sizeFit.fit.trim() || undefined,
+          modelWearingSize: productForm.sizeFit.modelWearingSize.trim() || undefined,
+        },
         discount: productForm.discount && productForm.discount.value > 0 ? {
           type: productForm.discount.type,
           value: productForm.discount.value,
@@ -2820,6 +2846,37 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                   onChange={(e) => setProductForm((p) => ({ ...p, paragraph2: e.target.value }))}
                 />
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="sizeFitFit">Size &amp; Fit - Fit</Label>
+                  <Input
+                    id="sizeFitFit"
+                    value={productForm.sizeFit.fit}
+                    onChange={(e) =>
+                      setProductForm((p) => ({
+                        ...p,
+                        sizeFit: { ...p.sizeFit, fit: e.target.value },
+                      }))
+                    }
+                    placeholder="e.g., Slim Fit"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="sizeFitModelWearing">Size &amp; Fit - Model</Label>
+                  <Input
+                    id="sizeFitModelWearing"
+                    value={productForm.sizeFit.modelWearingSize}
+                    onChange={(e) =>
+                      setProductForm((p) => ({
+                        ...p,
+                        sizeFit: { ...p.sizeFit, modelWearingSize: e.target.value },
+                      }))
+                    }
+                    placeholder="e.g., Model is wearing size M"
+                  />
+                </div>
+              </div>
               <div>
                 <Label>Product Images</Label>
                 <ImageUploader
@@ -3786,6 +3843,58 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                           }}
                         >
                           Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>FAQ (Frequently Asked Questions)</Label>
+                <div className="space-y-3 mt-2">
+                  {[...Array(Math.max(1, productForm.faq.length + 1))].map((_, idx) => (
+                    <div key={idx} className="border rounded-lg p-4 space-y-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Question</Label>
+                        <Input
+                          value={productForm.faq[idx]?.question ?? ''}
+                          onChange={(e) => {
+                            const newFaq = [...productForm.faq];
+                            if (!newFaq[idx]) newFaq[idx] = { question: '', answer: '' };
+                            newFaq[idx].question = e.target.value;
+                            setProductForm((p) => ({ ...p, faq: newFaq }));
+                          }}
+                          placeholder="e.g., What is the material of this product?"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Answer</Label>
+                        <Textarea
+                          value={productForm.faq[idx]?.answer ?? ''}
+                          onChange={(e) => {
+                            const newFaq = [...productForm.faq];
+                            if (!newFaq[idx]) newFaq[idx] = { question: '', answer: '' };
+                            newFaq[idx].answer = e.target.value;
+                            setProductForm((p) => ({ ...p, faq: newFaq }));
+                          }}
+                          placeholder="e.g., This product is made from 100% premium cotton..."
+                          rows={3}
+                        />
+                      </div>
+                      {productForm.faq[idx]?.question && productForm.faq[idx]?.answer && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => {
+                            setProductForm((p) => ({
+                              ...p,
+                              faq: p.faq.filter((_, i) => i !== idx),
+                            }));
+                          }}
+                        >
+                          Remove FAQ
                         </Button>
                       )}
                     </div>
@@ -5189,9 +5298,9 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                     {r.text}
                   </div>
 
-                  {Array.isArray(r.replies) && r.replies.length > 0 && (
+                  {Array.isArray((r as any).replies) && (r as any).replies.length > 0 && (
                     <div className="mt-2 space-y-1">
-                      {r.replies.map((rep, i) => (
+                      {(r as any).replies.map((rep: any, i: number) => (
                         <div
                           key={i}
                           className="text-xs text-slate-600 dark:text-slate-300 border-l border-slate-200 dark:border-slate-700 pl-2"
@@ -5377,6 +5486,8 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         return renderContactSettings();
       case 'shipping-policy':
         return <AdminShippingPolicyEditor />;
+      case 'return-policy':
+        return <AdminReturnPolicyEditor />;
       case 'privacy-policy':
         return <AdminPrivacyPolicyEditor />; 
       case 'terms-of-service':
