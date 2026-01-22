@@ -40,7 +40,7 @@ const Wishlist = () => {
   const [wishlistProducts, setWishlistProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const { wishlistIds, removeFromWishlist, refreshWishlist } = useWishlist();
+  const { wishlistIds, removeFromWishlist } = useWishlist();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const Wishlist = () => {
       return;
     }
     fetchWishlistProducts();
-  }, [wishlistIds, user, refreshWishlist]);
+  }, [wishlistIds, user]);
 
   const fetchWishlistProducts = async () => {
     try {
@@ -84,9 +84,9 @@ const Wishlist = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="container mx-auto px-3 sm:px-4 pt-32 pb-12 md:pt-36 lg:pt-40">
+      <main className="container mx-auto px-3 sm:px-4 pt-40 pb-12 md:pt-44 lg:pt-48 flex-grow">
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-black tracking-tighter mb-2 sm:mb-4">
             My <span className="text-primary">Wishlist</span>
