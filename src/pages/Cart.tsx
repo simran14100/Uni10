@@ -83,10 +83,10 @@ const Cart = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
 
-      <main className="container mx-auto px-3 sm:px-4 pt-32 md:pt-36 lg:pt-40 pb-12">
+      <main className="container mx-auto px-3 sm:px-4 pt-32 md:pt-36 lg:pt-40 pb-12 flex-grow">
         <Link to="/shop" className="inline-flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground mb-6 sm:mb-8 gap-1">
           <ArrowLeft className="h-4 w-4 flex-shrink-0" />
           Continue Shopping
