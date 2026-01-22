@@ -69,8 +69,8 @@ export const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-gray-300 hover:text-yellow-400 transition-colors">
                 <Mail className="h-4 w-4 text-yellow-400" />
-                <a href="mailto:officialuni10clothing@gmail.com">
-                  officialuni10clothing@gmail.com
+                <a href="mailto:support@uni10.in">
+                  support@uni10.in
                 </a>
               </div>
               <div className="flex items-center gap-3 text-sm text-gray-300 hover:text-yellow-400 transition-colors">
@@ -83,10 +83,10 @@ export const Footer = () => {
               </div>
 
               {/* GSTIN (added) */}
-              <div className="text-sm text-gray-300">
+              {/* <div className="text-sm text-gray-300">
                 <span className="font-medium text-yellow-400">GSTIN:</span>{" "}
                 <span className="select-all tracking-wider">{GSTIN}</span>
-              </div>
+              </div> */}
             </div>
           </div>
 
