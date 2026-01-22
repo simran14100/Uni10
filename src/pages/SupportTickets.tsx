@@ -170,7 +170,7 @@ export default function SupportTickets() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 pt-24 pb-12">
+      <main className="container mx-auto px-4 pt-32 pb-12 md:pt-36 lg:pt-40">
         <div className="flex flex-col lg:flex-row gap-6">
           <aside className="lg:w-56 w-full">
             <div className="bg-card border border-border rounded-lg p-3 sticky top-24">

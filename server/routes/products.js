@@ -11,6 +11,7 @@ router.get('/', authOptional, async (req, res) => {
     const {
       active,
       featured,
+      isBestSeller,
       category,
       collection,
       categorySlug,
@@ -42,6 +43,10 @@ router.get('/', authOptional, async (req, res) => {
 
     if (typeof featured !== 'undefined') {
       filter.featured = String(featured).toLowerCase() === 'true' || featured === '1';
+    }
+
+    if (typeof isBestSeller !== 'undefined') {
+      filter.isBestSeller = String(isBestSeller).toLowerCase() === 'true' || isBestSeller === '1';
     }
 
     if (gender) {
@@ -324,6 +329,8 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
           })).filter(f => f.question && f.answer)
         : [],
       active: typeof body.active === 'boolean' ? body.active : true,
+      featured: typeof body.featured === 'boolean' ? body.featured : false,
+      isBestSeller: typeof body.isBestSeller === 'boolean' ? body.isBestSeller : false,
     };
 
     // If categoryId/subcategoryId is provided by Admin UI, resolve to category name/slug
@@ -362,6 +369,7 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
     if (typeof body.stock !== 'undefined') updates.stock = Number(body.stock);
     if (typeof body.active !== 'undefined') updates.active = !!body.active;
     if (typeof body.featured !== 'undefined') updates.featured = !!body.featured;
+    if (typeof body.isBestSeller !== 'undefined') updates.isBestSeller = !!body.isBestSeller;
     if (typeof body.gender !== 'undefined') updates.gender = body.gender;
     if (typeof body.paragraph1 !== 'undefined') updates.paragraph1 = body.paragraph1;
     if (typeof body.paragraph2 !== 'undefined') updates.paragraph2 = body.paragraph2;

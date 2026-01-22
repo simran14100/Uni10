@@ -153,6 +153,7 @@ const NAV_ITEMS = [
     { id: 'shiprocket', label: 'Shiprocket Settings', icon: Truck },
     { id: 'influencer-data', label: 'Influencer Data', icon: Video },
     { id: 'influencer-images', label: 'Influencer Images', icon: Image },
+    { id: 'faqs', label: 'FAQ Management', icon: FileText },
 ] as const;
 
 function createDefaultPaymentSettings(): PaymentSettingsForm {
@@ -441,6 +442,9 @@ type ProductFormState = {
     modelWearingSize: string;
   };
   faq: Array<{ question: string; answer: string }>;
+  active?: boolean;
+  featured?: boolean;
+  isBestSeller?: boolean;
 };
 
 const EMPTY_FORM: ProductFormState = {
@@ -492,6 +496,9 @@ const EMPTY_FORM: ProductFormState = {
     modelWearingSize: '',
   },
   faq: [],
+  active: true,
+  featured: false,
+  isBestSeller: false,
 };
 
 type CategoryFormState = {
@@ -751,11 +758,28 @@ const Admin = () => {
   const [couponSaving, setCouponSaving] = useState(false);
   const [couponListKey, setCouponListKey] = useState(0);
 
+  // FAQ state
+  const [faqs, setFaqs] = useState<any[]>([]);
+  const [faqsLoading, setFaqsLoading] = useState(false);
+  const [faqDialogOpen, setFaqDialogOpen] = useState(false);
+  const [faqForm, setFaqForm] = useState({ question: '', answer: '', category: 'general', order: 0, isActive: true });
+  const [editingFaq, setEditingFaq] = useState<any | null>(null);
+  const [faqSaving, setFaqSaving] = useState(false);
+  const [faqListKey, setFaqListKey] = useState(0);
+
   const handleCouponDialogOpenChange = (open: boolean) => {
     setCouponDialogOpen(open);
     if (!open) {
       setEditingCoupon(null);
       setCouponForm({ code: '', discount: 10, expiryDate: '', offerText: '', description: '', termsAndConditions: '' });
+    }
+  };
+
+  const handleFaqDialogOpenChange = (open: boolean) => {
+    setFaqDialogOpen(open);
+    if (!open) {
+      setEditingFaq(null);
+      setFaqForm({ question: '', answer: '', category: 'general', order: 0, isActive: true });
     }
   };
 
@@ -870,6 +894,9 @@ const Admin = () => {
         description: product.seo?.description ?? '',
         keywords: product.seo?.keywords ?? '',
       },
+      active: (product as any).active !== undefined ? (product as any).active : true,
+      featured: (product as any).featured !== undefined ? (product as any).featured : false,
+      isBestSeller: (product as any).isBestSeller !== undefined ? (product as any).isBestSeller : false,
     });
 
     setIsDialogOpen(true);
@@ -935,6 +962,9 @@ const Admin = () => {
     }
     if (activeSection === 'coupons') {
       void fetchCoupons();
+    }
+    if (activeSection === 'faqs') {
+      void fetchFAQs();
     }
     if (activeSection === 'billing') {
       void fetchBillingInfo();
@@ -1778,6 +1808,9 @@ const handleDialogOpenChange = (dialogOpen: boolean) => {
                 description: productForm.seo.description.trim() || undefined,
                 keywords: productForm.seo.keywords.trim() || undefined,
               },
+              active: productForm.active !== undefined ? productForm.active : true,
+              featured: productForm.featured !== undefined ? productForm.featured : false,
+              isBestSeller: productForm.isBestSeller !== undefined ? productForm.isBestSeller : false,
             };
 
             await apiFetch(`${ENDPOINTS.products}/${(editingProduct as any).id || (editingProduct as any)._id}`, {
@@ -1887,6 +1920,9 @@ const handleProductSubmit = async (e: React.FormEvent) => {
           description: productForm.seo.description.trim() || undefined,
           keywords: productForm.seo.keywords.trim() || undefined,
         },
+        active: productForm.active !== undefined ? productForm.active : true,
+        featured: productForm.featured !== undefined ? productForm.featured : false,
+        isBestSeller: productForm.isBestSeller !== undefined ? productForm.isBestSeller : false,
       };
 
       if (editingProduct) {
@@ -2356,6 +2392,316 @@ const handleProductSubmit = async (e: React.FormEvent) => {
       toast.error(err?.message || 'Failed to delete coupon');
     }
   };
+
+  const fetchFAQs = useCallback(async () => {
+    try {
+      setFaqsLoading(true);
+      const { ok, json } = await api('/api/faqs/all');
+      if (ok && Array.isArray(json?.data)) {
+        setFaqs(json.data);
+      } else {
+        toast.error(json?.message || 'Failed to load FAQs');
+        setFaqs([]);
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch FAQs:', err);
+      toast.error(err?.message || 'Failed to load FAQs');
+      setFaqs([]);
+    } finally {
+      setFaqsLoading(false);
+    }
+  }, []);
+
+  // Fetch data for FAQs when section becomes active
+  useEffect(() => {
+    if (activeSection === 'faqs') {
+      fetchFAQs();
+    }
+  }, [activeSection, fetchFAQs, faqListKey]);
+
+  const createFAQ = async () => {
+    if (!faqForm.question.trim() || !faqForm.answer.trim()) {
+      toast.error('Question and answer are required');
+      return;
+    }
+    try {
+      setFaqSaving(true);
+      const { ok, json } = await api('/api/faqs', {
+        method: 'POST',
+        body: JSON.stringify({
+          question: faqForm.question.trim(),
+          answer: faqForm.answer.trim(),
+          category: faqForm.category,
+          order: Number(faqForm.order) || 0,
+          isActive: faqForm.isActive,
+        }),
+      });
+      if (ok) {
+        handleFaqDialogOpenChange(false);
+        toast.success('FAQ created successfully');
+        setFaqListKey(prev => prev + 1);
+        fetchFAQs();
+      } else {
+        toast.error(json?.message || 'Failed to create FAQ');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to create FAQ');
+    } finally {
+      setFaqSaving(false);
+    }
+  };
+
+  const updateFAQ = async () => {
+    if (!editingFaq) return;
+    if (!faqForm.question.trim() || !faqForm.answer.trim()) {
+      toast.error('Question and answer are required');
+      return;
+    }
+    try {
+      setFaqSaving(true);
+      const { ok, json } = await api(`/api/faqs/${editingFaq._id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          question: faqForm.question.trim(),
+          answer: faqForm.answer.trim(),
+          category: faqForm.category,
+          order: Number(faqForm.order) || 0,
+          isActive: faqForm.isActive,
+        }),
+      });
+      if (ok) {
+        handleFaqDialogOpenChange(false);
+        toast.success('FAQ updated successfully');
+        setFaqListKey(prev => prev + 1);
+        fetchFAQs();
+      } else {
+        toast.error(json?.message || 'Failed to update FAQ');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to update FAQ');
+    } finally {
+      setFaqSaving(false);
+    }
+  };
+
+  const deleteFAQ = async (id: string) => {
+    if (!confirm('Delete this FAQ?')) return;
+    try {
+      const { ok, json } = await api(`/api/faqs/${id}`, { method: 'DELETE' });
+      if (ok) {
+        toast.success('FAQ deleted');
+        setFaqListKey(prev => prev + 1);
+        fetchFAQs();
+      } else {
+        toast.error(json?.message || 'Failed to delete FAQ');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete FAQ');
+    }
+  };
+
+  const renderFAQs = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-500 dark:text-slate-200">FAQ Management</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Create and manage frequently asked questions</p>
+        </div>
+
+        <Dialog open={faqDialogOpen} onOpenChange={handleFaqDialogOpenChange}>
+          <DialogTrigger asChild>
+            <Button className="rounded-full">
+              <Plus className="h-4 w-4 mr-2" />
+              Create FAQ
+            </Button>
+          </DialogTrigger>
+
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-white">
+                {editingFaq ? 'Edit FAQ' : 'Create New FAQ'}
+              </DialogTitle>
+              <DialogDescription className="text-slate-600 dark:text-slate-300">
+                Add a frequently asked question and answer
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="faq-question" className="text-slate-700 dark:text-slate-200">Question</Label>
+                <Input
+                  id="faq-question"
+                  placeholder="e.g., What is your return policy?"
+                  value={faqForm.question}
+                  onChange={(e) =>
+                    setFaqForm((p) => ({ ...p, question: e.target.value }))
+                  }
+                  disabled={faqSaving}
+                  className="text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="faq-answer" className="text-slate-700 dark:text-slate-200">Answer</Label>
+                <Textarea
+                  id="faq-answer"
+                  placeholder="Enter the answer to the question..."
+                  value={faqForm.answer}
+                  onChange={(e) =>
+                    setFaqForm((p) => ({ ...p, answer: e.target.value }))
+                  }
+                  disabled={faqSaving}
+                  className="text-foreground placeholder:text-muted-foreground min-h-[120px]"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="faq-category" className="text-slate-700 dark:text-slate-200">Category</Label>
+                <Select
+                  value={faqForm.category}
+                  onValueChange={(value) =>
+                    setFaqForm((p) => ({ ...p, category: value }))
+                  }
+                  disabled={faqSaving}
+                >
+                  <SelectTrigger className="text-foreground">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General</SelectItem>
+                    <SelectItem value="shipping">Shipping</SelectItem>
+                    <SelectItem value="returns">Returns</SelectItem>
+                    <SelectItem value="products">Products</SelectItem>
+                    <SelectItem value="orders">Orders</SelectItem>
+                    <SelectItem value="payment">Payment</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="faq-order" className="text-slate-700 dark:text-slate-200">Display Order</Label>
+                <Input
+                  id="faq-order"
+                  type="number"
+                  min="0"
+                  value={faqForm.order}
+                  onChange={(e) =>
+                    setFaqForm((p) => ({ ...p, order: Number(e.target.value) || 0 }))
+                  }
+                  disabled={faqSaving}
+                  className="text-foreground placeholder:text-muted-foreground"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Lower numbers appear first</p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="faq-active"
+                  checked={faqForm.isActive}
+                  onCheckedChange={(checked) =>
+                    setFaqForm((p) => ({ ...p, isActive: checked }))
+                  }
+                  disabled={faqSaving}
+                />
+                <Label htmlFor="faq-active" className="text-slate-700 dark:text-slate-200 cursor-pointer">
+                  Active (visible on website)
+                </Label>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setFaqDialogOpen(false)} disabled={faqSaving}>
+                  Cancel
+                </Button>
+                <Button onClick={editingFaq ? updateFAQ : createFAQ} disabled={faqSaving}>
+                  {faqSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  {editingFaq ? 'Update' : 'Create'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <Card className="shadow-sm rounded-xl bg-white dark:bg-slate-900">
+        <CardContent className="p-4">
+          <div className="overflow-x-auto text-slate-800 dark:text-slate-200">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-slate-700 dark:text-slate-300">Question</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300">Category</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300">Order</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300">Status</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {faqsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-6 text-slate-600 dark:text-slate-300">
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                ) : faqs.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-6 text-slate-600 dark:text-slate-300">
+                      No FAQs created yet
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  faqs.map((faq) => (
+                    <TableRow key={faq._id} className="hover:bg-muted/50">
+                      <TableCell className="font-medium text-sm break-words max-w-md">
+                        {faq.question}
+                      </TableCell>
+                      <TableCell className="text-sm capitalize">{faq.category}</TableCell>
+                      <TableCell className="text-sm">{faq.order}</TableCell>
+                      <TableCell className="text-sm">
+                        <Badge variant={faq.isActive ? 'default' : 'secondary'}>
+                          {faq.isActive ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingFaq(faq);
+                              setFaqForm({
+                                question: faq.question,
+                                answer: faq.answer,
+                                category: faq.category,
+                                order: faq.order || 0,
+                                isActive: faq.isActive,
+                              });
+                              setFaqDialogOpen(true);
+                            }}
+                          >
+                            <SquarePen className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deleteFAQ(faq._id)}
+                            disabled={faqSaving}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   const renderCoupons = () => (
 
@@ -2967,6 +3313,51 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                   <span className="text-sm text-muted-foreground">
                     {productForm.trackInventoryBySize ? 'Per-size inventory tracking enabled' : 'Use general stock'}
                   </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label>Product Status</Label>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Switch
+                      checked={productForm.active !== undefined ? productForm.active : true}
+                      onCheckedChange={(checked) =>
+                        setProductForm((p) => ({ ...p, active: checked }))
+                      }
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {productForm.active !== false ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Label>Featured Product</Label>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Switch
+                      checked={productForm.featured !== undefined ? productForm.featured : false}
+                      onCheckedChange={(checked) =>
+                        setProductForm((p) => ({ ...p, featured: checked }))
+                      }
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {productForm.featured ? 'Featured' : 'Not featured'}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Label>Best Seller</Label>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Switch
+                      checked={productForm.isBestSeller !== undefined ? productForm.isBestSeller : false}
+                      onCheckedChange={(checked) =>
+                        setProductForm((p) => ({ ...p, isBestSeller: checked }))
+                      }
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {productForm.isBestSeller ? 'Best Seller' : 'Regular product'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -5468,6 +5859,8 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         return renderCategories();
       case 'coupons':
         return renderCoupons();
+      case 'faqs':
+        return renderFAQs();
       case 'pages':
         return <AdminPages />;
       case 'orders':
@@ -5513,7 +5906,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-3 sm:px-4 pt-24 pb-12">
+      <main className="container mx-auto px-3 sm:px-4 pt-32 md:pt-36 lg:pt-40 pb-12">
         {/* Mobile sidebar toggle button */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}

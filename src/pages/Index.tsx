@@ -14,6 +14,8 @@ import InfluencerImageGrid from "@/components/InfluencerImageGrid";
 import AboutUsSection from "@/components/AboutUsSection";
 import { FeatureSection } from "@/components/FeatureSection";
 import RecentReviewsSection from "@/components/RecentReviewsSection";
+import FAQSection from "@/components/FAQSection";
+import BestSellerSection from "@/components/BestSellerSection";
 
 // ✅ UPDATED FEATURE IMAGES
 // HOODIES -> new image
@@ -672,53 +674,38 @@ const Index = () => {
             {catsError}
           </div>
         ) : (
-          <div className="relative">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2">
-                {topCats.map((c) => {
-                  const catId = c.slug || c.name || "";
-                  const prod = categoryProducts.get(catId);
-                  const to = `/collection/${c.slug || slugify(c.name || "")}`;
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
+            {topCats.slice(0, 8).map((c) => {
+              const catId = c.slug || c.name || "";
+              const prod = categoryProducts.get(catId);
+              const to = `/collection/${c.slug || slugify(c.name || "")}`;
 
-                  return (
-                    <CarouselItem
-                      key={String(c._id || c.id || c.slug || c.name)}
-                      className="pl-2 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6"
-                    >
-                      <Link
-                        to={to}
-                        className="flex flex-col items-center justify-center space-y-2"
-                      >
-                        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl bg-primary-foreground flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105">
-                          <img
-                            src={resolveImage(c.imageUrl || "/placeholder.svg")}
-                            alt={c.name}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <span className="text-xs sm:text-sm font-medium text-center line-clamp-2">
-                          {c.name}
-                        </span>
-                      </Link>
-                    </CarouselItem>
-                  );
-                })}
-              </CarouselContent>
-              <CarouselPrevious className="absolute -left-6 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 border-gray-300 bg-white hover:border-[#ba8c5c] transition-all" />
-              <CarouselNext className="absolute -right-6 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border-2 border-gray-300 bg-white hover:border-[#ba8c5c] transition-all" />
-            </Carousel>
+              return (
+                <Link
+                  key={String(c._id || c.id || c.slug || c.name)}
+                  to={to}
+                  className="flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 group"
+                >
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl bg-primary-foreground flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105 group-hover:shadow-lg">
+                    <img
+                      src={resolveImage(c.imageUrl || "/placeholder.svg")}
+                      alt={c.name}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  </div>
+                  <span className="text-[10px] sm:text-xs font-medium text-center line-clamp-2">
+                    {c.name}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
 
    {/* Banner Section */}
-   <section className="container mx-auto px-4 py-20">
+  {/* Banner Section */}
+<section className="container mx-auto px-4 py-20">
   <div className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4 md:p-12">
     {/* Decorative accent */}
     <div className="absolute top-8 left-8 text-red-600 text-6xl font-bold opacity-50">///</div>
@@ -747,8 +734,9 @@ const Index = () => {
           Shopping <span className="text-red-600">Today</span>
         </h2>
         
-        <div className="flex flex-col items-center sm:items-start gap-3 mb-4">
-          <button className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg text-sm">
+        {/* Shop Now Button and Price - Side by Side */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-center md:justify-start gap-4 mb-6">
+          <button className="bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg text-sm">
             Shop Now
           </button>
           <div className="flex items-center gap-2">
@@ -758,7 +746,7 @@ const Index = () => {
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-4">
+        <div className="mb-6">
           <div className="flex justify-between text-xs mb-2">
             <span>Available: 15</span>
             <span>Already Sold: 85</span>
@@ -768,28 +756,28 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Countdown Timer */}
-        <div className="flex justify-center mt-4">
-        <div>
-          <p className="text-sm mb-1 font-medium">Hurry Up:</p>
-          <p className="text-xs mb-2 opacity-90">Offer ends in</p>
+        {/* Countdown Timer - Hurry Up text on left, circles on right */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-center md:justify-start gap-4">
+          <div>
+            <p className="text-sm mb-1 font-medium">Hurry Up:</p>
+            <p className="text-xs opacity-90">Offer ends in</p>
+          </div>
           <div className="flex gap-2">
-            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-base font-bold">20</div>
+            <div className="bg-white text-gray-900 rounded-full w-12 h-12 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-sm font-bold">20</div>
               <div className="text-[8px]">Days</div>
             </div>
-            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-base font-bold">12</div>
+            <div className="bg-white text-gray-900 rounded-full w-12 h-12 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-sm font-bold">12</div>
               <div className="text-[8px]">Hours</div>
             </div>
-            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-base font-bold">42</div>
+            <div className="bg-white text-gray-900 rounded-full w-12 h-12 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-sm font-bold">42</div>
               <div className="text-[8px]">Mins</div>
             </div>
-            <div className="bg-white text-gray-900 rounded-full w-10 h-10 flex flex-col items-center justify-center shadow-lg">
-              <div className="text-base font-bold">23</div>
+            <div className="bg-white text-gray-900 rounded-full w-12 h-12 flex flex-col items-center justify-center shadow-lg">
+              <div className="text-sm font-bold">23</div>
               <div className="text-[8px]">Sec</div>
-            </div>
             </div>
           </div>
         </div>
@@ -867,6 +855,9 @@ const Index = () => {
         )}
       </section>
 
+      {/* Best Seller Section */}
+      <BestSellerSection />
+
   
       {/* From these categories */}
       <InfluencerSection />
@@ -877,6 +868,8 @@ const Index = () => {
       <FeatureSection />
 
       <RecentReviewsSection />
+
+      <FAQSection />
 
    
       <Footer />

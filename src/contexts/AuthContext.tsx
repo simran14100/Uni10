@@ -8,7 +8,7 @@ type AuthContextType = {
   user: User;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any; user?: User }>;
-  signUp: (email: string, password: string, name: string, phone?: string) => Promise<{ error: any; user?: User }>;
+  signUp: (email: string, password: string, name: string, phone: string, otp?: string) => Promise<{ error: any; user?: User }>;
   signOut: () => Promise<void>;
 };
 
@@ -79,14 +79,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: ok ? null : json, user: json?.user };
   };
 
-  const signUp = async (email: string, password: string, name: string, phone?: string) => {
+  const signUp = async (email: string, password: string, name: string, phone: string, otp?: string) => {
     const { ok, json } = await api("/api/auth/signup", {
       method: "POST",
-      body: JSON.stringify({ name, email, password, phone }),
+      body: JSON.stringify({ name, email, password, phone, otp }),
     });
     if (ok) {
       try {
         if (json?.token && typeof window !== 'undefined') localStorage.setItem('token', json.token);
+        setUser(json?.user); // Update user state on successful signup
       } catch {}
     }
     return { error: ok ? null : json, user: json?.user };

@@ -75,7 +75,7 @@ export default function InfluencerImageDetailPage() {
   const { imageUrl, influencerName, productId } = item;
 
   return (
-    <div className="container mx-auto px-4 py-8 lg:py-12">
+    <div className="container mx-auto px-4 py-8 lg:py-12 ">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         <div className="relative rounded-lg overflow-hidden shadow-lg">
           <img

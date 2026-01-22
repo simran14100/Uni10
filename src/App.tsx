@@ -15,6 +15,7 @@ import CollectionDetail from "./pages/CollectionDetail";
 import ProductDetail from "./pages/ProductDetail";
 import AllInfluencersPage from "./pages/AllInfluencersPage";
 import InfluencerImageDetailPage from "./pages/InfluencerImageDetailPage";
+import AllVideosPage from "./pages/AllVideosPage";
 import Cart from "./pages/Cart";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -129,6 +130,7 @@ const App = () => (
               <Route path="/collection/:slug" element={<CollectionDetail />} />
               <Route path="/all-influencers" element={<AllInfluencersPage />} />
               <Route path="/influencer-collections/:id" element={<InfluencerImageDetailPage />} />
+              <Route path="/videos" element={<AllVideosPage />} />
               <Route path="/product/:id" element={<ProductRedirect />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<CheckoutPayment />} />

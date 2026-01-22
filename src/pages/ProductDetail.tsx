@@ -613,7 +613,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="container mx-auto px-3 sm:px-4 pt-24 pb-12">
+        <main className="container mx-auto px-3 sm:px-4 pt-32 pb-12 md:pt-36 lg:pt-40">
           <div className="animate-pulse grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12">
             <div className="aspect-square bg-muted rounded-lg" />
             <div className="space-y-4 sm:space-y-5">
@@ -665,7 +665,7 @@ const ProductDetail = () => {
       
       {/* Page Header */}
      
-      <section className="w-full px-3 sm:px-4 py-8 sm:py-12 md:py-16">
+      <section className="w-full px-3 sm:px-4 pt-32 pb-8 sm:pt-36 sm:pb-12 md:pt-40 md:pb-16">
         <div className="max-w-7xl mx-auto w-full">
           <Link
             to="/shop"
@@ -676,8 +676,18 @@ const ProductDetail = () => {
           </Link>
 
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 sm:gap-8 md:gap-12 w-full bg-white p-4 sm:p-6 md:p-12 rounded-lg shadow-md">
-            {/* Mobile: show key info first, then images, then rest */}
-            <div className="min-w-0 md:hidden p-4 sm:p-5 border border-gray-200 rounded-lg order-1">
+            {/* Mobile: show images first, then description */}
+            <div className="min-w-0 order-1 md:order-1">
+              <ProductImageGallery
+                images={product?.images || []}
+                productTitle={title}
+                selectedColor={selectedColor}
+                colorImages={product?.colorImages}
+                colorVariants={product?.colorVariants}
+              />
+            </div>
+
+            <div className="min-w-0 md:hidden p-4 sm:p-5 border border-gray-200 rounded-lg order-2">
               <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
                 {product.category}
               </p>
@@ -782,16 +792,6 @@ const ProductDetail = () => {
                   )}
                 </div>
               )}
-            </div>
-
-            <div className="min-w-0 order-2 md:order-1">
-              <ProductImageGallery
-                images={product?.images || []}
-                productTitle={title}
-                selectedColor={selectedColor}
-                colorImages={product?.colorImages}
-                colorVariants={product?.colorVariants}
-              />
             </div>
 
             <div className="min-w-0 p-4 sm:p-5 md:p-8 border border-gray-200 rounded-lg order-3 md:order-2">

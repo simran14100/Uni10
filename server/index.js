@@ -36,6 +36,12 @@ console.log(
   'CURRENCY:', process.env.RAZORPAY_CURRENCY || '(empty)'
 );
 
+// Check Twilio credentials
+console.log('[ENV CHECK] Twilio Credentials:');
+console.log('  - TWILIO_ACCOUNT_SID:', process.env.TWILIO_ACCOUNT_SID ? '✅ Set (' + mask(process.env.TWILIO_ACCOUNT_SID) + ')' : '❌ Not set');
+console.log('  - TWILIO_AUTH_TOKEN:', process.env.TWILIO_AUTH_TOKEN ? '✅ Set (' + mask(process.env.TWILIO_AUTH_TOKEN) + ')' : '❌ Not set');
+console.log('  - TWILIO_PHONE_NUMBER:', process.env.TWILIO_PHONE_NUMBER ? '✅ Set (' + process.env.TWILIO_PHONE_NUMBER + ')' : '❌ Not set');
+
 console.log('[CWD]', process.cwd());
 
 
@@ -70,6 +76,7 @@ const termsOfServiceRoutes = require('./routes/termsOfService');
 const influencerDataRoutes = require('./routes/influencerData');
 const seoRoutes = require('./routes/seo');
 const influencerImageRoutes = require('./routes/influencerImage');
+const faqsRoutes = require('./routes/faqs');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -131,6 +138,7 @@ app.use('/api/return-policy', returnPolicyRoutes);
 app.use('/api/uploads', uploadsRoutes);
 app.use('/api', influencerDataRoutes);
 app.use('/api', influencerImageRoutes);
+app.use('/api/faqs', faqsRoutes);
 
 
 /* ------------------- SERVER-SIDE SEO META TAG INJECTION ------------------- */

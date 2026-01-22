@@ -51,7 +51,7 @@ export default function AllInfluencersPage() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">
-        <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 sm:py-20 lg:py-24">
+        <section className="w-full bg-gradient-to-b from-gray-50 to-white pt-32 pb-16 sm:pt-36 sm:pb-20 lg:pt-40 lg:pb-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12 md:mb-16">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-gray-900">

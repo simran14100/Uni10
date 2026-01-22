@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Star, TrendingUp, Clock } from 'lucide-react';
+import { Loader2, Star, TrendingUp, Clock, Play, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface Product {
   _id: string;
@@ -97,12 +99,26 @@ export default function InfluencerSection() {
             <TrendingUp className="h-4 w-4 text-purple-600" />
             <span className="text-sm font-medium text-purple-600">Featured Content</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-            <span className="text-purple-600">Influencer</span> Spotlight
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Watch real reviews from our community of creators and influencers
-          </p>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+            <div className="flex-1">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+                <span className="text-purple-600">Influencer</span> Spotlight
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto mt-3">
+                Watch real reviews from our community of creators and influencers
+              </p>
+            </div>
+            <Link to="/videos">
+              <Button
+                variant="outline"
+                className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600 hover:border-purple-700 font-semibold px-6 py-2.5 flex items-center gap-2"
+              >
+                <Play className="h-4 w-4" />
+                Show All Videos
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Video Layout */}
@@ -112,13 +128,34 @@ export default function InfluencerSection() {
             <div className="lg:w-1/2">
               {selectedVideo && (
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-4">
-                  <div className="relative aspect-[3/4] w-full max-h-[600px] bg-gray-900">
+                  <div className="relative aspect-[3/4] w-full max-h-[600px] bg-gray-900 overflow-hidden">
                     <video
                       key={selectedVideo._id}
                       src={selectedVideo.videoUrl}
                       controls
                       className="w-full h-full object-cover"
-                      poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23111827' width='100' height='100'/%3E%3C/svg%3E"
+                      preload="metadata"
+                      onLoadedMetadata={(e) => {
+                        // Seek to first frame to show preview
+                        const videoElement = e.currentTarget;
+                        if (videoElement.duration > 0 && videoElement.readyState >= 2) {
+                          videoElement.currentTime = 0.1;
+                        }
+                      }}
+                      onLoadedData={(e) => {
+                        // Ensure first frame is shown
+                        const videoElement = e.currentTarget;
+                        if (videoElement.readyState >= 2) {
+                          videoElement.currentTime = 0.1;
+                        }
+                      }}
+                      onCanPlay={(e) => {
+                        // Show first frame when video can play
+                        const videoElement = e.currentTarget;
+                        if (videoElement.currentTime === 0) {
+                          videoElement.currentTime = 0.1;
+                        }
+                      }}
                     />
                   </div>
                   <div className="p-6">
@@ -142,18 +179,40 @@ export default function InfluencerSection() {
                       onClick={() => setSelectedVideo(item)}
                       className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group"
                     >
-                      <div className="relative aspect-[9/16] bg-gray-900">
+                      <div className="relative aspect-[9/16] bg-gray-900 overflow-hidden">
                         <video
                           src={item.videoUrl}
                           className="w-full h-full object-cover"
-                          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23111827' width='100' height='100'/%3E%3C/svg%3E"
+                          preload="metadata"
+                          muted
+                          playsInline
+                          onLoadedMetadata={(e) => {
+                            // Seek to first frame to show preview
+                            const videoElement = e.currentTarget;
+                            if (videoElement.duration > 0 && videoElement.readyState >= 2) {
+                              videoElement.currentTime = 0.1;
+                            }
+                          }}
+                          onLoadedData={(e) => {
+                            // Ensure first frame is shown
+                            const videoElement = e.currentTarget;
+                            if (videoElement.readyState >= 2) {
+                              videoElement.currentTime = 0.1;
+                            }
+                          }}
+                          onCanPlay={(e) => {
+                            // Show first frame when video can play
+                            const videoElement = e.currentTarget;
+                            if (videoElement.currentTime === 0) {
+                              videoElement.currentTime = 0.1;
+                            }
+                          }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-3">
-                          <h4 className="font-bold text-white text-sm mb-1 line-clamp-2">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
+                          <h4 className="font-bold text-white text-sm mb-1 line-clamp-2 drop-shadow-lg">
                             {item.productId?.title || 'Product Review'}
                           </h4>
-                          
                         </div>
                       </div>
                     </div>

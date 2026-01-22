@@ -3,7 +3,9 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const OTP = require('../models/OTP');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { generateOTP, sendOTP } = require('../utils/smsService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 const COOKIE_NAME = 'token';
@@ -19,22 +21,162 @@ function sendToken(res, user) {
   return token;
 }
 
-// Sign up
-router.post('/signup', async (req, res) => {
-  const { name, email, password, phone } = req.body || {};
-  if (!name || !email || !password) return res.status(400).json({ ok: false, message: 'Missing fields' });
-  if (phone && !/^\d{10}$/.test(phone)) return res.status(400).json({ ok: false, message: 'Phone number must be exactly 10 digits' });
+// Send OTP for signup
+router.post('/send-otp', async (req, res) => {
+  console.log('========================================');
+  console.log('📱 [SEND OTP] Request received');
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  console.log('Timestamp:', new Date().toISOString());
+  
   try {
-    const existing = await User.findOne({ email: String(email).toLowerCase() });
-    if (existing) return res.status(400).json({ ok: false, message: 'Email already in use' });
+    const { phone } = req.body || {};
+    console.log('📱 [SEND OTP] Phone received:', phone);
+    
+    if (!phone || !/^\d{10}$/.test(phone)) {
+      console.log('❌ [SEND OTP] Invalid phone format:', phone);
+      return res.status(400).json({ ok: false, message: 'Valid 10-digit phone number is required' });
+    }
+
+    console.log('✅ [SEND OTP] Phone format valid:', phone);
+
+    // Check if phone is already registered
+    console.log('🔍 [SEND OTP] Checking if phone already exists...');
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
+      console.log('❌ [SEND OTP] Phone already registered:', phone);
+      return res.status(400).json({ ok: false, message: 'Phone number already registered' });
+    }
+    console.log('✅ [SEND OTP] Phone not registered, proceeding...');
+
+    // Generate OTP
+    console.log('🔢 [SEND OTP] Generating OTP...');
+    const otp = generateOTP();
+    console.log('✅ [SEND OTP] OTP generated:', otp);
+    
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    console.log('⏰ [SEND OTP] OTP expires at:', expiresAt.toISOString());
+
+    // Delete any existing OTPs for this phone
+    console.log('🗑️  [SEND OTP] Deleting existing OTPs for phone:', phone);
+    const deleteResult = await OTP.deleteMany({ phone, purpose: 'signup', verified: false });
+    console.log('✅ [SEND OTP] Deleted', deleteResult.deletedCount, 'existing OTP(s)');
+
+    // Save OTP
+    console.log('💾 [SEND OTP] Saving OTP to database...');
+    const otpRecord = await OTP.create({
+      phone,
+      otp,
+      purpose: 'signup',
+      expiresAt,
+    });
+    console.log('✅ [SEND OTP] OTP saved to database. ID:', otpRecord._id);
+
+    // Send OTP via SMS
+    console.log('📤 [SEND OTP] Attempting to send SMS...');
+    console.log('📤 [SEND OTP] Phone:', phone, '| OTP:', otp);
+    const smsResult = await sendOTP(phone, otp);
+    console.log('📤 [SEND OTP] SMS result:', JSON.stringify(smsResult, null, 2));
+    
+    if (!smsResult.ok) {
+      console.log('❌ [SEND OTP] SMS sending failed');
+      return res.status(500).json({ ok: false, message: 'Failed to send OTP' });
+    }
+
+    console.log('✅ [SEND OTP] OTP sent successfully!');
+    console.log('========================================\n');
+    return res.json({ ok: true, message: 'OTP sent successfully' });
+  } catch (e) {
+    console.error('❌ [SEND OTP] Error occurred:', e);
+    console.error('❌ [SEND OTP] Error stack:', e.stack);
+    console.log('========================================\n');
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// Verify OTP
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { phone, otp } = req.body || {};
+    if (!phone || !otp) {
+      return res.status(400).json({ ok: false, message: 'Phone and OTP are required' });
+    }
+
+    // Find the OTP
+    const otpRecord = await OTP.findOne({
+      phone,
+      otp,
+      purpose: 'signup',
+      verified: false,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ ok: false, message: 'Invalid or expired OTP' });
+    }
+
+    // Mark OTP as verified
+    otpRecord.verified = true;
+    await otpRecord.save();
+
+    return res.json({ ok: true, message: 'OTP verified successfully' });
+  } catch (e) {
+    console.error('Verify OTP error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// Sign up (now requires OTP verification)
+router.post('/signup', async (req, res) => {
+  const { name, email, password, phone, otp } = req.body || {};
+  if (!name || !email || !password || !phone) {
+    return res.status(400).json({ ok: false, message: 'Missing required fields' });
+  }
+  if (!/^\d{10}$/.test(phone)) {
+    return res.status(400).json({ ok: false, message: 'Phone number must be exactly 10 digits' });
+  }
+  if (!otp) {
+    return res.status(400).json({ ok: false, message: 'OTP is required' });
+  }
+
+  try {
+    // Verify OTP
+    const otpRecord = await OTP.findOne({
+      phone,
+      otp,
+      purpose: 'signup',
+      verified: true,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ ok: false, message: 'Invalid or expired OTP. Please request a new OTP.' });
+    }
+
+    // Check if email already exists
+    const existingEmail = await User.findOne({ email: String(email).toLowerCase() });
+    if (existingEmail) {
+      return res.status(400).json({ ok: false, message: 'Email already in use' });
+    }
+
+    // Check if phone already exists
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ ok: false, message: 'Phone number already registered' });
+    }
+
+    // Create user
     const hash = await bcrypt.hash(password, 10);
     const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
     const role = String(email).toLowerCase() === adminEmail && adminEmail ? 'admin' : 'user';
     const user = await User.create({ name, email: String(email).toLowerCase(), phone, passwordHash: hash, role });
+
+    // Delete the used OTP
+    await OTP.deleteOne({ _id: otpRecord._id });
+
     const token = sendToken(res, user);
     return res.json({ ok: true, user: user.toJSON(), token });
   } catch (e) {
-    console.error(e);
+    console.error('Signup error:', e);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });

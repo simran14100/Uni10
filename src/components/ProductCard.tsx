@@ -107,13 +107,20 @@ export const ProductCard = ({ id, name, price, image, category, to, slug, images
         </div>
           <div className="flex items-center justify-between mt-auto">
             <div className="flex items-center">
-              {rating && (
-                <div className="flex items-center text-sm text-yellow-500">
-                  {'★'.repeat(Math.floor(rating))}
-                  {'☆'.repeat(5 - Math.floor(rating))}
-                  <span className="ml-1 text-gray-500 uppercase">({rating})</span>
-                </div>
-              )}
+              <div className="flex items-center text-sm text-yellow-500">
+                {rating ? (
+                  <>
+                    {'★'.repeat(Math.floor(rating))}
+                    {'☆'.repeat(5 - Math.floor(rating))}
+                    <span className="ml-1 text-gray-500 uppercase">({rating})</span>
+                  </>
+                ) : (
+                  <>
+                    {'☆'.repeat(5)}
+                    <span className="ml-1 text-gray-400 text-xs uppercase">(No ratings)</span>
+                  </>
+                )}
+              </div>
             </div>
             <Button onClick={handleAdd} size="icon" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md w-10 h-10 hidden sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity sm:duration-300">
               <ShoppingCart className="h-5 w-5 sm:h-4 sm:w-4" />

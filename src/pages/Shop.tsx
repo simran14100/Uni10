@@ -230,6 +230,30 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
     } else {
       setSelectedCategory("All");
     }
+    
+    // Read search query from URL
+    const searchFromUrl = params.get("q");
+    if (searchFromUrl !== null) {
+      setSearchQuery(searchFromUrl);
+    } else {
+      setSearchQuery("");
+    }
+    
+    // Read gender from URL
+    const genderFromUrl = params.get("gender");
+    if (genderFromUrl) {
+      // Convert API format (male/female) to UI format (Male/Female)
+      const genderCapitalized = genderFromUrl.charAt(0).toUpperCase() + genderFromUrl.slice(1).toLowerCase();
+      if (["Male", "Female", "Unisex"].includes(genderCapitalized)) {
+        setSelectedGender(genderCapitalized);
+        setSelectedGenderSubcategory("All"); // Reset subcategory when gender changes from URL
+        setCurrentPage(1);
+      }
+    } else {
+      // Reset gender filter when no gender param in URL
+      setSelectedGender("All");
+      setSelectedGenderSubcategory("All");
+    }
   }, [location.search]);
 
   const handleClearFilters = () => {
@@ -448,7 +472,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="container mx-auto px-3 sm:px-4 pt-24 pb-12">
+      <main className="container mx-auto px-3 sm:px-4 pt-32 pb-12 md:pt-36 lg:pt-40">
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tighter mb-3">
             {pageTitle.split(" ")[0]}{" "}

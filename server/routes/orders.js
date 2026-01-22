@@ -285,6 +285,138 @@ router.get('/mine-returns', requireAuth, async (req, res) => {
   }
 });
 
+// Get best sellers (latest bought products)
+router.get('/bestsellers', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 12;
+    
+    // Get recent orders (any status except cancelled) sorted by creation date
+    // This includes pending, paid, shipped, and delivered orders
+    const recentOrders = await Order.find({
+      status: { $nin: ['cancelled'] }
+    })
+      .sort({ createdAt: -1 })
+      .limit(100) // Get more orders to have enough products
+      .lean();
+
+    // Extract unique products from order items
+    const productMap = new Map();
+    
+    recentOrders.forEach(order => {
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          const productId = item.productId || item.id;
+          if (productId) {
+            if (!productMap.has(productId)) {
+              productMap.set(productId, {
+                productId: productId,
+                title: item.title,
+                price: item.price,
+                image: item.image,
+                lastOrderedAt: order.createdAt,
+                orderCount: 0
+              });
+            }
+            const product = productMap.get(productId);
+            product.orderCount += (item.qty || 1);
+            // Update to most recent order date
+            if (new Date(order.createdAt) > new Date(product.lastOrderedAt)) {
+              product.lastOrderedAt = order.createdAt;
+            }
+          }
+        });
+      }
+    });
+
+    // Convert to array and sort by most recent order date
+    const bestSellers = Array.from(productMap.values())
+      .sort((a, b) => new Date(b.lastOrderedAt) - new Date(a.lastOrderedAt))
+      .slice(0, limit);
+
+    // Fetch full product details
+    const Product = require('../models/Product');
+    const Review = require('../models/Review');
+    const productIds = bestSellers.map(p => p.productId).filter(id => id);
+    
+    if (productIds.length === 0) {
+      return res.json({ ok: true, data: [] });
+    }
+    
+    const products = await Product.find({ _id: { $in: productIds } }).lean();
+
+    // Fetch average ratings for all products
+    const mongoose = require('mongoose');
+    const ObjectId = mongoose.Types.ObjectId;
+    
+    // Convert productIds to ObjectIds, filtering out invalid ones
+    const validProductIds = productIds
+      .filter(id => id && mongoose.Types.ObjectId.isValid(id))
+      .map(id => new ObjectId(id));
+    
+    let ratingAggregation = [];
+    if (validProductIds.length > 0) {
+      ratingAggregation = await Review.aggregate([
+        {
+          $match: {
+            productId: { $in: validProductIds },
+            status: 'published',
+            approved: true
+          }
+        },
+        {
+          $group: {
+            _id: '$productId',
+            averageRating: { $avg: '$rating' },
+            reviewCount: { $sum: 1 }
+          }
+        }
+      ]);
+    }
+
+    // Create a map of productId to rating
+    const ratingMap = new Map();
+    ratingAggregation.forEach(item => {
+      ratingMap.set(String(item._id), {
+        rating: Math.round(item.averageRating * 10) / 10, // Round to 1 decimal
+        reviewCount: item.reviewCount
+      });
+    });
+
+    // Map products with order info and ratings
+    const enrichedProducts = bestSellers.map(bs => {
+      const product = products.find(p => String(p._id) === String(bs.productId));
+      const ratingInfo = ratingMap.get(String(bs.productId));
+      
+      if (product) {
+        return {
+          ...product,
+          orderCount: bs.orderCount,
+          lastOrderedAt: bs.lastOrderedAt,
+          rating: ratingInfo?.rating,
+          reviewCount: ratingInfo?.reviewCount || 0
+        };
+      }
+      // If product not found in DB, return the item data we have
+      return {
+        _id: bs.productId,
+        title: bs.title,
+        price: bs.price,
+        images: bs.image ? [bs.image] : [],
+        image_url: bs.image,
+        orderCount: bs.orderCount,
+        lastOrderedAt: bs.lastOrderedAt,
+        rating: ratingInfo?.rating,
+        reviewCount: ratingInfo?.reviewCount || 0
+      };
+    }).filter(p => p !== null);
+
+    return res.json({ ok: true, data: enrichedProducts });
+  } catch (e) {
+    console.error('Get best sellers error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
 // ========== GET/PUT/POST ROUTES WITH /:id (can come before generic GET /:id) ==========
 
 // Get one order (owner or admin)

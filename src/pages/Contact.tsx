@@ -56,7 +56,7 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
-      <main className="container mx-auto px-4 py-16 lg:py-24">
+      <main className="container mx-auto px-4 pt-32 pb-16 md:pt-36 lg:pt-40 lg:pb-24">
         <div className="max-w-6xl mx-auto space-y-16">
           {/* Hero Section */}
           <div className="text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
