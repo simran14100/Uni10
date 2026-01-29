@@ -5,49 +5,41 @@ import { Button } from "@/components/ui/button";
 
 export const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showPrompt, setShowPrompt] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(true); // Always show on desktop
 
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowPrompt(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
-    // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setShowPrompt(false);
-    }
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      // Fallback: Show manual install instructions
+      alert('To install: Click the menu (⋮) in your browser, then "Install app" or "Add to Home Screen"');
+      return;
+    }
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
-      setShowPrompt(false);
     }
   };
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwa-dismissed', 'true');
   };
 
-  // Don't show if dismissed before
-  useEffect(() => {
-    if (localStorage.getItem('pwa-dismissed')) {
-      setShowPrompt(false);
-    }
-  }, []);
-
+  // Always show on desktop, hide on mobile
+  const isDesktop = window.innerWidth >= 768;
+  if (!isDesktop) return null;
   if (!showPrompt) return null;
 
   return (
@@ -72,7 +64,7 @@ export const PWAInstallPrompt = () => {
           </Button>
           <Button
             size="sm"
-            variant="ghost"
+            variant="ghost" 
             onClick={handleDismiss}
           >
             <X className="h-4 w-4" />

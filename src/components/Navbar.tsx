@@ -209,32 +209,6 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
         {/* Mobile Menu (sirf md:hidden, desktop untouched) */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/10 bg-gray-900">
-            {/* Mobile Search Bar - Increased Size */}
-            <form onSubmit={handleSearch} className="px-2 mb-4">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="pl-12 pr-12 h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/50 focus-visible:bg-white/15 focus-visible:ring-2"
-                />
-                {searchQuery && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-9 w-9 text-gray-400 hover:text-white"
-                    onClick={() => setSearchQuery("")}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                )}
-              </div>
-            </form>
-            
             <div className="flex flex-col gap-1">
               {[
                 { to: "/", label: "Home" },

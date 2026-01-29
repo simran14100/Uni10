@@ -498,7 +498,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
           </div>
 
           {/* Center Section: Search Input */}
-          <div className="flex-1 flex justify-center">
+          <div className="flex-1 flex justify-center hidden sm:flex">
             <SearchInput
               value={searchQuery}
               onChange={setSearchQuery}
@@ -556,11 +556,11 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                     <Filter className="w-4 h-4 mr-2" /> Filters
                   </Button>
                 </SheetTrigger>
-              <SheetContent side="left" className="w-64 sm:w-80">
-                <SheetHeader className="mb-6">
+              <SheetContent side="left" className="w-64 sm:w-80 overflow-y-auto">
+                <SheetHeader className="mb-6 sticky top-0 bg-background z-10 pb-2">
                   <SheetTitle>Filter Products</SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col space-y-6">
+                <div className="flex flex-col space-y-6 pb-6">
                   {/* Clear Filters Button (Mobile) */}
                   <Button
                     variant="outline"
@@ -776,7 +776,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           {/* Desktop Filters Sidebar */}
           <aside className="hidden lg:block w-64 pr-8 shrink-0">
-            <div className="flex flex-col space-y-6 sticky top-24">
+            <div className="flex flex-col space-y-6 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
               {/* Categories Filter */}
               <Collapsible defaultOpen={true}>
                 <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
