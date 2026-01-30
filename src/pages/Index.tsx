@@ -867,9 +867,7 @@ const Index = () => {
 
       <FeatureSection />
 
-      <RecentReviewsSection />
-
-      <FAQSection />
+     
 
    
       <Footer />

@@ -36,7 +36,7 @@ import { SizeChartModal } from "@/components/SizeChartModal";
 import { SizeChartTableModal } from "@/components/SizeChartTableModal";
 import { ReviewModal } from "@/components/ReviewModal";
 import ReviewsList from "@/components/ReviewsList";
-import { AvailableCoupons } from "@/components/AvailableCoupons";
+import { SimpleCoupon } from "@/components/SimpleCoupon";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
 import { ShareButton } from "@/components/ShareButton";
@@ -864,27 +864,7 @@ const ProductDetail = () => {
                   productImage={img}
                 />
               </div>
-              <div className="mb-3 sm:mb-4">
-                <Badge
-                  variant={outOfStock ? "destructive" : "secondary"}
-                  className="text-xs sm:text-sm"
-                >
-                  {outOfStock ? "Not Available" : "Available"}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mb-4 sm:mb-6">
-                {product.description && product.description.length > 150
-                  ? (<> {`${product.description.substring(0, 150)}...`} <span
-                      className="text-primary text-xs cursor-pointer hover:underline"
-                      onClick={() => {
-                        descriptionRef.current?.scrollIntoView({ behavior: 'smooth' });
-                        setActiveTab("description");
-                      }}
-                    >
-                      Read more
-                    </span></>)
-                  : product.description}
-              </p>
+             
 
               {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
                 <div className="mb-4 text-sm text-gray-900">
@@ -903,8 +883,7 @@ const ProductDetail = () => {
               )}
               </div>
 
-              <AvailableCoupons
-                refreshTrigger={refreshKey}
+              <SimpleCoupon
                 onUseNow={(code) => {
                   navigate(`/cart?coupon=${encodeURIComponent(code)}`);
                 }}
@@ -1270,7 +1249,7 @@ const ProductDetail = () => {
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   )}
                 >
-                  Additional Information
+                 Product Details
                   <ArrowRight className="h-3 w-3 text-gray-400" />
                 </button>
               )}
