@@ -172,7 +172,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="flex justify-center items-center px-4 pt-32 pb-12">
+      <main className="flex-1 flex justify-center items-center px-4 pt-32 pb-12 md:pb-16">
         <Card className="max-w-sm w-full mx-auto">
           <CardHeader>
             <CardTitle>{isLogin ? 'Sign In' : 'Create Account'}</CardTitle>

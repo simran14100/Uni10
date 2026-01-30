@@ -34,7 +34,7 @@ export const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-black text-white relative overflow-hidden">
+    <footer className="bg-black text-white relative overflow-hidden mb-0">
       <div
         className="absolute bottom-0 left-0 w-full h-full bg-no-repeat bg-left-bottom opacity-20"
         style={{ backgroundImage: 'url(/src/assets/table-outline.png)', backgroundSize: '30% auto' }}
@@ -43,7 +43,7 @@ export const Footer = () => {
         className="absolute top-0 right-0 w-full h-full bg-no-repeat bg-right-top opacity-20"
         style={{ backgroundImage: 'url(/src/assets/chair-outline.png)', backgroundSize: '30% auto' }}
       ></div>
-      <div className="container mx-auto px-8 py-16 md:py-20 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20 relative z-10">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12 w-full">
           {/* Brand Section */}
