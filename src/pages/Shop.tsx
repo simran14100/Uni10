@@ -21,6 +21,7 @@ type ProductRow = {
   title?: string;
   name?: string;
   price?: number;
+  discount?: { type: 'percentage' | 'flat'; value: number };
   category?: string;
   gender?: string;
   colors?: string[];
@@ -84,19 +85,30 @@ const normalizeCategory = (value: string) => String(value || "").trim().toLowerC
       "/placeholder.svg";
 
     const img = resolveImage(rawImg);
-    const originalPrice = Number(p.price || 0);
-    const discountedPrice = Math.round(originalPrice * 0.8); // 20% discount for demonstration
+    const basePrice = Number(p.price || 0);
+    
+    // Calculate discounted price using same logic as ProductDetail
+    let finalPrice = basePrice;
+    if (p?.discount?.value && p.discount.type === 'percentage') {
+      finalPrice = basePrice - (basePrice * p.discount.value / 100);
+    } else if (p?.discount?.value && p.discount.type === 'flat') {
+      finalPrice = Math.max(0, basePrice - p.discount.value);
+    }
+    
     const rating = (Math.random() * (5 - 3) + 3).toFixed(1); // Random rating between 3 and 5
 
     return {
       id,
       name: title,
-      price: originalPrice,
+      price: finalPrice,
+      originalPrice: p?.discount?.value ? basePrice : undefined,
+      discountedPrice: p?.discount?.value ? finalPrice : undefined,
+      discountPercentage: p?.discount?.type === 'percentage' ? p.discount.value : undefined,
+      discountAmount: p?.discount?.type === 'flat' ? p.discount.value : undefined,
       image: img,
       category: p.category || "",
       slug: p.slug || "",
       images: Array.isArray(p.images) ? p.images : [],
-      discountedPrice: discountedPrice,
       rating: Number(rating),
     };
   };

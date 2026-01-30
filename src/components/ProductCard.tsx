@@ -11,16 +11,19 @@ interface ProductCardProps {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
+  discountedPrice?: number;
+  discountPercentage?: number;
+  discountAmount?: number;
   image: string;
   category: string;
   to?: string;
   slug?: string;
   images?: string[];
-  discountedPrice?: number;
   rating?: number;
 }
 
-export const ProductCard = ({ id, name, price, image, category, to, slug, images, discountedPrice, rating }: ProductCardProps) => {
+export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, discountPercentage, discountAmount, image, category, to, slug, images, rating }: ProductCardProps) => {
   const { user } = useAuth();
   const { addToCart } = (() => { try { return useCart(); } catch { return { addToCart: () => {} } as any; } })();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -61,11 +64,11 @@ export const ProductCard = ({ id, name, price, image, category, to, slug, images
     <Card className="group overflow-hidden rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 relative bg-white sm:max-w-xs">
       <Link to={linkTo} className="block">
         <div className="aspect-square overflow-hidden bg-gray-100 relative flex items-center justify-center rounded-t-xl">
-          {discountedPrice && (
+          {(discountPercentage && discountPercentage > 0) || (discountAmount && discountAmount > 0) ? (
             <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md">
-              -{( ( (price - discountedPrice) / price) * 100).toFixed(0)}%
+              {discountPercentage && discountPercentage > 0 ? `-${discountPercentage}%` : discountAmount && discountAmount > 0 ? `-₹${discountAmount}` : ''}
             </div>
-          )}
+          ) : null}
           <img
             src={src}
             alt={name}
@@ -95,10 +98,10 @@ export const ProductCard = ({ id, name, price, image, category, to, slug, images
         </Link>
         <div className="flex items-center mt-2 mb-2">
           <p className="text-lg sm:text-xl font-bold text-gray-800 uppercase">
-            {discountedPrice ? (
+            {originalPrice && originalPrice > price ? (
               <>
-                <span className="line-through text-gray-400 text-sm sm:text-base mr-1 sm:mr-2 whitespace-nowrap">₹{price.toLocaleString('en-IN')}</span>
-                <span className="whitespace-nowrap">₹{discountedPrice.toLocaleString('en-IN')}</span>
+                <span className="line-through text-gray-400 text-sm sm:text-base mr-1 sm:mr-2 whitespace-nowrap">₹{originalPrice.toLocaleString('en-IN')}</span>
+                <span className="whitespace-nowrap">₹{price.toLocaleString('en-IN')}</span>
               </>
             ) : (
               <span className="whitespace-nowrap">₹{price.toLocaleString('en-IN')}</span>
