@@ -173,7 +173,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       <main className="flex-1 flex justify-center px-4 pt-32 pb-12">
-        <Card className="max-w-md w-full">
+        <Card className="max-w-sm md:max-w-md w-full mx-auto">
           <CardHeader>
             <CardTitle>{isLogin ? 'Sign In' : 'Create Account'}</CardTitle>
             <CardDescription>
