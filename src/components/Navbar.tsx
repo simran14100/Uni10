@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Menu, User, Heart, Search, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import {
@@ -23,6 +23,7 @@ interface NavbarProps {
 export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const desktopSearchRef = useRef<HTMLInputElement>(null);
  
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -43,6 +44,12 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
     if (searchQuery.trim()) {
       navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
+      // Close mobile menu after search
+      setIsMenuOpen(false);
+      // Blur the desktop search input
+      if (desktopSearchRef.current) {
+        desktopSearchRef.current.blur();
+      }
     }
   };
 
@@ -104,6 +111,7 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 <Input
+                  ref={desktopSearchRef}
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
