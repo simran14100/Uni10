@@ -79,6 +79,34 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
             />
           </Link>
 
+          {/* Mobile Search Bar - Only visible on mobile */}
+          <div className="flex-1 md:hidden px-2">
+            <form onSubmit={handleSearch}>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                <Input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="pl-10 pr-8 h-9 text-sm bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/50 focus-visible:bg-white/15 focus-visible:ring-2"
+                />
+                {searchQuery && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-white"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </form>
+          </div>
+
           {/* Desktop Navigation and Search */}
           <div className="hidden md:flex items-center gap-4 flex-1 max-w-4xl mx-4">
             <div className="flex items-center gap-1">
@@ -218,31 +246,6 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/10 bg-gray-900">
             <div className="flex flex-col gap-1">
-              {/* Search Bar - Mobile */}
-              <form onSubmit={handleSearch} className="px-3 mb-2">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                  <Input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="pl-12 pr-12 h-11 text-base bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/50 focus-visible:bg-white/15 focus-visible:ring-2"
-                  />
-                  {searchQuery && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-white"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
-                  )}
-                </div>
-              </form>
               
               {[
                 { to: "/", label: "Home" },

@@ -755,7 +755,7 @@ const ProductDetail = () => {
                   productImage={img}
                 />
               </div>
-              <div className="mb-3 sm:mb-4">
+              <div className="mb-3 sm:mb-4 hidden sm:block">
                 <Badge
                   variant={outOfStock ? "destructive" : "secondary"}
                   className="text-xs sm:text-sm"
@@ -763,7 +763,7 @@ const ProductDetail = () => {
                   {outOfStock ? "Not Available" : "Available"}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground mb-4 sm:mb-6">
+              <p className="text-xs text-muted-foreground mb-4 sm:mb-6 hidden sm:block">
                 {product.description && product.description.length > 150
                   ? (<> {`${product.description.substring(0, 150)}...`} <span
                       className="text-primary text-xs cursor-pointer hover:underline"
@@ -776,22 +776,6 @@ const ProductDetail = () => {
                     </span></>)
                   : product.description}
               </p>
-
-              {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
-                <div className="mb-4 text-sm text-gray-900">
-                  <div className="font-bold text-base mb-2">Size &amp; Fit</div>
-                  {product?.sizeFit?.fit && (
-                    <div className="mb-1">
-                      <span className="font-medium">Fit</span> - {product.sizeFit.fit}
-                    </div>
-                  )}
-                  {product?.sizeFit?.modelWearingSize && (
-                    <div>
-                      <span className="font-medium">Size</span> - {product.sizeFit.modelWearingSize}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             <div className="min-w-0 p-4 sm:p-5 md:p-8 border border-gray-200 rounded-lg order-3 md:order-2">
@@ -866,29 +850,10 @@ const ProductDetail = () => {
               </div>
              
 
-              {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
-                <div className="mb-4 text-sm text-gray-900">
-                  <div className="font-bold text-base mb-2">Size &amp; Fit</div>
-                  {product?.sizeFit?.fit && (
-                    <div className="mb-1">
-                      <span className="font-medium">Fit</span> - {product.sizeFit.fit}
-                    </div>
-                  )}
-                  {product?.sizeFit?.modelWearingSize && (
-                    <div>
-                      <span className="font-medium">Size</span> - {product.sizeFit.modelWearingSize}
-                    </div>
-                  )}
-                </div>
-              )}
+              
               </div>
 
-              <SimpleCoupon
-                onUseNow={(code) => {
-                  navigate(`/cart?coupon=${encodeURIComponent(code)}`);
-                }}
-                productPrice={Number(product.price ?? 0)}
-              />
+             
 
               {/* ✅ COLOR OPTIONS UI - supports both old colors array and new colorVariants */}
               {(() => {
@@ -1202,6 +1167,29 @@ const ProductDetail = () => {
                 )}
               </div>
 
+             {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
+                <div className="mb-4 text-sm text-gray-900">
+                  <div className="font-bold text-base mb-2">Size &amp; Fit</div>
+                  {product?.sizeFit?.fit && (
+                    <div className="mb-1">
+                      <span className="font-medium">Fit</span> - {product.sizeFit.fit}
+                    </div>
+                  )}
+                  {product?.sizeFit?.modelWearingSize && (
+                    <div>
+                      <span className="font-medium">Size</span> - {product.sizeFit.modelWearingSize}
+                    </div>
+                  )}
+                </div>
+              )}
+        <SimpleCoupon
+                onUseNow={(code) => {
+                  navigate(`/cart?coupon=${encodeURIComponent(code)}`);
+                }}
+                productPrice={Number(product.price ?? 0)}
+              />
+
+        
               <div className="border-t border-b border-border py-3 grid grid-cols-3 gap-2">
                 <div className="flex flex-col items-center justify-center text-center">
                   <Banknote className="w-5 h-5 text-primary mb-1" />
