@@ -126,7 +126,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
   const [selectedGenderSubcategory, setSelectedGenderSubcategory] = useState<string>("All");
   const [selectedColor, setSelectedColor] = useState<string>("All");
   const [selectedSize, setSelectedSize] = useState<string>("All");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]); // Example price range
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]); // Increased default price range
   const [priceSort, setPriceSort] = useState<string>("none"); // "none", "low-to-high", "high-to-low"
 
   const [products, setProducts] = useState<ProductRow[]>([]);
@@ -274,7 +274,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
     setSelectedGenderSubcategory("All");
     setSelectedColor("All");
     setSelectedSize("All");
-    setPriceRange([0, 1000]);
+    setPriceRange([0, 5000]); // Updated to match new default
     setPriceSort("none");
     setCurrentPage(1);
   };
@@ -351,6 +351,13 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
         ? (json.data as ProductRow[])
         : [];
       console.log('Products fetched by Shop.tsx:', list);
+      console.log('Selected filters:', {
+        selectedCategory,
+        selectedGender,
+        selectedColor,
+        selectedSize,
+        priceRange
+      });
 
       if (sortBy === "newest") {
         list = list.sort((a, b) => {
@@ -413,6 +420,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
 
   const filteredProducts = useMemo(() => {
     let result = products;
+    console.log('Starting filtering with', result.length, 'products');
 
     // If gender subcategory is selected, use that instead of main category
     if (selectedGenderSubcategory !== "All" && selectedGender !== "All") {
@@ -425,6 +433,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
           return matchesGender && matchesSubcat;
         }
       );
+      console.log('After gender subcategory filter:', result.length, 'products');
     } else {
       // Use main category filter if gender subcategory is not selected
       const normalizedSelectedCategory = normalizeCategory(selectedCategory);
@@ -432,12 +441,14 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
         result = result.filter(
           (p) => normalizeCategory(p.category || "") === normalizedSelectedCategory
         );
+        console.log('After category filter:', result.length, 'products');
       }
 
       if (selectedGender !== "All") {
         result = result.filter(
           (p) => String(p.gender || "").toLowerCase() === selectedGender.toLowerCase()
         );
+        console.log('After gender filter:', result.length, 'products');
       }
     }
 
@@ -445,17 +456,20 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
       result = result.filter(
         (p) => p.colors?.some(c => c.toLowerCase() === selectedColor.toLowerCase())
       );
+      console.log('After color filter:', result.length, 'products');
     }
 
     if (selectedSize !== "All") {
       result = result.filter(
         (p) => productHasSizeInStock(p, selectedSize)
       );
+      console.log('After size filter:', result.length, 'products');
     }
 
     result = result.filter(
       (p) => (p.price || 0) >= priceRange[0] && (p.price || 0) <= priceRange[1]
     );
+    console.log('After price filter:', result.length, 'products');
 
     // Apply price sorting
     if (priceSort === "low-to-high") {
@@ -464,6 +478,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
       result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0));
     }
 
+    console.log('Final filtered products:', result.length);
     return result;
   }, [products, selectedCategory, selectedGender, selectedGenderSubcategory, selectedColor, selectedSize, priceRange, priceSort]);
 
@@ -722,7 +737,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                     <CollapsibleContent className="pt-4 pb-2">
                       <Slider
                         min={0}
-                        max={2000} // Assuming a max price for now
+                        max={5000} // Updated to match new price range
                         step={10}
                         value={priceRange}
                         onValueChange={(val: [number, number]) => setPriceRange(val)}
@@ -927,7 +942,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                 <CollapsibleContent className="pt-4 pb-2">
                   <Slider
                     min={0}
-                    max={2000} // Assuming a max price for now
+                    max={5000} // Updated to match new price range
                     step={10}
                     value={priceRange}
                     onValueChange={(val: [number, number]) => setPriceRange(val)}
