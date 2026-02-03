@@ -1,265 +1,203 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
-import { api } from '@/lib/api';
-import { X, Upload, Star } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
+import { Rating } from "@/components/ui/Rating";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2, X, Star } from "lucide-react";
+
+interface Review {
+  _id: string;
+  userId: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  productId: string;
+  username: string;
+  email: string;
+  rating: number;
+  text: string;
+  images: string[];
+  status: string;
+  approved: boolean;
+  createdAt: string;
+}
 
 interface ReviewModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
   productId: string;
-  orderId?: string;
-  onSuccess?: () => void;
+  productName: string;
 }
 
-interface ReviewFormData {
-  text: string;
-  rating: number;
-}
-
-export const ReviewModal = ({ open, onOpenChange, productId, orderId, onSuccess }: ReviewModalProps) => {
+export const ReviewModal = ({ isOpen, onClose, productId, productName }: ReviewModalProps) => {
   const { toast } = useToast();
-  const [images, setImages] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
-  const [hoveredRating, setHoveredRating] = useState(0);
-
-  const form = useForm<ReviewFormData>({
-    defaultValues: { text: '', rating: 5 },
+  const [review, setReview] = useState({
+    rating: 0,
+    text: ""
   });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  useEffect(() => {
+    if (!isOpen) {
+      setReview({ rating: 0, text: "" });
+    }
+  }, [isOpen]);
 
-    if (images.length + files.length > 3) {
-      toast({ title: 'Maximum 3 images allowed', variant: 'destructive' });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to write a review",
+        variant: "destructive"
+      });
       return;
     }
 
-    for (const file of files) {
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        toast({ title: `Invalid file type: ${file.type}`, variant: 'destructive' });
-        continue;
-      }
-
-      if (file.size > 2 * 1024 * 1024) {
-        toast({ title: `File too large: ${file.name}`, variant: 'destructive' });
-        continue;
-      }
-
-      setUploading(true);
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch('/api/uploads/images', {
-          method: 'POST',
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Upload failed');
-        }
-
-        const data = await response.json();
-        if (data.ok && data.url) {
-          setImages(prev => [...prev, data.url]);
-        }
-      } catch (err) {
-        toast({ title: 'Failed to upload image', variant: 'destructive' });
-      } finally {
-        setUploading(false);
-      }
-    }
-
-    e.target.value = '';
-  };
-
-  const handleRemoveImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const onSubmit = async (formData: ReviewFormData) => {
-    if (formData.text.length < 20 || formData.text.length > 1000) {
-      toast({ title: 'Review text must be 20-1000 characters', variant: 'destructive' });
+    if (review.rating === 0) {
+      toast({
+        title: "Rating Required",
+        description: "Please select a rating",
+        variant: "destructive"
+      });
       return;
     }
 
-    if (!formData.rating || formData.rating < 1 || formData.rating > 5) {
-      toast({ title: 'Please select a rating (1-5 stars)', variant: 'destructive' });
+    if (review.text.trim().length < 20) {
+      toast({
+        title: "Review Too Short",
+        description: "Review must be at least 20 characters",
+        variant: "destructive"
+      });
       return;
     }
 
     setSubmitting(true);
     try {
-      const body: any = {
-        productId,
-        text: formData.text,
-        rating: formData.rating,
-        images,
-      };
-
-      if (orderId) {
-        body.orderId = orderId;
-      }
-
-      const { ok, json } = await api('/api/reviews', {
-        method: 'POST',
-        body: JSON.stringify(body),
+      const { ok, json } = await api("/api/reviews", {
+        method: "POST",
+        body: JSON.stringify({
+          productId,
+          rating: review.rating,
+          text: review.text.trim()
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
       });
 
-      if (!ok) {
-        throw new Error(json?.message || 'Failed to submit review');
+      if (ok) {
+        toast({
+          title: "Review Submitted",
+          description: "Your review has been posted successfully"
+        });
+        setReview({ rating: 0, text: "" });
+        onClose();
+      } else {
+        throw new Error(json?.message || "Failed to submit review");
       }
-
-      toast({ title: 'Review submitted!' });
-      onOpenChange(false);
-      form.reset();
-      setImages([]);
-      onSuccess?.();
-
-      setTimeout(() => {
-        const reviewsSection = document.getElementById('reviews');
-        if (reviewsSection) {
-          reviewsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 500);
-    } catch (err: any) {
-      toast({ title: err?.message || 'Failed to submit review', variant: 'destructive' });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit review",
+        variant: "destructive"
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Write a Review</DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-xl font-semibold">Write a Review</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="rating"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Rating *</FormLabel>
-                  <div className="flex gap-2 items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => field.onChange(star)}
-                        onMouseEnter={() => setHoveredRating(star)}
-                        onMouseLeave={() => setHoveredRating(0)}
-                        className="transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded"
-                      >
-                        <Star
-                          className={`h-6 w-6 ${
-                            star <= (hoveredRating || field.value)
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-muted-foreground'
-                          }`}
-                        />
-                      </button>
-                    ))}
-                    {field.value && (
-                      <span className="text-sm font-medium text-muted-foreground">
-                        {field.value} out of 5
-                      </span>
-                    )}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="p-6">
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">Product:</p>
+            <p className="font-medium">{productName}</p>
+          </div>
 
-            <FormField
-              control={form.control}
-              name="text"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Review Text *</FormLabel>
-                  <Textarea
-                    {...field}
-                    placeholder="Share your thoughts about this product (20-1000 characters)"
-                    className="resize-none"
-                    rows={5}
-                  />
-                  <div className="text-xs text-muted-foreground">
-                    {field.value.length}/1000
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="space-y-2">
-              <FormLabel>Images (optional, max 3)</FormLabel>
-              <input
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp"
-                onChange={handleImageUpload}
-                disabled={uploading || images.length >= 3}
-                className="hidden"
-                id="image-upload"
-              />
-              <label
-                htmlFor="image-upload"
-                className="flex items-center justify-center gap-2 px-4 py-2 border border-dashed border-input rounded-md cursor-pointer hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Upload className="h-4 w-4" />
-                <span className="text-sm">{uploading ? 'Uploading...' : 'Click to upload images'}</span>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-3">
+                Rating <span className="text-red-500">*</span>
               </label>
-
-              {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2">
-                  {images.map((img, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-md overflow-hidden bg-muted group">
-                      <img src={img} alt={`Review image ${idx + 1}`} className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(idx)}
-                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-5 w-5 text-white" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <Rating
+                  value={review.rating}
+                  onChange={(value) => setReview(prev => ({ ...prev, rating: value }))}
+                />
+                <span className="ml-2 text-sm text-gray-600">
+                  {review.rating > 0 ? `${review.rating} star${review.rating > 1 ? 's' : ''}` : 'Select a rating'}
+                </span>
+              </div>
             </div>
-
-            <div className="flex gap-2 pt-4">
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Your Review <span className="text-red-500">*</span>
+              </label>
+              <Textarea
+                value={review.text}
+                onChange={(e) => setReview(prev => ({ ...prev, text: e.target.value }))}
+                placeholder="Share your experience with this product (minimum 20 characters)"
+                rows={5}
+                minLength={20}
+                required
+                className="resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {review.text.length}/20 characters minimum
+              </p>
+            </div>
+            
+            <div className="flex gap-3 pt-4">
+              <Button 
+                type="submit" 
+                disabled={submitting || review.rating === 0 || review.text.trim().length < 20}
+                className="flex-1"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Review"
+                )}
+              </Button>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={onClose}
                 disabled={submitting}
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={submitting || uploading}
-                className="flex-1"
-              >
-                {submitting ? 'Submitting...' : 'Submit Review'}
-              </Button>
             </div>
           </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   );
 };
+
+export default ReviewModal;

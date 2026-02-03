@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Rating } from "@/components/ui/Rating";
-import { Loader2, Upload, X } from "lucide-react"; // Added Upload and X icons
+import { Loader2, Upload, X } from "lucide-react";
 
 interface AdminCreateReviewProps {
   onReviewCreated?: () => void;
@@ -21,10 +21,10 @@ interface ProductDetail {
 export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) => {
   const { toast } = useToast();
   const [productId, setProductId] = useState("");
-  const [username, setUsername] = useState(""); // New state for username
-  const [email, setEmail] = useState(""); // New state for email
-  const [allProducts, setAllProducts] = useState<ProductDetail[]>([]); // New state for all products
-  const [allProductsLoading, setAllProductsLoading] = useState(false); // New state for all products loading
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [allProducts, setAllProducts] = useState<ProductDetail[]>([]);
+  const [allProductsLoading, setAllProductsLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [text, setText] = useState("");
   const [images, setImages] = useState<string[]>([]);
@@ -33,15 +33,12 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
 
-  // Fetch all products on component mount
   useEffect(() => {
     const fetchAllProducts = async () => {
       setAllProductsLoading(true);
       try {
-        // Fetch all products using the main /api/products endpoint with a high limit
         const { ok, json } = await api("/api/products?limit=1000"); 
         if (ok) {
-          // Sort products by title for the dropdown
           const sortedProducts = json.data.sort((a: ProductDetail, b: ProductDetail) =>
             a.title.localeCompare(b.title)
           );
@@ -66,9 +63,7 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
     fetchAllProducts();
   }, [toast]);
 
-  // Derive selected product from allProducts based on productId
   const selectedProduct = allProducts.find(p => p._id === productId) || null;
-
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -84,7 +79,6 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
         const { ok, json } = await api("/api/uploads/images", {
           method: "POST",
           body: formData,
-          // No Content-Type header needed for FormData
         });
 
         if (ok && json?.url) {
@@ -107,7 +101,7 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
       });
     } finally {
       setUploadingImages(false);
-      e.target.value = ''; // Clear the file input
+      e.target.value = '';
     }
   };
 
@@ -158,10 +152,9 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
         description: `Review for ${selectedProduct?.title || productId} created successfully.`, 
       });
 
-      // Clear form
       setProductId("");
-      setUsername(""); // Clear username
-      setEmail(""); // Clear email
+      setUsername("");
+      setEmail("");
       setRating(0);
       setText("");
       setImages([]);
@@ -265,7 +258,6 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
           </Select>
         </div>
         
-        {/* Image Upload Section */}
         <div>
           <Label htmlFor="imageUpload">Images (Optional)</Label>
           <div className="flex flex-wrap gap-2 mb-2">
@@ -312,6 +304,3 @@ export const AdminCreateReview = ({ onReviewCreated }: AdminCreateReviewProps) =
 };
 
 export default AdminCreateReview;
-
-
-

@@ -1,283 +1,174 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 const Review = require('../models/Review');
-const Order = require('../models/Order');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const Product = require('../models/Product');
+const { requireAuth } = require('../middleware/auth');
+const mongoose = require('mongoose');
 
-// Sanitize review text
-function sanitizeText(text) {
-  if (!text) return '';
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-// Get reviews for a product with pagination
-router.get('/', async (req, res) => {
+// GET /api/reviews/product/:productId - Get all reviews for a product
+router.get('/product/:productId', async (req, res) => {
   try {
-    const { productId, status = 'published', page = 1, limit = 10 } = req.query;
-    if (!productId) return res.status(400).json({ ok: false, message: 'Missing productId' });
+    const { productId } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ ok: false, message: 'Invalid product ID' });
+    }
 
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 10));
-    const skip = (pageNum - 1) * limitNum;
+    const reviews = await Review.find({ 
+      productId, 
+      status: 'published' 
+    })
+    .populate('userId', 'name email')
+    .sort({ createdAt: -1 });
 
-    const query = { productId, status };
-    const total = await Review.countDocuments(query);
-    const docs = await Review.find(query)
-      .populate('userId', 'name')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .lean();
-
-    return res.json({
-      ok: true,
-      data: docs,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        pages: Math.ceil(total / limitNum),
-      },
-    });
-  } catch (e) {
-    console.error(e);
+    return res.json({ ok: true, data: reviews });
+  } catch (error) {
+    console.error('Error fetching product reviews:', error);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
 
-// Create or update review (idempotent)
+// POST /api/reviews - Create a new review
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { productId, orderId, text, rating, images = [] } = req.body || {};
+    const { productId, rating, text, images } = req.body;
+    const userId = req.user._id;
 
-    if (!productId || !text) {
-      return res.status(400).json({ ok: false, message: 'Missing productId or text' });
+    if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ ok: false, message: 'Valid product ID is required' });
     }
 
-    if (text.length < 20 || text.length > 1000) {
-      return res.status(400).json({ ok: false, message: 'Review text must be 20-1000 characters' });
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ ok: false, message: 'Rating must be between 1 and 5' });
     }
 
-    if (!rating || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
-      return res.status(400).json({ ok: false, message: 'Rating must be an integer between 1 and 5' });
+    if (!text || text.trim().length < 20) {
+      return res.status(400).json({ ok: false, message: 'Review text must be at least 20 characters' });
     }
 
-    if (!Array.isArray(images) || images.length > 3) {
-      return res.status(400).json({ ok: false, message: 'Maximum 3 images allowed' });
+    // Check if user already reviewed this product
+    const existingReview = await Review.findOne({ productId, userId });
+    if (existingReview) {
+      return res.status(400).json({ ok: false, message: 'You have already reviewed this product' });
     }
 
-    const existingReview = await Review.findOne({
-      productId: new mongoose.Types.ObjectId(productId),
-      userId: req.user._id,
+    // Verify product exists
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ ok: false, message: 'Product not found' });
+    }
+
+    const review = new Review({
+      productId,
+      userId,
+      username: req.user.name || 'Anonymous',
+      email: req.user.email,
+      rating,
+      text: text.trim(),
+      images: images || [],
+      status: 'published',
+      approved: true
     });
 
-    const sanitized = sanitizeText(text);
-    const reviewData = {
-      productId,
-      userId: req.user._id,
-      text: sanitized,
-      rating: Number(rating),
-      images: images.filter(img => typeof img === 'string' && img.trim().length > 0),
-      status: 'published',
-    };
+    await review.save();
 
-    if (orderId) {
-      reviewData.orderId = orderId;
-    }
+    const populatedReview = await Review.findById(review._id)
+      .populate('userId', 'name email')
+      .lean();
 
-    let doc;
-    if (existingReview) {
-      doc = await Review.findByIdAndUpdate(existingReview._id, reviewData, { new: true }).populate('userId', 'name').lean();
-    } else {
-      doc = await Review.create(reviewData);
-      await Review.populate(doc, { path: 'userId', select: 'name' });
-    }
-
-    return res.json({ ok: true, data: doc });
-  } catch (e) {
-    console.error(e);
+    return res.json({ ok: true, data: populatedReview });
+  } catch (error) {
+    console.error('Error creating review:', error);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
 
-// Update review (PATCH for idempotent updates)
-router.patch('/:id', requireAuth, async (req, res) => {
+// PUT /api/reviews/:id - Update a review
+router.put('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { text, images } = req.body || {};
+    const { rating, text, images } = req.body;
+    const userId = req.user._id;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ ok: false, message: 'Invalid review ID' });
+    }
 
     const review = await Review.findById(id);
-    if (!review) return res.status(404).json({ ok: false, message: 'Review not found' });
-
-    if (String(review.userId) !== String(req.user._id)) {
-      return res.status(403).json({ ok: false, message: 'Forbidden' });
+    if (!review) {
+      return res.status(404).json({ ok: false, message: 'Review not found' });
     }
 
-    if (text) {
-      if (text.length < 20 || text.length > 1000) {
-        return res.status(400).json({ ok: false, message: 'Review text must be 20-1000 characters' });
-      }
-      review.text = sanitizeText(text);
+    // Check if user owns this review
+    if (review.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ ok: false, message: 'Not authorized to update this review' });
     }
 
-    if (Array.isArray(images)) {
-      if (images.length > 3) {
-        return res.status(400).json({ ok: false, message: 'Maximum 3 images allowed' });
-      }
-      review.images = images.filter(img => typeof img === 'string' && img.trim().length > 0);
+    const updates = {};
+    if (rating && rating >= 1 && rating <= 5) {
+      updates.rating = rating;
+    }
+    if (text && text.trim().length >= 20) {
+      updates.text = text.trim();
+    }
+    if (images) {
+      updates.images = images;
     }
 
-    await review.save();
-    await review.populate('userId', 'name');
+    const updatedReview = await Review.findByIdAndUpdate(
+      id, 
+      updates, 
+      { new: true }
+    ).populate('userId', 'name email');
 
-    return res.json({ ok: true, data: review.toObject() });
-  } catch (e) {
-    console.error(e);
+    return res.json({ ok: true, data: updatedReview });
+  } catch (error) {
+    console.error('Error updating review:', error);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
 
-// Admin: list reviews with filtering
-router.get('/admin/reviews', requireAuth, requireAdmin, async (req, res) => {
-  try {
-    const { status, page = 1, limit = 20 } = req.query;
-
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    const skip = (pageNum - 1) * limitNum;
-
-    const query = {};
-    if (status && ['pending', 'published', 'rejected'].includes(status)) {
-      query.status = status;
-    }
-
-    const total = await Review.countDocuments(query);
-    const docs = await Review.find(query)
-      .populate('userId', 'name email')
-      .populate('productId', 'title')
-      .populate('replies.authorId', 'name email role')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .lean();
-
-    return res.json({
-      ok: true,
-      data: docs,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        pages: Math.ceil(total / limitNum),
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ ok: false, message: 'Server error' });
-  }
-});
-
-// Admin: update review status
-router.patch('/admin/reviews/:id', requireAuth, requireAdmin, async (req, res) => {
+// DELETE /api/reviews/:id - Delete a review
+router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body || {};
+    const userId = req.user._id;
 
-    if (!status || !['pending', 'published', 'rejected'].includes(status)) {
-      return res.status(400).json({ ok: false, message: 'Invalid status' });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ ok: false, message: 'Invalid review ID' });
     }
 
-    const doc = await Review.findByIdAndUpdate(id, { status }, { new: true })
-      .populate('userId', 'name email')
-      .populate('productId', 'title')
-      .lean();
+    const review = await Review.findById(id);
+    if (!review) {
+      return res.status(404).json({ ok: false, message: 'Review not found' });
+    }
 
-    if (!doc) return res.status(404).json({ ok: false, message: 'Review not found' });
+    // Check if user owns this review
+    if (review.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ ok: false, message: 'Not authorized to delete this review' });
+    }
 
-    return res.json({ ok: true, data: doc });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ ok: false, message: 'Server error' });
-  }
-});
-
-// Admin: approve/unapprove (legacy support)
-router.put('/:id/approve', requireAuth, requireAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { approved } = req.body || {};
-    const doc = await Review.findByIdAndUpdate(id, { approved: !!approved }, { new: true }).lean();
-    if (!doc) return res.status(404).json({ ok: false, message: 'Not found' });
-    return res.json({ ok: true, data: doc });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ ok: false, message: 'Server error' });
-  }
-});
-
-// Admin: delete review
-router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
     await Review.findByIdAndDelete(id);
-    return res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
+
+    return res.json({ ok: true, message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting review:', error);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
 
-// Admin: reply to a review
-router.post('/admin/reviews/reply', requireAuth, requireAdmin, async (req, res) => {
+// GET /api/reviews/user/my-reviews - Get current user's reviews
+router.get('/user/my-reviews', requireAuth, async (req, res) => {
   try {
-    const { reviewId, text } = req.body || {};
-    if (!reviewId || !text || !String(text).trim()) {
-      return res.status(400).json({ ok: false, message: 'reviewId and text are required' });
-    }
+    const userId = req.user._id;
+    
+    const reviews = await Review.find({ userId })
+      .populate('productId', 'title slug images')
+      .sort({ createdAt: -1 });
 
-    const review = await Review.findById(reviewId);
-    if (!review) return res.status(404).json({ ok: false, message: 'Review not found' });
-
-    const reply = { authorId: req.user._id, text: sanitizeText(String(text).slice(0, 2000)), createdAt: new Date() };
-    review.replies = Array.isArray(review.replies) ? review.replies : [];
-    review.replies.push(reply);
-    await review.save();
-
-    const updated = await Review.findById(review._id)
-      .populate('userId', 'name email')
-      .populate('replies.authorId', 'name email role')
-      .lean();
-
-    return res.json({ ok: true, data: updated });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ ok: false, message: 'Server error' });
-  }
-});
-
-// Get recent public reviews for homepage display
-router.get('/recent', async (req, res) => {
-  try {
-    const limit = Number(req.query.limit || 5); // Default to 5 recent reviews
-    const reviews = await Review.find({ status: 'published', approved: true })
-      .sort({ createdAt: -1 }) // Most recent first
-      .limit(limit)
-      .populate('productId', 'title slug images') // Populate product title, slug, and images
-      .populate('userId', 'name') // Populate reviewer name
-      .lean();
-
-    // Filter out reviews where productId couldn't be populated (e.g., product deleted)
-    const filteredReviews = reviews.filter(review => review.productId && review.productId.title && review.productId.slug);
-
-    return res.json({ ok: true, data: filteredReviews });
-  } catch (e) {
-    console.error('Fetch recent reviews error:', e);
+    return res.json({ ok: true, data: reviews });
+  } catch (error) {
+    console.error('Error fetching user reviews:', error);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });

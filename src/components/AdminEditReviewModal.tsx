@@ -1,271 +1,332 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Rating } from '@/components/ui/Rating';
-import { useToast } from '@/hooks/use-toast';
-import { api } from '@/lib/api';
-import { Loader2, Upload, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Rating } from "@/components/ui/Rating";
+import { Loader2, Upload, X } from "lucide-react";
 
-export interface AdminReview {
+interface Review {
   _id: string;
-  productId: { _id: string; title: string; slug: string; };
-  userId: { _id: string; name: string; email: string; };
+  productId: string;
+  userId: {
+    _id: string;
+    name: string;
+    email: string;
+  };
   username: string;
   email: string;
   rating: number;
   text: string;
   images: string[];
+  status: string;
+  approved: boolean;
   comment?: string;
-  status: 'pending' | 'published' | 'rejected';
   createdAt: string;
+  product?: {
+    _id: string;
+    title: string;
+  };
 }
 
 interface AdminEditReviewModalProps {
-  review: AdminReview | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedReview: AdminReview) => void;
+  review: Review | null;
+  onReviewUpdated?: () => void;
 }
 
-export const AdminEditReviewModal = ({ review, isOpen, onClose, onSave }: AdminEditReviewModalProps) => {
+export const AdminEditReviewModal = ({ isOpen, onClose, review, onReviewUpdated }: AdminEditReviewModalProps) => {
   const { toast } = useToast();
-  const [currentRating, setCurrentRating] = useState(0);
-  const [currentUsername, setCurrentUsername] = useState('');
-  const [currentEmail, setCurrentEmail] = useState('');
-  const [currentText, setCurrentText] = useState('');
-  const [currentImages, setCurrentImages] = useState<string[]>([]);
-  const [currentComment, setCurrentComment] = useState<string | undefined>(undefined);
-  const [currentStatus, setCurrentStatus] = useState<'pending' | 'published' | 'rejected'>('published');
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    rating: 0,
+    text: "",
+    images: [] as string[],
+    comment: "",
+    status: "published" as "pending" | "published" | "rejected"
+  });
 
   useEffect(() => {
-    if (review) {
-      setCurrentRating(review.rating);
-      setCurrentUsername(review.username || '');
-      setCurrentEmail(review.email || '');
-      setCurrentText(review.text);
-      setCurrentImages(review.images || []);
-      setCurrentComment(review.comment);
-      setCurrentStatus(review.status);
+    if (review && isOpen) {
+      setFormData({
+        username: review.username || "",
+        email: review.email || "",
+        rating: review.rating || 0,
+        text: review.text || "",
+        images: review.images || [],
+        comment: review.comment || "",
+        status: review.status as "pending" | "published" | "rejected" || "published"
+      });
     }
-  }, [review]);
+  }, [review, isOpen]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // Limit to 3 images total (including existing ones)
-    if (currentImages.length + files.length > 3) {
-      toast({
-        title: "Upload limit reached",
-        description: "You can upload a maximum of 3 images per review.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setUploadingImages(true);
-    const formData = new FormData();
-    files.forEach((file) => formData.append('images', file));
-
     try {
-      const { ok, json } = await api('/api/uploads/images', { method: 'POST', body: formData });
-      if (ok) {
-        setCurrentImages((prev) => [...prev, ...json.data.urls]);
-        toast({
-          title: "Images uploaded",
-          description: `${json.data.urls.length} image(s) uploaded successfully.`, 
+      const uploadedUrls: string[] = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const { ok, json } = await api("/api/uploads/images", {
+          method: "POST",
+          body: formData,
         });
-      } else {
-        toast({
-          title: "Upload failed",
-          description: json?.message || "Failed to upload images.",
-          variant: "destructive",
-        });
+
+        if (ok && json?.url) {
+          uploadedUrls.push(json.url);
+        } else {
+          toast({
+            title: "Image upload failed",
+            description: json?.message || `Failed to upload ${file.name}.`,
+            variant: "destructive",
+          });
+        }
       }
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedUrls]
+      }));
+      toast({ title: "Images uploaded!", description: `${uploadedUrls.length} image(s) uploaded successfully.` });
     } catch (error: any) {
       toast({
-        title: "Upload error",
-        description: error.message || "An unexpected error occurred during upload.",
+        title: "Upload Error",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
       setUploadingImages(false);
-      // Clear the input field to allow re-uploading same file if needed
       e.target.value = '';
     }
   };
 
   const handleRemoveImage = (index: number) => {
-    setCurrentImages((prev) => prev.filter((_, i) => i !== index));
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!review) return;
-
-    // Basic validation
-    if (currentRating < 1 || currentRating > 5) {
-      toast({ title: "Validation Error", description: "Rating must be between 1 and 5.", variant: "destructive" });
-      return;
-    }
-    if (currentText.trim().length < 20 || currentText.trim().length > 1000) {
-      toast({ title: "Validation Error", description: "Review text must be between 20 and 1000 characters.", variant: "destructive" });
-      return;
-    }
-
+    
     setLoading(true);
+
+    if (!formData.username || !formData.email || !formData.rating || !formData.text) {
+      toast({
+        title: "Missing fields",
+        description: "Username, Email, Rating, and Review Text are required.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const payload = {
-        username: currentUsername.trim(),
-        email: currentEmail.trim(),
-        rating: currentRating,
-        text: currentText.trim(),
-        images: currentImages,
-        comment: currentComment?.trim() || undefined,
-        status: currentStatus,
+        username: formData.username,
+        email: formData.email,
+        rating: formData.rating,
+        text: formData.text,
+        images: formData.images.length > 0 ? formData.images : [],
+        comment: formData.comment || undefined,
+        status: formData.status,
       };
-      const { ok, json } = await api(`/api/admin/reviews/${review._id}`, { method: 'PUT', body: JSON.stringify(payload) });
-      if (ok) {
-        onSave(json.data);
-        toast({ title: "Review Updated", description: "Review updated successfully." });
-        onClose();
-      } else {
-        toast({ title: "Update Failed", description: json?.message || "Failed to update review.", variant: "destructive" });
+
+      const { ok, json } = await api(`/api/admin/reviews/${review._id}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!ok) {
+        throw new Error(json?.message || "Failed to update review");
       }
+
+      toast({
+        title: "Review Updated!",
+        description: `Review has been updated successfully.`, 
+      });
+
+      onClose();
+      onReviewUpdated?.();
     } catch (error: any) {
-      toast({ title: "Update Error", description: error.message || "An unexpected error occurred.", variant: "destructive" });
+      toast({
+        title: "Error updating review",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  if (!review) return null; // Don't render if no review is passed
+  if (!isOpen || !review) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Edit Review for "{review.productId.title}"</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">Username</Label>
-            <Input
-              id="username"
-              value={currentUsername}
-              onChange={(e) => setCurrentUsername(e.target.value)}
-              required
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="email" className="text-right">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={currentEmail}
-              onChange={(e) => setCurrentEmail(e.target.value)}
-              required
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rating" className="text-right">Rating</Label>
-            <div className="col-span-3">
-              <Rating value={currentRating} onChange={setCurrentRating} />
-            </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="text" className="text-right">Review Text</Label>
-            <Textarea
-              id="text"
-              value={currentText}
-              onChange={(e) => setCurrentText(e.target.value)}
-              required
-              rows={5}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="comment" className="text-right">Admin Comment</Label>
-            <Textarea
-              id="comment"
-              value={currentComment || ''}
-              onChange={(e) => setCurrentComment(e.target.value)}
-              rows={3}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="status" className="text-right">Status</Label>
-            <Select value={currentStatus} onValueChange={(val: 'pending' | 'published' | 'rejected') => setCurrentStatus(val)}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-xl font-semibold">Edit Review</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="p-6">
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">Product:</p>
+            <p className="font-medium">{review.product?.title || 'Unknown Product'}</p>
           </div>
 
-          {/* Image Upload Section */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="imageUpload" className="text-right">Images</Label>
-            <div className="col-span-3 flex flex-wrap gap-2">
-              {currentImages.map((img, index) => (
-                <div key={index} className="relative w-20 h-20 rounded-md overflow-hidden group">
-                  <img src={img} alt={`Review image ${index + 1}`} className="w-full h-full object-cover" />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-1 right-1 h-5 w-5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => handleRemoveImage(index)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-              {currentImages.length < 3 && (
-                <label htmlFor="imageUpload" className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={formData.username}
+                  onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                  placeholder="Enter reviewer's username"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="Enter reviewer's email"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label>Rating</Label>
+              <Rating value={formData.rating} onChange={(value) => setFormData(prev => ({ ...prev, rating: value }))} />
+            </div>
+
+            <div>
+              <Label htmlFor="reviewText">Review Text</Label>
+              <Textarea
+                id="reviewText"
+                value={formData.text}
+                onChange={(e) => setFormData(prev => ({ ...prev, text: e.target.value }))}
+                placeholder="Write your review here (min 20 characters)"
+                required
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="comment">Admin Comment (Optional)</Label>
+              <Textarea
+                id="comment"
+                value={formData.comment}
+                onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
+                placeholder="Add an internal comment for this review"
+                rows={2}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value: "pending" | "published" | "rejected") => setFormData(prev => ({ ...prev, status: value }))}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="imageUpload">Images</Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.images.map((img, index) => (
+                  <div key={index} className="relative w-24 h-24 rounded-md overflow-hidden group">
+                    <img src={img} alt={`Review image ${index + 1}`} className="w-full h-full object-cover" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleRemoveImage(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <label htmlFor="imageUpload" className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
                   {uploadingImages ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
                   ) : (
-                    <Upload className="h-5 w-5 text-gray-400" />
+                    <Upload className="h-6 w-6 text-gray-400" />
                   )}
                   <span className="sr-only">Upload images</span>
                 </label>
-              )}
-              <Input
-                id="imageUpload"
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                onChange={handleImageUpload}
-                disabled={uploadingImages || currentImages.length >= 3}
-              />
+                <Input
+                  id="imageUpload"
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImages}
+                />
+              </div>
             </div>
-          </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={loading || uploadingImages}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" disabled={loading || uploadingImages}>
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Review"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 
+export default AdminEditReviewModal;

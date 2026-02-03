@@ -130,6 +130,19 @@ const ProductSchema = new mongoose.Schema(
     active: { type: Boolean, default: true },
     featured: { type: Boolean, default: false },
     isBestSeller: { type: Boolean, default: false },
+    reviews: {
+      type: [{
+        id: { type: String, required: true },
+        username: { type: String, required: true },
+        email: { type: String },
+        rating: { type: Number, required: true, min: 1, max: 5 },
+        text: { type: String, required: true },
+        status: { type: String, enum: ['pending', 'published', 'rejected'], default: 'published' },
+        createdAt: { type: Date, default: Date.now },
+      }],
+      default: [],
+    },
+   
   },
   { timestamps: true },
 );

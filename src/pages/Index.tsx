@@ -48,6 +48,15 @@ type ProductRow = {
   image_url?: string;
   slug?: string;
   createdAt?: string;
+  reviews?: Array<{
+    id: string;
+    username: string;
+    email: string;
+    rating: number;
+    text: string;
+    status: string;
+    createdAt: string;
+  }>;
 };
 
 type CategoryRow = {
@@ -497,7 +506,12 @@ const Index = () => {
     const img = resolveImage(rawImg);
     const originalPrice = Number(p.price || 0);
     const discountedPrice = Math.round(originalPrice * 0.8); // 20% discount for demonstration
-    const rating = (Math.random() * (5 - 3) + 3).toFixed(1); // Random rating between 3 and 5
+    // Calculate rating from actual reviews
+    let rating = "0.0";
+    if (p.reviews && p.reviews.length > 0) {
+      const totalRating = p.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
+      rating = (totalRating / p.reviews.length).toFixed(1);
+    }
 
     return {
       id,

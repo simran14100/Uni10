@@ -32,6 +32,15 @@ type ProductRow = {
   images?: string[];
   slug?: string;
   createdAt?: string;
+  reviews?: Array<{
+    id: string;
+    username: string;
+    email: string;
+    rating: number;
+    text: string;
+    status: string;
+    createdAt: string;
+  }>;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
@@ -95,7 +104,12 @@ const normalizeCategory = (value: string) => String(value || "").trim().toLowerC
       finalPrice = Math.max(0, basePrice - p.discount.value);
     }
     
-    const rating = (Math.random() * (5 - 3) + 3).toFixed(1); // Random rating between 3 and 5
+    // Calculate rating from actual reviews
+    let rating = "0.0";
+    if (p.reviews && p.reviews.length > 0) {
+      const totalRating = p.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
+      rating = (totalRating / p.reviews.length).toFixed(1);
+    }
 
     return {
       id,
