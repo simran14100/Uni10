@@ -1799,10 +1799,13 @@ const handleDialogOpenChange = (dialogOpen: boolean) => {
                 fit: productForm.sizeFit.fit.trim() || undefined,
                 modelWearingSize: productForm.sizeFit.modelWearingSize.trim() || undefined,
               },
-              discount: productForm.discount && productForm.discount.value > 0 ? {
+              discount: productForm.discount ? {
                 type: productForm.discount.type,
                 value: productForm.discount.value,
-              } : undefined,
+              } : {
+                type: 'flat',
+                value: 0,
+              },
               seo: {
                 title: productForm.seo.title.trim() || undefined,
                 description: productForm.seo.description.trim() || undefined,
@@ -1911,10 +1914,13 @@ const handleProductSubmit = async (e: React.FormEvent) => {
           fit: productForm.sizeFit.fit.trim() || undefined,
           modelWearingSize: productForm.sizeFit.modelWearingSize.trim() || undefined,
         },
-        discount: productForm.discount && productForm.discount.value > 0 ? {
+        discount: productForm.discount ? {
           type: productForm.discount.type,
           value: productForm.discount.value,
-        } : undefined,
+        } : {
+          type: 'flat',
+          value: 0,
+        },
         seo: {
           title: productForm.seo.title.trim() || undefined,
           description: productForm.seo.description.trim() || undefined,
@@ -1924,6 +1930,8 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         featured: productForm.featured !== undefined ? productForm.featured : false,
         isBestSeller: productForm.isBestSeller !== undefined ? productForm.isBestSeller : false,
       };
+
+      console.log('Saving product with discount:', payload.discount);
 
       if (editingProduct) {
         await apiFetch(`${ENDPOINTS.products}/${(editingProduct as any).id || (editingProduct as any)._id}`, {
