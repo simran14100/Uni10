@@ -130,18 +130,16 @@ export const ReturnPolicyPage = () => {
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
         {/* Hero Section */}
-          <div className="bg-gray-900 text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          <div className="bg-gray-900 text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden mt-8">
           <div className="absolute inset-0 bg-black opacity-5 pattern-grid"></div>
           <div className="container mx-auto max-w-5xl relative z-10">
             <div className="flex items-center justify-center space-x-4 mt-10 mb-4">
               <RotateCcw className="h-14 w-14 text-blue-100" />
             </div>
-            <h1 className="text-5xl md:text-6xl font-extrabold text-center mb-4 tracking-tight">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-4 tracking-tight">
               Return Policy
             </h1>
-            <p className="text-xl text-center text-gray-300 max-w-2xl mx-auto">
-              Hassle-free returns and exchanges with clear, transparent policies
-            </p>
+           
           </div>
         </div>
 

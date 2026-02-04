@@ -171,9 +171,10 @@ const ProductDetail = () => {
           throw new Error("Missing product identifier");
         }
 
-        // ✅ Always use /api/products/:idOrSlug
+        // ✅ Always use /api/products/:idOrSlug with cache-busting
         // Backend khud decide karega ki yeh ID hai ya slug
-        const { ok, json } = await api(`/api/products/${slug}`);
+        const cacheBuster = Date.now();
+        const { ok, json } = await api(`/api/products/${slug}?_t=${cacheBuster}`);
 
         if (!ok) {
           throw new Error(json?.message || json?.error || "Failed to load product");
@@ -436,7 +437,8 @@ const ProductDetail = () => {
     try {
       const productId = product?._id || product?.id;
       if (!productId) return;
-      const { ok, json } = await api(`/api/products/${productId}`);
+      const cacheBuster = Date.now();
+      const { ok, json } = await api(`/api/products/${productId}?_t=${cacheBuster}`);
       if (ok) setProduct(json?.data as P);
     } catch {
       // ignore refresh errors
@@ -450,6 +452,20 @@ const ProductDetail = () => {
     window.addEventListener("order:placed", onOrderPlaced);
     return () =>
       window.removeEventListener("order:placed", onOrderPlaced);
+  }, [refetchProduct]);
+
+  // Add productCreated event listener
+  useEffect(() => {
+    const handleProductCreated = () => {
+      console.log('productCreated event received in ProductDetail.tsx');
+      refetchProduct();
+    };
+
+    window.addEventListener("productCreated", handleProductCreated);
+
+    return () => {
+      window.removeEventListener("productCreated", handleProductCreated);
+    };
   }, [refetchProduct]);
 
   const handleAddToCart = () => {
@@ -789,35 +805,38 @@ const ProductDetail = () => {
                   {title}
                 </h1>
               </div>
-              <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
-                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
-                  ₹{(() => {
-                    const basePrice = Number(product.price ?? 0);
-                    let final = basePrice;
-                    if (product?.discount?.value && product.discount.type === 'percentage') {
-                      final = basePrice - (basePrice * product.discount.value / 100);
-                      const priceStr = final.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                      return priceStr;
-                    } else if (product?.discount?.value && product.discount.type === 'flat') {
-                      final = Math.max(0, basePrice - product.discount.value);
-                      const priceStr = final.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                      return priceStr;
-                    }
-                    const priceStr = basePrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                    return priceStr;
-                  })()}
-                </p>
-                {product?.discount?.value && product.discount.value > 0 && (
-                  <div className="flex items-baseline">
-                    <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
-                      ₹{Number(product.price ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                    </span>
-                    <span className="text-xs font-medium text-red-600">
-                      {product.discount.type === 'percentage' ? `${product.discount.value}% OFF` : `₹${product.discount.value} OFF`}
-                    </span>
-                  </div>
-                )}
-              </div>
+            <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
+  {Number(product?.price) > 0 && (
+    <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
+      ₹{(() => {
+        const basePrice = Number(product.price);
+        let finalPrice = basePrice;
+
+        if (product?.discount?.value > 0 && product.discount.type === "percentage") {
+          finalPrice = basePrice - (basePrice * product.discount.value) / 100;
+        } else if (product?.discount?.value > 0 && product.discount.type === "flat") {
+          finalPrice = Math.max(0, basePrice - product.discount.value);
+        }
+
+        return Math.round(finalPrice).toLocaleString("en-IN");
+      })()}
+    </p>
+  )}
+
+  {Number(product?.price) > 0 && product?.discount?.value > 0 && (
+    <div className="flex items-baseline">
+      <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
+        ₹{Number(product.price).toLocaleString("en-IN")}
+      </span>
+      <span className="text-xs font-medium text-red-600">
+        {product.discount.type === "percentage"
+          ? `${product.discount.value}% OFF`
+          : `₹${product.discount.value} OFF`}
+      </span>
+    </div>
+  )}
+</div>
+
               <div className="flex items-center justify-between gap-4 mb-2">
                 <div className="flex flex-col gap-1 flex-1">
                   {product.paragraph1 && (

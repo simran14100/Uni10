@@ -1776,7 +1776,7 @@ const handleDialogOpenChange = (dialogOpen: boolean) => {
               name: productForm.name.trim(),
               description: productForm.description.trim(),
               price,
-              image_url: productForm.image_url.trim(),
+              image_url: (productForm.images && productForm.images.length > 0) ? productForm.images[0] : productForm.image_url.trim(),
               images: Array.isArray(productForm.images) ? productForm.images.filter(img => img?.trim()) : [],
               stock,
               sizes: Array.isArray(productForm.sizes) ? productForm.sizes : [],
@@ -1822,6 +1822,7 @@ const handleDialogOpenChange = (dialogOpen: boolean) => {
               body: JSON.stringify(payload),
             });
             toast.success('Product auto-saved successfully');
+            window.dispatchEvent(new CustomEvent('productCreated'));
           } catch (error: any) {
             console.error('Auto-save error:', error);
             // Silent auto-save error - don't disrupt user experience
@@ -1891,7 +1892,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         gender: productForm.gender,
         paragraph1: productForm.paragraph1.trim(),
         paragraph2: productForm.paragraph2.trim(),
-        image_url: productForm.image_url.trim(),
+        image_url: (productForm.images && productForm.images.length > 0) ? productForm.images[0] : productForm.image_url.trim(),
         images: Array.isArray(productForm.images) ? productForm.images.filter(img => img?.trim()) : [],
         stock,
         sizes: Array.isArray(productForm.sizes) ? productForm.sizes : [],
@@ -1933,6 +1934,8 @@ const handleProductSubmit = async (e: React.FormEvent) => {
       };
 
       console.log('Saving product with discount:', payload.discount);
+      console.log('🔍 DEBUG - image_url being saved:', payload.image_url);
+      console.log('🔍 DEBUG - first image from array:', (productForm.images && productForm.images.length > 0) ? productForm.images[0] : 'NO IMAGES');
 
       if (editingProduct) {
         await apiFetch(`${ENDPOINTS.products}/${(editingProduct as any).id || (editingProduct as any)._id}`, {
@@ -1940,6 +1943,7 @@ const handleProductSubmit = async (e: React.FormEvent) => {
           body: JSON.stringify(payload),
         });
         toast.success('Product updated successfully');
+        window.dispatchEvent(new CustomEvent('productCreated'));
         await fetchAdminResources();
       } else {
         await apiFetch(ENDPOINTS.products, {

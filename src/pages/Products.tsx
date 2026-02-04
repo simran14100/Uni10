@@ -26,23 +26,19 @@ type ProductRow = {
     type: 'flat' | 'percentage';
     value: number;
   };
+  updatedAt?: string;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 const resolveImage = (src?: string) => {
   const s = String(src || '');
   if (!s) return '/placeholder.svg';
-  if (s.startsWith('http')) return s;
-  const isLocalBase = (() => { try { return API_BASE.includes('localhost') || API_BASE.includes('127.0.0.1'); } catch { return false; } })();
-  const isHttpsPage = (() => { try { return location.protocol === 'https:'; } catch { return false; } })();
-  // Only prefix backend for uploaded assets; avoid mixed-content by not prefixing localhost on https pages
-  if (s.startsWith('/uploads') || s.startsWith('uploads')) {
-    if (API_BASE && !(isLocalBase && isHttpsPage)) {
-      const base = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE;
-      return s.startsWith('/') ? `${base}${s}` : `${base}/${s}`;
-    }
+  if (s.startsWith('http')) {
+    // Add cache-busting timestamp to force fresh image loading
+    const separator = s.includes('?') ? '&' : '?';
+    return `${s}${separator}_t=${Date.now()}`;
   }
-  return s;
+  return s.startsWith('/') ? s : `/uploads/${s}`;
 };
 
 const Products = () => {
@@ -51,6 +47,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const [apiCategories, setApiCategories] = useState<string[]>([]);
+  const [productUpdateKey, setProductUpdateKey] = useState(0);
 
   const categories = useMemo(() => {
     const cats = new Set<string>(['All']);
@@ -61,7 +58,7 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [productUpdateKey]);
 
   useEffect(() => {
     let ignore = false;
@@ -78,11 +75,41 @@ const Products = () => {
     return () => { ignore = true; };
   }, []);
 
+  // Add this new useEffect for custom event
+  useEffect(() => {
+    const handleProductCreated = () => {
+      console.log('productCreated event received in Products.tsx - refreshing products');
+      setProductUpdateKey(prev => prev + 1);
+    };
+
+    window.addEventListener("productCreated", handleProductCreated);
+
+    return () => {
+      window.removeEventListener("productCreated", handleProductCreated);
+    };
+  }, []);
+
   const fetchProducts = async () => {
+    console.log('fetchProducts called in Products.tsx with productUpdateKey:', productUpdateKey);
     try {
-      const { ok, json } = await api('/api/products');
+      // Add more aggressive cache-busting
+      const cacheBuster = Date.now() + Math.random();
+      const { ok, json } = await api(`/api/products?_t=${cacheBuster}&_r=${Math.random()}`);
       if (!ok) throw new Error(json?.message || json?.error || 'Failed to load');
       const list = Array.isArray(json?.data) ? (json.data as ProductRow[]) : [];
+      
+      // Find the specific product you updated
+      const updatedProduct = list.find(p => p._id === '6981977ec651401afa9a1c10'); // Men Shorts product ID
+      if (updatedProduct) {
+        console.log('Updated product data in Products.tsx:', {
+          id: updatedProduct._id,
+          title: updatedProduct.title,
+          image_url: updatedProduct.image_url,
+          images: updatedProduct.images?.slice(0, 2), // Show first 2 images
+          updatedAt: updatedProduct.updatedAt
+        });
+      }
+      
       setProducts(list);
     } catch (e: any) {
       toast.error(e?.message || 'Failed to load products');
@@ -124,7 +151,7 @@ const Products = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container mx-auto px-3 sm:px-4 pt-24 pb-12">
-        <div className="text-center mb-8 sm:mb-12">
+        <div className="text-center mb-8 sm:mb-12 mt-8">
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-black tracking-tighter mb-2 sm:mb-4">
             All <span className="text-primary">Products</span>
           </h1>
@@ -163,6 +190,13 @@ const Products = () => {
                       alt={title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      onError={(e) => {
+                        console.error('Image failed to load:', img);
+                        e.currentTarget.src = '/placeholder.svg';
+                      }}
+                      onLoad={() => {
+                        console.log('Image loaded successfully:', img);
+                      }}
                     />
                     <button
                       onClick={() => addToWishlist(id)}
@@ -179,29 +213,42 @@ const Products = () => {
                     <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 line-clamp-2">
                       {product.description}
                     </p>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <p className="text-sm sm:text-lg font-bold">
-                        ₹{(() => {
-                          const basePrice = Number(product.price || 0);
-                          if (product?.discount?.value && product.discount.type === 'percentage') {
-                            return (basePrice - (basePrice * product.discount.value / 100)).toLocaleString("en-IN");
-                          } else if (product?.discount?.value && product.discount.type === 'flat') {
-                            return Math.max(0, basePrice - product.discount.value).toLocaleString("en-IN");
-                          }
-                          return basePrice.toLocaleString("en-IN");
-                        })()}
-                      </p>
-                      {product?.discount?.value && product.discount.value > 0 && (
-                        <>
-                          <p className="text-xs sm:text-sm text-muted-foreground line-through">
-                            ₹{Number(product.price || 0).toLocaleString("en-IN")}
-                          </p>
-                          <Badge className="bg-red-500 hover:bg-red-600 text-xs">
-                            {product.discount.type === 'percentage' ? `${product.discount.value}% OFF` : `₹${product.discount.value} OFF`}
-                          </Badge>
-                        </>
-                      )}
-                    </div>
+                   <div className="flex items-baseline gap-2 mb-2">
+  {Number(product?.price) > 0 && (
+    <p className="text-sm sm:text-lg font-bold">
+      {(() => {
+        const basePrice = Number(product.price);
+
+        if (product?.discount?.value > 0 && product.discount.type === "percentage") {
+          return "₹" + Math.round(
+            basePrice - (basePrice * product.discount.value) / 100
+          ).toLocaleString("en-IN");
+        }
+
+        if (product?.discount?.value > 0 && product.discount.type === "flat") {
+          return "₹" + Math.max(0, basePrice - product.discount.value).toLocaleString("en-IN");
+        }
+
+        return "₹" + basePrice.toLocaleString("en-IN");
+      })()}
+    </p>
+  )}
+
+  {Number(product?.price) > 0 && product?.discount?.value > 0 && (
+    <>
+      <p className="text-xs sm:text-sm text-muted-foreground line-through">
+        ₹{Number(product.price).toLocaleString("en-IN")}
+      </p>
+
+      <Badge className="bg-red-500 hover:bg-red-600 text-xs">
+        {product.discount.type === "percentage"
+          ? `${product.discount.value}% OFF`
+          : `₹${product.discount.value} OFF`}
+      </Badge>
+    </>
+  )}
+</div>
+
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs text-muted-foreground">Stock: {Number(product.stock || 0)}</p>
                       <Button size="icon" variant="secondary" className="h-8 w-8 sm:h-10 sm:w-10">

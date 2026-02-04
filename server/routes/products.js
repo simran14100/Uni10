@@ -7,6 +7,11 @@ const { authOptional, requireAuth, requireAdmin } = require('../middleware/auth'
 
 // List products: supports active, featured, category, aliases (collection, categorySlug), q, sort, page, limit
 router.get('/', authOptional, async (req, res) => {
+  // Prevent caching of this endpoint
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  
   try {
     const {
       active,
@@ -163,6 +168,18 @@ router.get('/', authOptional, async (req, res) => {
     let query = Product.find(filter);
     if (sort) query = query.sort(sort);
     const docs = await query.skip((p - 1) * l).limit(l).lean();
+    
+    // Debug: Check specific product data
+    const menShorts = docs.find(p => p._id.toString() === '6981977ec651401afa9a1c10');
+    if (menShorts) {
+      console.log('🔍 DEBUG - Men Shorts data from DB:', {
+        id: menShorts._id,
+        image_url: menShorts.image_url,
+        imagesCount: menShorts.images?.length || 0,
+        updatedAt: menShorts.updatedAt
+      });
+    }
+    
     if (debugProducts) console.log('[products] docs length =', Array.isArray(docs) ? docs.length : '(not array)');
     return res.json({ ok: true, data: docs });
   } catch (e) {
@@ -210,6 +227,11 @@ router.get('/slug/:slug', async (req, res) => {
 
 // Get by id or slug (backward compatibility)
 router.get('/:idOrSlug', async (req, res) => {
+  // Prevent caching of this endpoint
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  
   try {
     const { idOrSlug } = req.params;
     let doc = null;
@@ -373,7 +395,7 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
     if (typeof body.gender !== 'undefined') updates.gender = body.gender;
     if (typeof body.paragraph1 !== 'undefined') updates.paragraph1 = body.paragraph1;
     if (typeof body.paragraph2 !== 'undefined') updates.paragraph2 = body.paragraph2;
-    if (typeof body.image_url !== 'undefined') updates.images = [body.image_url];
+    if (typeof body.image_url !== 'undefined') updates.image_url = body.image_url;
     if (Array.isArray(body.images)) updates.images = body.images;
 
     // NOTE: slug is NEVER updated. It's set once at creation and stays permanent.

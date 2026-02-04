@@ -100,7 +100,13 @@ console.log('[CORS] Enabled with options:', corsOptions);
 
 /* ------------------------- STATIC UPLOAD DIRECTORIES -------------------- */
 // Serve uploaded files from server/uploads (same as multer destination)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res, path) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+  }
+}));
 // Also expose uploads under /api/uploads for frontends that proxy only /api
 
 /* -------------------------- SERVE CLIENT-SIDE BUILD ------------------------- */

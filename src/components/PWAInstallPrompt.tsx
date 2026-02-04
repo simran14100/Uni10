@@ -37,9 +37,7 @@ export const PWAInstallPrompt = () => {
     setShowPrompt(false);
   };
 
-  // Always show on desktop, hide on mobile
-  const isDesktop = window.innerWidth >= 768;
-  if (!isDesktop) return null;
+  // Show on both desktop and mobile
   if (!showPrompt) return null;
 
   return (
