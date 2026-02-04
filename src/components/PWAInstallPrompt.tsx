@@ -21,6 +21,17 @@ export const PWAInstallPrompt = () => {
   };
 
   useEffect(() => {
+    // 🔥 DEBUG: Check if beforeinstallprompt fires
+    window.addEventListener("beforeinstallprompt", (e) => {
+      console.log("🔥 beforeinstallprompt FIRED - Install is possible!", e);
+      console.log("🔥 beforeinstallprompt FIRED - Install is possible!", e);
+    });
+
+    window.addEventListener("appinstalled", () => {
+      console.log("✅ appinstalled - App was installed!");
+      console.log("✅ appinstalled - App was installed!");
+    });
+
     // ❌ Do NOT show prompt inside installed app
     if (isInstalledPWA()) return;
 
