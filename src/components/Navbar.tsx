@@ -123,11 +123,16 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 <Input
                   type="text"
-                
+                 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="pl-10 pr-8 h-9 text-sm bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/50 focus-visible:bg-white/15 focus-visible:ring-2"
+                  style={{ 
+                    color: '#ffffff',
+                    backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                    borderColor: 'rgb(75, 85, 99)'
+                  }}
+                  className="pl-10 pr-8 h-9 text-sm border-gray-600 placeholder:text-gray-300 focus-visible:ring-white/30 focus-visible:bg-gray-700 focus-visible:border-gray-500 focus-visible:ring-1"
                 />
                 {searchQuery && (
                   <Button

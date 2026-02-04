@@ -1,7 +1,7 @@
 export const RunningText = () => {
   const messages = [
     "UNI10 - is Live Now",
-    "For the First 50 Unique Personalities, Get a 50% off..",
+    "For the First 50 Unique Personalities ....",
     "UNI10 - The Ultimate Shopping Experience",
   ];
 

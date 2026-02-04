@@ -1,35 +1,58 @@
-
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showPrompt, setShowPrompt] = useState(true); // Always show on desktop
+  const [showPrompt, setShowPrompt] = useState(false);
+
+  // ✅ Reliable PWA detection (ONLY correct signals)
+  const isInstalledPWA = () => {
+    // Android / Desktop Chrome, Edge, Brave
+    if (window.matchMedia("(display-mode: standalone)").matches) return true;
+
+    // iOS Safari
+    if ((window.navigator as any).standalone === true) return true;
+
+    // Trusted Web Activity (Play Store)
+    if (document.referrer.startsWith("android-app://")) return true;
+
+    return false;
+  };
 
   useEffect(() => {
-    const handler = (e: Event) => {
+    // ❌ Do NOT show prompt inside installed app
+    if (isInstalledPWA()) return;
+
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      setShowPrompt(true); // show ONLY when install is possible
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setShowPrompt(false);
+    };
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
   }, []);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) {
-      // Fallback: Show manual install instructions
-      alert('To install: Click the menu (⋮) in your browser, then "Install app" or "Add to Home Screen"');
-      return;
-    }
+    if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
+
+    if (outcome === "accepted") {
       setDeferredPrompt(null);
+      setShowPrompt(false);
     }
   };
 
@@ -37,8 +60,8 @@ export const PWAInstallPrompt = () => {
     setShowPrompt(false);
   };
 
-  // Show on both desktop and mobile
-  if (!showPrompt) return null;
+  // ❌ Never render inside installed app
+  if (!showPrompt || isInstalledPWA()) return null;
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 animate-in slide-in-from-bottom-5">
@@ -46,25 +69,19 @@ export const PWAInstallPrompt = () => {
         <div className="flex-shrink-0 w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
           <Download className="h-6 w-6 text-primary-foreground" />
         </div>
+
         <div className="flex-1">
           <h3 className="font-bold text-sm mb-1">Install uni10 App</h3>
           <p className="text-xs text-muted-foreground">
-            Get quick access and offline support
+            Get faster access and offline support
           </p>
         </div>
+
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            onClick={handleInstall}
-            className="text-xs"
-          >
+          <Button size="sm" onClick={handleInstall} className="text-xs">
             Install
           </Button>
-          <Button
-            size="sm"
-            variant="ghost" 
-            onClick={handleDismiss}
-          >
+          <Button size="sm" variant="ghost" onClick={handleDismiss}>
             <X className="h-4 w-4" />
           </Button>
         </div>

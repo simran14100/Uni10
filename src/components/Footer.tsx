@@ -73,10 +73,7 @@ export const Footer = () => {
                   support@uni10.in
                 </a>
               </div>
-              <div className="flex items-center gap-3 text-sm text-gray-300 hover:text-yellow-400 transition-colors">
-                <Phone className="h-4 w-4 text-yellow-400" />
-                <a href="tel:+917355818140">+91 7355818140</a>
-              </div>
+              
               <div className="flex items-start gap-3 text-sm text-gray-300">
                 <MapPin className="h-4 w-4 text-yellow-400 mt-0.5 flex-shrink-0" />
                 <span>India</span>

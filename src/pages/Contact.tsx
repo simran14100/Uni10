@@ -120,21 +120,26 @@ export default function Contact() {
           </div>
 
           {/* Trust Badges */}
-          <div className="grid grid-cols-3 md:grid-cols-4 gap-10 pt-12 pb-12 justify-items-center max-w-3xl mx-auto">
-            <div className="text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
-              <div className="text-4xl font-extrabold text-primary mb-2">24/7</div>
-              <div className="text-base font-medium text-muted-foreground">Support Available</div>
+          <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-10 pt-8 md:pt-12 pb-8 md:pb-12 justify-items-center max-w-3xl mx-auto">
+            <div className="text-center space-y-1 md:space-y-2 p-3 md:p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
+              <div className="text-2xl md:text-4xl font-extrabold text-primary mb-1 md:mb-2">24/7</div>
+              <div className="text-xs md:text-base font-medium text-muted-foreground">Support Available</div>
             </div>
            
-            <div className="text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
-              <div className="text-4xl font-extrabold text-primary mb-2">100%</div>
-              <div className="text-base font-medium text-muted-foreground">Customer Satisfaction</div>
+            <div className="text-center space-y-1 md:space-y-2 p-3 md:p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
+              <div className="text-2xl md:text-4xl font-extrabold text-primary mb-1 md:mb-2">100%</div>
+              <div className="text-xs md:text-base font-medium text-muted-foreground">Customer Satisfaction</div>
             </div>
               
-              
-             <div className="text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
-              <div className="text-4xl font-extrabold text-primary mb-2">1000+</div>
-              <div className="text-base font-medium text-muted-foreground">Happy Customers</div>
+             <div className="text-center space-y-1 md:space-y-2 p-3 md:p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
+              <div className="text-2xl md:text-4xl font-extrabold text-primary mb-1 md:mb-2">1000+</div>
+              <div className="text-xs md:text-base font-medium text-muted-foreground">Happy Customers</div>
+            </div>
+
+            {/* Hidden on mobile, visible on desktop */}
+            <div className="hidden md:block text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
+              <div className="text-4xl font-extrabold text-primary mb-2">100%</div>
+              <div className="text-base font-medium text-muted-foreground"> Satisfaction Guaranteed</div>
             </div>
           </div>
         </div>

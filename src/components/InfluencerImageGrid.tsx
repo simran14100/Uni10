@@ -48,15 +48,18 @@ export default function InfluencerImageGrid() {
     <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16">
-          <div className="flex flex-col items-center md:flex-row mb-4 relative">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-4 md:mb-0 md:absolute md:left-1/2 md:-translate-x-1/2">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+            <div className="flex-1"></div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900">
               Featured <span className="text-amber-700">Collections</span>
             </h2>
-            <Link to="/all-influencers" className="md:ml-auto z-10">
-              <button className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-amber-700 hover:bg-amber-800 transition-colors">
-                Show all influencers
-              </button>
-            </Link>
+            <div className="flex-1 flex justify-end">
+              <Link to="/all-influencers">
+                <button className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-amber-700 hover:bg-amber-800 transition-colors">
+                  Show all influencers
+                </button>
+              </Link>
+            </div>
           </div>
           <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             Discover our curated selection styled by leading fashion influencers
