@@ -166,8 +166,8 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           className="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-110"
         />
 
-        {/* Navigation Arrows and Counter (visible on mobile only) */}
-        {isMobile && hasMultiple && (
+        {/* Navigation Arrows and Counter (visible on both mobile and desktop) */}
+        {hasMultiple && (
           <>
             <button
               onClick={() => setSelectedIndex((i) => (i - 1 + validImages.length) % validImages.length)}

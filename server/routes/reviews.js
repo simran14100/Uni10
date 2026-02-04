@@ -5,6 +5,45 @@ const Product = require('../models/Product');
 const { requireAuth } = require('../middleware/auth');
 const mongoose = require('mongoose');
 
+// GET /api/reviews/admin/reviews - Admin endpoint to get all reviews
+router.get('/admin/reviews', async (req, res) => {
+  try {
+    const { limit = 200 } = req.query;
+    
+    const reviews = await Review.find({})
+    .populate('userId', 'name email profileImage')
+    .populate('productId', 'title slug images')
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit));
+
+    return res.json(reviews);
+  } catch (error) {
+    console.error('Error fetching admin reviews:', error);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// GET /api/reviews/recent - Get recent reviews across all products
+router.get('/recent', async (req, res) => {
+  try {
+    const { limit = 6 } = req.query;
+    
+    const reviews = await Review.find({ 
+      status: 'published',
+      approved: true 
+    })
+    .populate('userId', 'name email profileImage')
+    .populate('productId', 'title slug images')
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit));
+
+    return res.json({ ok: true, data: reviews });
+  } catch (error) {
+    console.error('Error fetching recent reviews:', error);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
 // GET /api/reviews/product/:productId - Get all reviews for a product
 router.get('/product/:productId', async (req, res) => {
   try {
@@ -128,7 +167,7 @@ router.put('/:id', requireAuth, async (req, res) => {
   }
 });
 
-// DELETE /api/reviews/:id - Delete a review
+// DELETE /api/reviews/:id - Delete a review (user can only delete their own)
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;

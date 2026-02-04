@@ -31,7 +31,7 @@ export const FeatureSection = () => {
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900">14-Day Return</h3>
-            <p className="text-sm text-gray-600">Simply return it within 30 days for an exchange.</p>
+            <p className="text-sm text-gray-600">Simply return the product within 14 days of delivery for an exchange or refund.</p>
           </div>
         </div>
 

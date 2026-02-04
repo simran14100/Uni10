@@ -2,9 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Menu, User, Heart, Search, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
+import { Dropdown } from "@/components/Dropdown";
+import { MobileDropdown } from "@/components/MobileDropdown";
 import {
   Dialog,
   DialogTrigger,
@@ -23,10 +25,45 @@ interface NavbarProps {
 export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const desktopSearchRef = useRef<HTMLInputElement>(null);
  
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch categories and products on component mount
+  useEffect(() => {
+    let ignore = false;
+    (async () => {
+      try {
+        // Fetch categories
+        const categoriesResponse = await fetch('/api/categories');
+        const categoriesResult = await categoriesResponse.json();
+        const categoriesList = categoriesResult.ok && Array.isArray(categoriesResult.data) ? categoriesResult.data : [];
+        
+        // Fetch products to determine category genders
+        const productsResponse = await fetch('/api/products?limit=200');
+        const productsResult = await productsResponse.json();
+        const productsList = productsResult.ok && Array.isArray(productsResult.data) ? productsResult.data : [];
+        
+        console.log('📋 Categories fetched:', categoriesList.map(c => ({ name: c.name, slug: c.slug })));
+        console.log('📦 Products fetched:', productsList.length);
+        
+        if (!ignore) {
+          setCategories(categoriesList);
+          setProducts(productsList);
+        }
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+        if (!ignore) {
+          setCategories([]);
+          setProducts([]);
+        }
+      }
+    })();
+    return () => { ignore = true; };
+  }, []);
 
   // safe cart context
   const cart = (() => {
@@ -114,10 +151,6 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                 { to: "/", label: "Home" },
                 { to: "/shop", label: "Shop" },
                 { to: "/shop/new-arrivals", label: "New Arrivals", isNew: true },
-                { to: "/shop?gender=male", label: "Men" },
-                { to: "/shop?gender=female", label: "Women" },
-                { to: "/wishlist", label: "Wishlist" },
-                // { to: "/contact", label: "Contact" },
               ].map((item) => (
                 <Link
                   key={item.to}
@@ -132,6 +165,71 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                   {item.label}
                 </Link>
               ))}
+              
+              {/* Men Dropdown */}
+              <Dropdown title="Men" gender="male">
+                {(() => {
+                  // Get categories that have men's products
+                  const menCategories = categories.filter(category => {
+                    const hasMenProducts = products.some(product => 
+                      product.category === category.name && 
+                      product.gender === 'male'
+                    );
+                    console.log('🔍 Checking category for Men:', { 
+                      categoryName: category.name, 
+                      hasMenProducts,
+                      menProductsCount: products.filter(p => p.category === category.name && p.gender === 'male').length
+                    });
+                    return hasMenProducts;
+                  });
+                  console.log('👨 Men categories found:', menCategories.map(c => c.name));
+                  return menCategories;
+                })().map((category) => (
+                  <Link
+                    key={category.slug || category.name}
+                    to={`/collection/${category.slug || category.name}`}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </Dropdown>
+              
+              {/* Women Dropdown */}
+              <Dropdown title="Women" gender="female">
+                {(() => {
+                  // Get categories that have women's products
+                  const womenCategories = categories.filter(category => {
+                    const hasWomenProducts = products.some(product => 
+                      product.category === category.name && 
+                      product.gender === 'female'
+                    );
+                    console.log('🔍 Checking category for Women:', { 
+                      categoryName: category.name, 
+                      hasWomenProducts,
+                      womenProductsCount: products.filter(p => p.category === category.name && p.gender === 'female').length
+                    });
+                    return hasWomenProducts;
+                  });
+                  console.log('👩 Women categories found:', womenCategories.map(c => c.name));
+                  return womenCategories;
+                })().map((category) => (
+                  <Link
+                    key={category.slug || category.name}
+                    to={`/collection/${category.slug || category.name}`}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </Dropdown>
+              
+              <Link
+                to="/wishlist"
+                className="text-sm font-semibold px-3 py-2 rounded-full text-white/90 hover:bg-white/10 transition"
+              >
+                Wishlist
+              </Link>
             </div>
             
             {/* Search Bar - Desktop - Increased Size */}
@@ -251,13 +349,6 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                 { to: "/", label: "Home" },
                 { to: "/shop", label: "Shop" },
                 { to: "/shop/new-arrivals", label: "New Arrivals", isNew: true },
-                { to: "/shop?gender=male", label: "Men" },
-                { to: "/shop?gender=female", label: "Women" },
-                { to: "/wishlist", label: "Wishlist" },
-                // { to: "/contact", label: "Contact" },
-                ...(user
-                  ? [{ to: "/account/support", label: "Support Tickets" }]
-                  : []),
               ].map((item) => (
                 <Link
                   key={item.to}
@@ -270,6 +361,43 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                   {item.isNew && (
                     <Sparkles className="absolute top-2 right-2 h-3 w-3 text-yellow-400 animate-pulse" />
                   )}
+                  {item.label}
+                </Link>
+              ))}
+              
+              {/* Mobile Men Dropdown */}
+              <MobileDropdown 
+                title="Men" 
+                gender="male" 
+                categories={categories}
+                products={products}
+                onClose={() => setIsMenuOpen(false)}
+              />
+              
+              {/* Mobile Women Dropdown */}
+              <MobileDropdown 
+                title="Women" 
+                gender="female" 
+                categories={categories}
+                products={products}
+                onClose={() => setIsMenuOpen(false)}
+              />
+              
+              <Link
+                to="/wishlist"
+                className="text-base font-semibold px-3 py-3 rounded-md text-white/90 hover:bg-white/10 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Wishlist
+              </Link>
+              
+              {(user ? [{ to: "/account/support", label: "Support Tickets" }] : []).map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="text-base font-semibold px-3 py-3 rounded-md text-white/90 hover:bg-white/10 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   {item.label}
                 </Link>
               ))}

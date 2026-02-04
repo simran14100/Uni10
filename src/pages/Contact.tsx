@@ -8,50 +8,8 @@ import { api } from '@/lib/api';
 import { Phone, Mail, MapPin, ArrowRight, Clock, MessageCircle } from 'lucide-react';
 
 export default function Contact() {
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-  const [data, setData] = React.useState<any>(null);
-
-  React.useEffect(() => {
-    let mounted = true;
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        // Try public contact endpoint
-        const res = await api(`/api/settings/contact?v=${Date.now()}`);
-        if (res.ok && res.json && res.json.data) {
-          if (!mounted) return;
-          setData(res.json.data || {});
-          return;
-        }
-
-        // Fallback: try full settings document
-        const res2 = await api(`/api/settings?v=${Date.now()}`);
-        if (res2.ok && res2.json && res2.json.data) {
-          const data = res2.json.data.contact || {};
-          if (!mounted) return;
-          setData(data || {});
-          return;
-        }
-
-        throw new Error(res.json?.message || 'Failed to load contact settings');
-      } catch (e: any) {
-        console.warn('Contact fetch error', e?.message || e);
-        if (!mounted) return;
-        setError(e?.message || 'Failed to load contact information');
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    void fetchData();
-    return () => { mounted = false; };
-  }, []);
-
-  const phones: string[] = (data?.phones && Array.isArray(data.phones) ? data.phones : ['+91 99715 41140']);
-  const emails: string[] = (data?.emails && Array.isArray(data.emails) ? data.emails : ['supportinfo@gmail.com','uni10@gmail.com']);
-  const address = data?.address || null;
-  const mapsUrl = data?.mapsUrl || '';
+  const emails: string[] = ['support@uni10.in'];
+  const address = { line1: 'Dwarka, Delhi', line2: '', city: 'Delhi', state: 'Delhi', pincode: '110001' };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -75,50 +33,7 @@ export default function Contact() {
           </div>
 
           {/* Contact Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {/* Phone Card */}
-            <Card className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardHeader className="relative">
-                <div className="flex items-center gap-4 mb-2">
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Phone className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl">Phone</CardTitle>
-                    <CardDescription className="mt-1 text-xs">Available 24/7</CardDescription>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground">Call us for immediate assistance</p>
-              </CardHeader>
-              <CardContent className="relative">
-                {loading ? (
-                  <div className="space-y-3">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ) : error ? (
-                  <p className="text-sm text-destructive">{error}</p>
-                ) : (
-                  <ul className="space-y-3">
-                    {phones.map((p, idx) => (
-                      <li key={idx}>
-                        <a 
-                          href={`tel:${p}`} 
-                          className="group/link flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-gray-50 to-transparent hover:from-blue-50 hover:to-blue-50/30 transition-all duration-200 border border-transparent hover:border-blue-200"
-                        >
-                          <span className="font-semibold text-foreground group-hover/link:text-primary transition-colors">
-                            {p}
-                          </span>
-                          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover/link:text-primary group-hover/link:translate-x-1 transition-all" />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {/* Email Card */}
             <Card className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -135,34 +50,25 @@ export default function Contact() {
                 <p className="text-sm text-muted-foreground">Send us your questions anytime</p>
               </CardHeader>
               <CardContent className="relative">
-                {loading ? (
-                  <div className="space-y-3">
-                    <Skeleton className="h-5 w-40" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ) : error ? (
-                  <p className="text-sm text-destructive">{error}</p>
-                ) : (
-                  <ul className="space-y-3">
-                    {emails.map((e, idx) => (
-                      <li key={idx}>
-                        <a 
-                          href={`mailto:${e}`} 
-                          className="group/link flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-gray-50 to-transparent hover:from-purple-50 hover:to-purple-50/30 transition-all duration-200 border border-transparent hover:border-purple-200"
-                        >
-                          <span className="font-semibold text-foreground group-hover/link:text-primary transition-colors break-all">
-                            {e}
-                          </span>
-                          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover/link:text-primary group-hover/link:translate-x-1 transition-all flex-shrink-0 ml-2" />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <ul className="space-y-3">
+                  {emails.map((e, idx) => (
+                    <li key={idx}>
+                      <a 
+                        href={`mailto:${e}`} 
+                        className="group/link flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-gray-50 to-transparent hover:from-purple-50 hover:to-purple-50/30 transition-all duration-200 border border-transparent hover:border-purple-200"
+                      >
+                        <span className="font-semibold text-foreground group-hover/link:text-primary transition-colors break-all">
+                          {e}
+                        </span>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover/link:text-primary group-hover/link:translate-x-1 transition-all flex-shrink-0 ml-2" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
 
-            {/* Address Card */}
+            {/* Location Card */}
             <Card className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardHeader className="relative">
@@ -178,58 +84,17 @@ export default function Contact() {
                 <p className="text-sm text-muted-foreground">Our office and warehouse</p>
               </CardHeader>
               <CardContent className="relative">
-                {loading ? (
-                  <div className="space-y-3">
-                    <Skeleton className="h-5 w-48" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ) : error ? (
-                  <p className="text-sm text-destructive">{error}</p>
-                ) : address && (address.line1 || address.city) ? (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-100 space-y-1 text-sm">
-                      {address.line1 && <div className="font-semibold text-foreground">{address.line1}</div>}
-                      {address.line2 && <div className="text-muted-foreground">{address.line2}</div>}
-                      <div className="text-muted-foreground">
-                        {(address.city ? address.city + ', ' : '') + (address.state || '')} {address.pincode ? address.pincode : ''}
-                      </div>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-100 space-y-1 text-sm">
+                    {address.line1 && <div className="font-semibold text-foreground">{address.line1}</div>}
+                    {address.line2 && <div className="text-muted-foreground">{address.line2}</div>}
+                    <div className="text-muted-foreground">
+                      {(address.city ? address.city + ', ' : '') + (address.state || '')} {address.pincode ? address.pincode : ''}
                     </div>
-                    {mapsUrl && (
-                      <a 
-                        href={mapsUrl} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold text-sm px-4 py-2 rounded-lg hover:bg-green-50 transition-all duration-200 border border-transparent hover:border-green-200 group/map"
-                      >
-                        <MapPin className="h-4 w-4" />
-                        View on Google Maps
-                        <ArrowRight className="h-4 w-4 group-hover/map:translate-x-1 transition-transform" />
-                      </a>
-                    )}
                   </div>
-                ) : (
-                  <div className="p-4 rounded-lg bg-gray-50 border border-gray-100">
-                    <p className="text-sm text-muted-foreground">No address provided</p>
-                  </div>
-                )}
+                </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Info Banner */}
-          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-2xl p-6 md:p-8 border border-primary/20 shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/20 rounded-full p-3 flex-shrink-0">
-                <Clock className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg mb-2">Response Times</h3>
-                <p className="text-muted-foreground">
-                  For urgent matters, please call us directly. Email inquiries are typically answered within one business day. 
-                  Our customer support team is dedicated to providing prompt and helpful assistance.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Inquiry Form Section */}
@@ -255,22 +120,21 @@ export default function Contact() {
           </div>
 
           {/* Trust Badges */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-            <div className="text-center space-y-2 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="text-3xl font-black text-primary">24/7</div>
-              <div className="text-sm font-medium text-muted-foreground">Support Available</div>
+          <div className="grid grid-cols-3 md:grid-cols-4 gap-10 pt-12 pb-12 justify-items-center max-w-3xl mx-auto">
+            <div className="text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
+              <div className="text-4xl font-extrabold text-primary mb-2">24/7</div>
+              <div className="text-base font-medium text-muted-foreground">Support Available</div>
             </div>
-            <div className="text-center space-y-2 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="text-3xl font-black text-primary">&lt;24h</div>
-              <div className="text-sm font-medium text-muted-foreground">Email Response</div>
+           
+            <div className="text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
+              <div className="text-4xl font-extrabold text-primary mb-2">100%</div>
+              <div className="text-base font-medium text-muted-foreground">Customer Satisfaction</div>
             </div>
-            <div className="text-center space-y-2 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="text-3xl font-black text-primary">100%</div>
-              <div className="text-sm font-medium text-muted-foreground">Customer Satisfaction</div>
-            </div>
-            <div className="text-center space-y-2 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="text-3xl font-black text-primary">1000+</div>
-              <div className="text-sm font-medium text-muted-foreground">Happy Customers</div>
+              
+              
+             <div className="text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
+              <div className="text-4xl font-extrabold text-primary mb-2">1000+</div>
+              <div className="text-base font-medium text-muted-foreground">Happy Customers</div>
             </div>
           </div>
         </div>

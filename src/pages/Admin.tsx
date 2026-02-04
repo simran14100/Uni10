@@ -973,26 +973,26 @@ const Admin = () => {
   }, [activeSection, overviewRange, navigate]);
 
   const fetchAdminResources = async () => {
-    console.log('fetchAdminResources called');
+    console.log('🔄 fetchAdminResources called');
     try {
       setFetching(true);
+      console.log('📡 Fetching products, orders, and users...');
       const [productList, orderList, userList] = await Promise.all([
-        apiFetch<Product[]>(`${ENDPOINTS.products}?active=all`),
-        apiFetch<Order[]>(ENDPOINTS.orders),
-        apiFetch<User[]>(ENDPOINTS.users).catch(() => [] as User[]),
+        apiFetch(ENDPOINTS.products),
+        apiFetch(ENDPOINTS.orders),
+        apiFetch(ENDPOINTS.users),
       ]);
-
-      const safeProducts = Array.isArray(productList) ? productList : [];
-      const safeOrders = Array.isArray(orderList) ? orderList : [];
-      const safeUsers = Array.isArray(userList) ? userList : [];
-
-      setProducts(safeProducts);
-      setOrders(safeOrders);
-      setUsers(safeUsers);
-
+      
+      console.log('📦 Products received:', (productList as any[])?.length || 0);
+      console.log('📋 Orders received:', (orderList as any[])?.length || 0);
+      console.log('👥 Users received:', (userList as any[])?.length || 0);
+      
+      setProducts(productList as any[] || []);
+      setOrders(orderList as any[] || []);
+      setUsers(userList as any[] || []);
       // Populate orderInvoices from existing invoices (non-blocking)
       const invoiceMap: Record<string, string | null> = {};
-      for (const order of safeOrders) {
+      for (const order of (orderList as any[]) || []) {
         const orderId = String(order._id || order.id);
         if ((order as any).invoiceId) {
           try {
@@ -1002,7 +1002,6 @@ const Admin = () => {
             }
           } catch (error) {
             // Silently skip if invoice fetch fails - don't break admin load
-            console.debug(`Invoice ${(order as any).invoiceId} not found for order ${orderId}`);
           }
         }
       }
@@ -1011,17 +1010,18 @@ const Admin = () => {
         setOrderInvoices(invoiceMap);
       }
 
-      const totalSales = safeOrders.reduce(
+      const totalSales = (orderList as any[]).reduce(
         (sum, order: any) => sum + Number(order.total ?? order.total_amount ?? 0),
         0,
       );
 
       setStats({
-        totalUsers: safeUsers.length,
+        totalUsers: (userList as any[]).length,
         totalSales,
-        totalProducts: safeProducts.length,
+        totalProducts: (productList as any[]).length,
       });
     } catch (error: any) {
+      console.error('❌ fetchAdminResources error:', error);
       toast.error(`Failed to fetch admin data: ${error?.message ?? 'Unknown error'}`);
       setProducts([]);
       setOrders([]);
@@ -1029,6 +1029,7 @@ const Admin = () => {
       setStats({ totalUsers: 0, totalSales: 0, totalProducts: 0 });
     } finally {
       setFetching(false);
+      console.log('✅ fetchAdminResources completed');
     }
   };
 
@@ -1962,19 +1963,44 @@ const handleProductSubmit = async (e: React.FormEvent) => {
   };
 
   const deleteProduct = async (id: string) => {
-    console.log('deleteProduct called for ID:', id);
+    console.log('🗑️ deleteProduct called for ID:', id);
+    console.log('📋 Current products count before delete:', products.length);
+    
     const ok = confirm('Delete this product?');
     if (!ok) return;
 
     try {
-      // optimistic update
-      setProducts((prev) => prev.filter((p: any) => String(p._id || p.id) !== String(id)));
+      // Optimistic update - remove from UI immediately
+      console.log('🔄 Optimistic update - removing product from UI');
+      setProducts((prev) => {
+        const updated = prev.filter((p: any) => String(p._id || p.id) !== String(id));
+        console.log('📊 Products count after optimistic update:', updated.length);
+        return updated;
+      });
+      
+      // Delete from backend
+      console.log('🌐 Sending delete request to backend');
       await apiFetch(`${ENDPOINTS.products}/${id}`, { method: 'DELETE' });
       toast.success('Product deleted');
-      void fetchAdminResources();
+      
+      // Force immediate UI update
+      console.log('🔄 Forcing immediate UI update');
+      setProducts((prev) => {
+        const filtered = prev.filter((p: any) => String(p._id || p.id) !== String(id));
+        console.log('🔧 Final products count after delete:', filtered.length);
+        return filtered;
+      });
+      
+      // Then refresh from server as backup
+      setTimeout(() => {
+        console.log('🔄 Backup refresh from server');
+        void fetchAdminResources();
+      }, 1000);
     } catch (error: any) {
+      console.error('❌ Delete failed:', error);
       toast.error(`Failed to delete product: ${error?.message ?? 'Unknown error'}`);
-      // revert on failure
+      // Revert on failure
+      console.log('🔄 Reverting - fetching fresh data');
       void fetchAdminResources();
     }
   };

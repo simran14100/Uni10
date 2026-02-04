@@ -779,4 +779,32 @@ router.put('/orders/:id/status', requireAuth, requireAdmin, async (req, res) => 
   }
 });
 
+// Admin: Delete a product review
+router.delete('/reviews/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('🗑️ Admin delete request for review ID:', id);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log('❌ Invalid review ID:', id);
+      return res.status(400).json({ ok: false, message: 'Valid review ID is required' });
+    }
+
+    const review = await Review.findById(id);
+    if (!review) {
+      console.log('❌ Review not found:', id);
+      return res.status(404).json({ ok: false, message: 'Review not found' });
+    }
+
+    console.log('✅ Found review to delete:', review._id);
+    await Review.findByIdAndDelete(id);
+    console.log('✅ Review deleted successfully');
+
+    return res.json({ ok: true, message: 'Review deleted successfully' });
+  } catch (e) {
+    console.error('❌ Admin delete review error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;
