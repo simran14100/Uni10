@@ -5,11 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { InquiryForm } from '@/components/InquiryForm';
 import { api } from '@/lib/api';
-import { Phone, Mail, MapPin, ArrowRight, Clock, MessageCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, Copy, Clock, MessageCircle } from 'lucide-react';
 
 export default function Contact() {
   const emails: string[] = ['support@uni10.in'];
   const address = { line1: 'Dwarka, Delhi', line2: '', city: 'Delhi', state: 'Delhi', pincode: '110001' };
+
+  const copyToClipboard = async (email: string) => {
+    try {
+      await navigator.clipboard.writeText(email);
+      // You could add a toast notification here if you have one
+      alert('Email copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy email: ', err);
+      alert('Failed to copy email');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -53,15 +64,15 @@ export default function Contact() {
                 <ul className="space-y-3">
                   {emails.map((e, idx) => (
                     <li key={idx}>
-                      <a 
-                        href={`mailto:${e}`} 
-                        className="group/link flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-gray-50 to-transparent hover:from-purple-50 hover:to-purple-50/30 transition-all duration-200 border border-transparent hover:border-purple-200"
+                      <div 
+                        className="group/link flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-gray-50 to-transparent hover:from-purple-50 hover:to-purple-50/30 transition-all duration-200 border border-transparent hover:border-purple-200 cursor-pointer"
+                        onClick={() => copyToClipboard(e)}
                       >
                         <span className="font-semibold text-foreground group-hover/link:text-primary transition-colors break-all">
                           {e}
                         </span>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover/link:text-primary group-hover/link:translate-x-1 transition-all flex-shrink-0 ml-2" />
-                      </a>
+                        <Copy className="h-4 w-4 text-muted-foreground group-hover/link:text-primary group-hover/link:scale-110 transition-all flex-shrink-0 ml-2" />
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -123,23 +134,23 @@ export default function Contact() {
           <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-10 pt-8 md:pt-12 pb-8 md:pb-12 justify-items-center max-w-3xl mx-auto">
             <div className="text-center space-y-1 md:space-y-2 p-3 md:p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
               <div className="text-2xl md:text-4xl font-extrabold text-primary mb-1 md:mb-2">24/7</div>
-              <div className="text-xs md:text-base font-medium text-muted-foreground">Support Available</div>
+              <div className="text-xs font-medium text-muted-foreground">Support Available</div>
             </div>
            
             <div className="text-center space-y-1 md:space-y-2 p-3 md:p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
               <div className="text-2xl md:text-4xl font-extrabold text-primary mb-1 md:mb-2">100%</div>
-              <div className="text-xs md:text-base font-medium text-muted-foreground">Customer Satisfaction</div>
+              <div className="text-[10px] font-medium text-muted-foreground">Customer Satisfaction</div>
             </div>
               
              <div className="text-center space-y-1 md:space-y-2 p-3 md:p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
               <div className="text-2xl md:text-4xl font-extrabold text-primary mb-1 md:mb-2">1000+</div>
-              <div className="text-xs md:text-base font-medium text-muted-foreground">Happy Customers</div>
+              <div className="text-[10px] font-medium text-muted-foreground">Happy Customers</div>
             </div>
 
             {/* Hidden on mobile, visible on desktop */}
             <div className="hidden md:block text-center space-y-2 p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-md md:col-span-1">
               <div className="text-4xl font-extrabold text-primary mb-2">100%</div>
-              <div className="text-base font-medium text-muted-foreground"> Satisfaction Guaranteed</div>
+              <div className="text-[10px] font-medium text-muted-foreground">Guaranteed Products</div>
             </div>
           </div>
         </div>

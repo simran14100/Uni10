@@ -43,6 +43,9 @@ const Wishlist = () => {
   const { wishlistIds, removeFromWishlist } = useWishlist();
   const navigate = useNavigate();
 
+  // Add a refresh trigger
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   useEffect(() => {
     if (wishlistIds.size === 0) {
       setWishlistProducts([]);
@@ -50,7 +53,47 @@ const Wishlist = () => {
       return;
     }
     fetchWishlistProducts();
-  }, [wishlistIds, user]);
+  }, [user, refreshTrigger]); // Add refreshTrigger dependency
+
+  // Also update when wishlistIds change (when items are added/removed)
+  useEffect(() => {
+    if (wishlistIds.size === 0) {
+      setWishlistProducts([]);
+      setLoading(false);
+      return;
+    }
+    // Only fetch if we haven't just loaded (to avoid duplicate calls)
+    if (!loading) {
+      fetchWishlistProducts();
+    }
+  }, [wishlistIds.size]); // React to changes in wishlist size
+
+  // Auto-refresh when window gets focus (user switches back to wishlist tab/window)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (wishlistIds.size > 0) {
+        refreshWishlistProducts();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [wishlistIds.size]);
+
+  // Also add a periodic refresh every 30 seconds as a fallback
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (wishlistIds.size > 0 && !document.hidden) {
+        refreshWishlistProducts();
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [wishlistIds.size]);
+
+  const refreshWishlistProducts = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const fetchWishlistProducts = async () => {
     try {
@@ -79,8 +122,15 @@ const Wishlist = () => {
     }
   };
 
-  const handleRemove = (productId: string) => {
-    removeFromWishlist(productId);
+  const handleRemove = async (productId: string) => {
+    // Immediately update the UI by removing from local state
+    setWishlistProducts(prev => prev.filter(product => {
+      const id = String(product._id || product.id || '');
+      return id !== productId;
+    }));
+    
+    // Then remove from wishlist (this will update the backend and wishlistIds)
+    await removeFromWishlist(productId);
   };
 
   return (

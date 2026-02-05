@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Menu, User, Heart, Search, X, Sparkles } from "lucide-react";
+import { ShoppingCart, Menu, User, Heart, Search, X, Sparkles, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef, useEffect } from "react";
@@ -25,6 +25,7 @@ interface NavbarProps {
 export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const desktopSearchRef = useRef<HTMLInputElement>(null);
@@ -83,6 +84,8 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
       setSearchQuery("");
       // Close mobile menu after search
       setIsMenuOpen(false);
+      // Collapse search if expanded
+      setIsSearchExpanded(false);
       // Blur the desktop search input
       if (desktopSearchRef.current) {
         desktopSearchRef.current.blur();
@@ -94,6 +97,15 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
     if (e.key === "Enter") {
       handleSearch(e);
     }
+  };
+
+  const handleSearchFocus = () => {
+    setIsSearchExpanded(true);
+  };
+
+  const handleSearchCollapse = () => {
+    setIsSearchExpanded(false);
+    setSearchQuery("");
   };
 
   return (
@@ -117,36 +129,76 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
           </Link>
 
           {/* Mobile Search Bar - Only visible on mobile */}
-          <div className="flex-1 md:hidden px-2">
-            <form onSubmit={handleSearch}>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                <Input
-                  type="text"
-                 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  style={{ 
-                    color: '#ffffff',
-                    backgroundColor: 'rgba(31, 41, 55, 0.9)',
-                    borderColor: 'rgb(75, 85, 99)'
-                  }}
-                  className="pl-10 pr-8 h-9 text-sm border-gray-600 placeholder:text-gray-300 focus-visible:ring-white/30 focus-visible:bg-gray-700 focus-visible:border-gray-500 focus-visible:ring-1"
-                />
-                {searchQuery && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-white"
-                    onClick={() => setSearchQuery("")}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
+          <div className={`md:hidden transition-all duration-300 ease-in-out ${
+            isSearchExpanded 
+              ? 'absolute inset-0 z-50 bg-black px-4' 
+              : 'flex-1 px-2'
+          }`}>
+            {!isSearchExpanded ? (
+              // Normal search bar (collapsed state)
+              <form onSubmit={handleSearch}>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <Input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={handleSearchFocus}
+                    style={{ 
+                      color: '#ffffff',
+                      backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                      borderColor: 'rgb(75, 85, 99)'
+                    }}
+                    className="pl-10 pr-8 h-9 text-sm border-gray-600 placeholder:text-gray-300 focus-visible:ring-white/30 focus-visible:bg-gray-700 focus-visible:border-gray-500 focus-visible:ring-1"
+                    
+                  />
+                </div>
+              </form>
+            ) : (
+              // Expanded search bar
+              <div className="flex items-center h-full">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSearchCollapse}
+                  className="text-white hover:bg-white/20 hover:text-white mr-2 p-2 min-w-[44px] min-h-[44px]"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <form onSubmit={handleSearch} className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <Input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      autoFocus
+                      style={{ 
+                        color: '#ffffff',
+                        backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                        borderColor: 'rgb(75, 85, 99)'
+                      }}
+                      className="w-full pl-10 pr-8 h-9 text-sm border-gray-600 placeholder:text-gray-300 focus-visible:ring-white/30 focus-visible:bg-gray-700 focus-visible:border-gray-500 focus-visible:ring-1"
+                      placeholder="Search for Products, Brands and More"
+                    />
+                    {searchQuery && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-white"
+                        onClick={() => setSearchQuery("")}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </form>
               </div>
-            </form>
+            )}
           </div>
 
           {/* Desktop Navigation and Search */}
