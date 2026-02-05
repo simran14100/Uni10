@@ -187,16 +187,9 @@ const ProductDetail = () => {
         setSelectedSize(""); // product change pe size reset
         console.log("Product data loaded:", productData);
 
-          // ✅ Pehla color set karo:
-          // 1) colorVariants[0].colorName
-          // 2) warna colors[0]
-          const firstColor =
-            productData?.colorVariants?.[0]?.colorName ||
-            productData?.colors?.[0] ||
-            "";
-
-          setSelectedColor(firstColor);
-          setQuantity(1);
+        // Don't auto-select color - let user choose manually
+        setSelectedColor("");
+        setQuantity(1);
         }
       } catch (e: any) {
         if (!ignore) {

@@ -32,6 +32,7 @@ type ProductRow = {
   images?: string[];
   slug?: string;
   createdAt?: string;
+  isBestSeller?: boolean;
   reviews?: Array<{
     id: string;
     username: string;
@@ -124,6 +125,7 @@ const normalizeCategory = (value: string) => String(value || "").trim().toLowerC
       slug: p.slug || "",
       images: Array.isArray(p.images) ? p.images : [],
       rating: Number(rating),
+      isBestSeller: p.isBestSeller || false,
     };
   };
 

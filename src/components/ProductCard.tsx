@@ -21,9 +21,10 @@ interface ProductCardProps {
   slug?: string;
   images?: string[];
   rating?: number;
+  isBestSeller?: boolean;
 }
 
-export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, discountPercentage, discountAmount, image, category, to, slug, images, rating }: ProductCardProps) => {
+export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, discountPercentage, discountAmount, image, category, to, slug, images, rating, isBestSeller }: ProductCardProps) => {
   const { user } = useAuth();
   const { addToCart } = (() => { try { return useCart(); } catch { return { addToCart: () => {} } as any; } })();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -64,8 +65,13 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
     <Card className="group overflow-hidden rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 relative bg-white sm:max-w-xs">
       <Link to={linkTo} className="block">
         <div className="aspect-square overflow-hidden bg-gray-100 relative flex items-center justify-center rounded-t-xl">
+          {isBestSeller && (
+            <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md">
+              Best Seller
+            </div>
+          )}
           {(discountPercentage && discountPercentage > 0) || (discountAmount && discountAmount > 0) ? (
-            <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md">
+            <div className={`absolute top-3 ${isBestSeller ? 'right-3' : 'left-3'} bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md`}>
               {discountPercentage && discountPercentage > 0 ? `-${discountPercentage}%` : discountAmount && discountAmount > 0 ? `-₹${discountAmount}` : ''}
             </div>
           ) : null}
@@ -111,7 +117,7 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
           <div className="flex items-center justify-between mt-auto">
             <div className="flex items-center">
               <div className="flex items-center text-sm text-yellow-500">
-                {rating ? (
+                {rating && rating > 0 ? (
                   <>
                     {'★'.repeat(Math.floor(rating))}
                     {'☆'.repeat(5 - Math.floor(rating))}
@@ -119,8 +125,8 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
                   </>
                 ) : (
                   <>
-                    {'☆'.repeat(5)}
-                    <span className="ml-1 text-gray-400 text-xs uppercase">(No ratings)</span>
+                    {'★'.repeat(5)}
+                    <span className="ml-1 text-gray-500 uppercase">(5)</span>
                   </>
                 )}
               </div>

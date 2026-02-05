@@ -78,7 +78,7 @@ export default function BestSellerSection() {
     const price = product.price || 0;
     const image = product.images?.[0] || product.image_url || '/placeholder.svg';
     const slug = product.slug || id;
-    const rating = (Math.random() * (5 - 3) + 3).toFixed(1); // Random rating between 3 and 5
+    const rating = 5.0; // Default 5-star rating for all products
 
     return {
       id,

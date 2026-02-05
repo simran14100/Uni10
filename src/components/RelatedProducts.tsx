@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Heart } from 'lucide-react';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface RelatedProduct {
   _id?: string;
@@ -19,6 +21,7 @@ interface RelatedProduct {
     type: 'flat' | 'percentage';
     value: number;
   };
+  isBestSeller?: boolean;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
@@ -67,6 +70,7 @@ const calculateDiscountedPrice = (price: number, discount?: { type: 'flat' | 'pe
 export const RelatedProducts = ({ productId }: { productId: string }) => {
   const [products, setProducts] = useState<RelatedProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
     const fetchRelated = async () => {
@@ -133,49 +137,74 @@ export const RelatedProducts = ({ productId }: { productId: string }) => {
             : null;
           const productLink = slug ? `/products/${slug}` : `/product/${id}`;
 
+          const handleWishlistClick = (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWishlist(id);
+          };
+
           return (
-            <Link
-              key={id}
-              to={productLink}
-              className="flex-shrink-0 w-40 sm:w-48 group"
-            >
-              <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow">
-                <div className="relative aspect-square overflow-hidden bg-muted">
-                  <img
-                    src={image}
-                    alt={title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {stock === 0 && (
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <span className="text-white font-semibold text-xs sm:text-sm">
-                        Out of Stock
-                      </span>
-                    </div>
-                  )}
-                  {discountLabel && (
-                    <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-xs sm:text-sm">
-                      {discountLabel}
-                    </Badge>
-                  )}
-                </div>
-                <div className="p-3 sm:p-4">
-                  <h3 className="font-semibold text-xs sm:text-sm line-clamp-2 mb-2 sm:mb-3 group-hover:text-primary transition-colors">
-                    {title}
-                  </h3>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-sm sm:text-base font-bold">
-                      ₹{finalPrice.toLocaleString('en-IN')}
-                    </span>
-                    {discount && discount.value > 0 && (
-                      <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                        ₹{price.toLocaleString('en-IN')}
-                      </span>
+            <div key={id} className="flex-shrink-0 w-40 sm:w-48 group relative">
+              <Link to={productLink} className="block">
+                <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-square overflow-hidden bg-muted">
+                    <img
+                      src={image}
+                      alt={title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {stock === 0 && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <span className="text-white font-semibold text-xs sm:text-sm">
+                          Out of Stock
+                        </span>
+                      </div>
                     )}
+                    {product.isBestSeller && (
+                      <Badge className="absolute top-2 left-2 bg-orange-500 hover:bg-orange-600 text-xs sm:text-sm">
+                        Best Seller
+                      </Badge>
+                    )}
+                    {discountLabel && (
+                      <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-xs sm:text-sm">
+                        {discountLabel}
+                      </Badge>
+                    )}
+                    <button
+                      onClick={handleWishlistClick}
+                      className="absolute bottom-2 right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-all duration-200 z-10 shadow-md"
+                    >
+                      <Heart
+                        className="h-4 w-4 transition-all"
+                        fill={isInWishlist(id) ? 'currentColor' : 'none'}
+                        color={isInWishlist(id) ? 'hsl(var(--primary))' : 'currentColor'}
+                      />
+                    </button>
                   </div>
-                </div>
-              </Card>
-            </Link>
+                  <div className="p-3 sm:p-4 flex flex-col flex-grow">
+                    <h3 className="font-semibold text-xs sm:text-sm line-clamp-2 mb-2 sm:mb-3 group-hover:text-primary transition-colors">
+                      {title}
+                    </h3>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm sm:text-base font-bold">
+                        ₹{finalPrice.toLocaleString('en-IN')}
+                      </span>
+                      {discount && discount.value > 0 && (
+                        <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                          ₹{price.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center text-sm text-yellow-500 mt-2">
+                      <>
+                        {'★'.repeat(5)}
+                        <span className="ml-1 text-gray-500 uppercase">(5)</span>
+                      </>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            </div>
           );
         })}
       </div>
