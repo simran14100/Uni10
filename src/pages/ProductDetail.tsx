@@ -39,8 +39,10 @@ import ReviewsList from "@/components/ReviewsList";
 import { SimpleCoupon } from "@/components/SimpleCoupon";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { ShareButton } from "@/components/ShareButton";
 import { useCouponRefresh } from "@/hooks/useCouponRefresh";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const resolveImage = (src?: string) => {
@@ -118,6 +120,7 @@ type P = {
   colorInventory?: Array<{ color: string; qty: number }>;
   discount?: { type: 'percentage' | 'flat'; value: number };
   sku?: string;
+  slug?: string;
   tags?: string[];
   seo?: {
     title?: string;
@@ -140,6 +143,7 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { refreshKey } = useCouponRefresh(); // Use global refreshKey
+  const { add: addRecentlyViewed } = useRecentlyViewed();
 
   const [product, setProduct] = useState<P | null>(null);
   const [loading, setLoading] = useState(true);
@@ -187,6 +191,15 @@ const ProductDetail = () => {
         setSelectedSize(""); // product change pe size reset
         console.log("Product data loaded:", productData);
 
+        // Add to recently viewed (localStorage)
+        const pid = productData._id || productData.id;
+        if (pid) {
+          addRecentlyViewed({
+            id: String(pid),
+            slug: productData.slug,
+          });
+        }
+
         // Don't auto-select color - let user choose manually
         setSelectedColor("");
         setQuantity(1);
@@ -208,7 +221,7 @@ const ProductDetail = () => {
     return () => {
       ignore = true;
     };
-  }, [slug, toast]);
+  }, [slug, toast, addRecentlyViewed]);
 
   // ✅ Scroll top on product change (UX smooth)
   useEffect(() => {
@@ -1223,6 +1236,13 @@ const ProductDetail = () => {
         </div>
 
         <div className="max-w-7xl mx-auto w-full mt-6 sm:mt-8">
+          <RecentlyViewed
+            excludeProductId={product?._id || product?.id || ""}
+          />
+          <RelatedProducts productId={product?._id || product?.id || ""} />
+        </div>
+
+        <div className="max-w-7xl mx-auto w-full mt-6 sm:mt-8">
           <div className="flex flex-col md:flex-row bg-white rounded-lg shadow border border-gray-200">
             <div className="md:w-1/4 lg:w-1/5 p-3 sm:p-4 md:p-6">
               <button
@@ -1496,9 +1516,6 @@ const ProductDetail = () => {
   )}
 </div>
           </div>
-        </div>
-        <div className="max-w-7xl mx-auto w-full">
-          <RelatedProducts productId={product?._id || product?.id || ""} />
         </div>
       </section>
 
