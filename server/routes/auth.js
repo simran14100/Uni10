@@ -174,7 +174,14 @@ router.post('/signup', async (req, res) => {
     await OTP.deleteOne({ _id: otpRecord._id });
 
     const token = sendToken(res, user);
-    return res.json({ ok: true, user: user.toJSON(), token });
+    // Convert _id to id for client compatibility
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
+    return res.json({ ok: true, user: userResponse, token });
   } catch (e) {
     console.error('Signup error:', e);
     return res.status(500).json({ ok: false, message: 'Server error' });
@@ -191,7 +198,14 @@ router.post('/login', async (req, res) => {
     const ok = await user.verifyPassword(password);
     if (!ok) return res.status(400).json({ ok: false, message: 'Invalid credentials' });
     const token = sendToken(res, user);
-    return res.json({ ok: true, user: user.toJSON(), token });
+    // Convert _id to id for client compatibility
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
+    return res.json({ ok: true, user: userResponse, token });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ ok: false, message: 'Server error' });
@@ -207,7 +221,14 @@ router.get('/me', async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.id).select('-passwordHash');
     if (!user) return res.json({ ok: false, message: 'Not authenticated' });
-    return res.json({ ok: true, user: user });
+    // Convert _id to id for client compatibility
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
+    return res.json({ ok: true, user: userResponse });
   } catch (e) {
     return res.json({ ok: false, message: 'Not authenticated' });
   }

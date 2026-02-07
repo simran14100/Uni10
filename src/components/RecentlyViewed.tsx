@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Heart, History, ShoppingBag } from "lucide-react";
+import { Heart, History } from "lucide-react";
 import { api } from "@/lib/api";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
@@ -120,6 +119,13 @@ export const RecentlyViewed = ({
     }
   }, [excludeProductId, getList]);
 
+  const listToShow = getList().filter(
+    (item) => String(item.id) !== String(excludeProductId)
+  );
+  if (listToShow.length === 0) {
+    return null;
+  }
+
   if (loading) {
     return (
       <div className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-border">
@@ -145,23 +151,16 @@ export const RecentlyViewed = ({
     );
   }
 
+  if (products.length === 0) {
+    return null;
+  }
+
   return (
     <div className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-border">
       <h2 className="text-xl sm:text-2xl font-bold tracking-tighter mb-6 sm:mb-8 flex items-center gap-2">
         <History className="h-6 w-6 text-muted-foreground" />
         Recently Viewed
       </h2>
-      {products.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border bg-muted/30 py-10 px-4 text-center">
-          <ShoppingBag className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground mb-4">
-            Products you view will appear here. Browse the shop to build your history.
-          </p>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/shop">Browse Shop</Link>
-          </Button>
-        </div>
-      ) : (
       <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-3 sm:-mx-4 px-3 sm:px-4">
         {products.map((product) => {
           const id = product._id || product.id;
@@ -264,7 +263,6 @@ export const RecentlyViewed = ({
           );
         })}
       </div>
-      )}
     </div>
   );
 };

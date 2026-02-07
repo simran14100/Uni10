@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useLayoutEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 import "@/styles/inputs.css";
 
 import Index from "./pages/Index";
@@ -113,11 +114,12 @@ function ScrollManager() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <CartProvider>
-          <BrowserRouter>
+      <WishlistProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <CartProvider>
+            <BrowserRouter>
             {/* Scroll fixer mounted once under Router */}
             <ScrollManager />
 
@@ -168,8 +170,9 @@ const App = () => (
           </BrowserRouter>
         </CartProvider>
       </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+    </WishlistProvider>
+  </AuthProvider>
+</QueryClientProvider>
 );
 
 export default App;

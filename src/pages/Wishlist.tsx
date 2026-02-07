@@ -57,15 +57,13 @@ const Wishlist = () => {
 
   // Also update when wishlistIds change (when items are added/removed)
   useEffect(() => {
+    console.log('Wishlist IDs changed:', Array.from(wishlistIds));
     if (wishlistIds.size === 0) {
       setWishlistProducts([]);
       setLoading(false);
       return;
     }
-    // Only fetch if we haven't just loaded (to avoid duplicate calls)
-    if (!loading) {
-      fetchWishlistProducts();
-    }
+    fetchWishlistProducts();
   }, [wishlistIds.size]); // React to changes in wishlist size
 
   // Auto-refresh when window gets focus (user switches back to wishlist tab/window)
@@ -98,20 +96,34 @@ const Wishlist = () => {
   const fetchWishlistProducts = async () => {
     try {
       setLoading(true);
-      
+
       if (wishlistIds.size === 0) {
         setWishlistProducts([]);
         return;
       }
 
-      const { ok, json } = await api('/api/products?limit=200');
-      if (!ok) throw new Error(json?.message || json?.error || 'Failed to load products');
-      
-      const allProducts = Array.isArray(json?.data) ? json.data : [];
-      const products = allProducts.filter((p: ProductRow) => {
-        const id = String(p._id || p.id || '');
-        return wishlistIds.has(id);
-      });
+      // Fetch each wishlist product by ID so we get all of them (no pagination/sort issues)
+      const ids = Array.from(wishlistIds);
+      const results = await Promise.allSettled(
+        ids.map((id) => api(`/api/products/${id}?_t=${Date.now()}`))
+      );
+      const products: ProductRow[] = [];
+      console.log('Fetching products for IDs:', ids);
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result.status === 'fulfilled') {
+          const { ok, json } = result.value;
+          if (ok && json?.data) {
+            products.push(json.data as ProductRow);
+            console.log(`Successfully fetched product ${ids[i]}`);
+          } else {
+            console.warn(`Failed to fetch product ${ids[i]}:`, json);
+          }
+        } else {
+          console.warn(`Error fetching product ${ids[i]}:`, result.reason);
+        }
+      }
+      console.log('Final products array:', products);
 
       setWishlistProducts(products);
     } catch (e: any) {
