@@ -112,10 +112,15 @@ All colors MUST be HSL.
   display: none; /* Chrome, Safari, Opera */
 }
 
-/* Fix for mobile button active states in carousel navigation */
+/* Fix for mobile button active states in all carousel navigation */
 @media (max-width: 640px) {
   button[data-slot="carousel-previous"],
-  button[data-slot="carousel-next"] {
+  button[data-slot="carousel-next"],
+  .carousel-previous,
+  .carousel-next,
+  button[class*="carousel"],
+  button[class*="CarouselPrevious"],
+  button[class*="CarouselNext"] {
     -webkit-tap-highlight-color: transparent !important;
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
@@ -127,13 +132,23 @@ All colors MUST be HSL.
   }
   
   button[data-slot="carousel-previous"]:hover,
-  button[data-slot="carousel-next"]:hover {
+  button[data-slot="carousel-next"]:hover,
+  .carousel-previous:hover,
+  .carousel-next:hover,
+  button[class*="carousel"]:hover,
+  button[class*="CarouselPrevious"]:hover,
+  button[class*="CarouselNext"]:hover {
     border-color: #d1d5db !important;
     background-color: white !important;
   }
   
   button[data-slot="carousel-previous"]:active,
-  button[data-slot="carousel-next"]:active {
+  button[data-slot="carousel-next"]:active,
+  .carousel-previous:active,
+  .carousel-next:active,
+  button[class*="carousel"]:active,
+  button[class*="CarouselPrevious"]:active,
+  button[class*="CarouselNext"]:active {
     background-color: white !important;
     border-color: #d1d5db !important;
     color: #374151 !important;
@@ -142,7 +157,12 @@ All colors MUST be HSL.
   }
   
   button[data-slot="carousel-previous"]:focus,
-  button[data-slot="carousel-next"]:focus {
+  button[data-slot="carousel-next"]:focus,
+  .carousel-previous:focus,
+  .carousel-next:focus,
+  button[class*="carousel"]:focus,
+  button[class*="CarouselPrevious"]:focus,
+  button[class*="CarouselNext"]:focus {
     outline: none !important;
     box-shadow: none !important;
     border-color: #d1d5db !important;
@@ -151,7 +171,12 @@ All colors MUST be HSL.
   
   /* Remove any stuck active states after touch */
   button[data-slot="carousel-previous"].focus-visible,
-  button[data-slot="carousel-next"].focus-visible {
+  button[data-slot="carousel-next"].focus-visible,
+  .carousel-previous.focus-visible,
+  .carousel-next.focus-visible,
+  button[class*="carousel"].focus-visible,
+  button[class*="CarouselPrevious"].focus-visible,
+  button[class*="CarouselNext"].focus-visible {
     outline: none !important;
     box-shadow: none !important;
     border-color: #d1d5db !important;
@@ -160,7 +185,12 @@ All colors MUST be HSL.
   
   /* Force reset any stuck states */
   button[data-slot="carousel-previous"]:not(:hover):not(:active):not(:focus),
-  button[data-slot="carousel-next"]:not(:hover):not(:active):not(:focus) {
+  button[data-slot="carousel-next"]:not(:hover):not(:active):not(:focus),
+  .carousel-previous:not(:hover):not(:active):not(:focus),
+  .carousel-next:not(:hover):not(:active):not(:focus),
+  button[class*="carousel"]:not(:hover):not(:active):not(:focus),
+  button[class*="CarouselPrevious"]:not(:hover):not(:active):not(:focus),
+  button[class*="CarouselNext"]:not(:hover):not(:active):not(:focus) {
     background-color: white !important;
     border-color: #d1d5db !important;
     color: #374151 !important;
@@ -170,13 +200,23 @@ All colors MUST be HSL.
   
   /* Specific fix for brown border stuck state */
   button[data-slot="carousel-previous"][style*="border-color"],
-  button[data-slot="carousel-next"][style*="border-color"] {
+  button[data-slot="carousel-next"][style*="border-color"],
+  .carousel-previous[style*="border-color"],
+  .carousel-next[style*="border-color"],
+  button[class*="carousel"][style*="border-color"],
+  button[class*="CarouselPrevious"][style*="border-color"],
+  button[class*="CarouselNext"][style*="border-color"] {
     border-color: #d1d5db !important;
   }
   
   /* Override any inline styles that might cause stuck states */
   button[data-slot="carousel-previous"][style],
-  button[data-slot="carousel-next"][style] {
+  button[data-slot="carousel-next"][style],
+  .carousel-previous[style],
+  .carousel-next[style],
+  button[class*="carousel"][style],
+  button[class*="CarouselPrevious"][style],
+  button[class*="CarouselNext"][style] {
     border-color: #d1d5db !important;
     background-color: white !important;
   }

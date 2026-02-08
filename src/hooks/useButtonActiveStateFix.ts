@@ -3,7 +3,17 @@ import { useEffect } from 'react';
 export const useButtonActiveStateFix = () => {
   useEffect(() => {
     const resetCarouselButtons = () => {
-      const carouselButtons = document.querySelectorAll('button[data-slot="carousel-previous"], button[data-slot="carousel-next"]');
+      // Target all possible carousel button selectors
+      const carouselButtons = document.querySelectorAll(
+        'button[data-slot="carousel-previous"], ' +
+        'button[data-slot="carousel-next"], ' +
+        '.carousel-previous, ' +
+        '.carousel-next, ' +
+        'button[class*="carousel"], ' +
+        'button[class*="CarouselPrevious"], ' +
+        'button[class*="CarouselNext"]'
+      );
+      
       carouselButtons.forEach(button => {
         const element = button as HTMLElement;
         element.blur();
@@ -30,8 +40,12 @@ export const useButtonActiveStateFix = () => {
         element.style.removeProperty('box-shadow');
         element.classList.remove('active', 'focus', 'hover');
         
-        // Force reset for carousel buttons
-        if (element.getAttribute('data-slot')?.includes('carousel')) {
+        // Force reset for all carousel buttons
+        if (
+          element.getAttribute('data-slot')?.includes('carousel') ||
+          element.className.includes('carousel') ||
+          element.className.includes('Carousel')
+        ) {
           element.style.backgroundColor = 'white';
           element.style.borderColor = '#d1d5db';
           element.style.color = '#374151';
@@ -51,8 +65,12 @@ export const useButtonActiveStateFix = () => {
         const element = button as HTMLElement;
         element.blur();
         
-        // Force reset for carousel buttons
-        if (element.getAttribute('data-slot')?.includes('carousel')) {
+        // Force reset for all carousel buttons
+        if (
+          element.getAttribute('data-slot')?.includes('carousel') ||
+          element.className.includes('carousel') ||
+          element.className.includes('Carousel')
+        ) {
           element.style.backgroundColor = 'white';
           element.style.borderColor = '#d1d5db';
           element.style.color = '#374151';
