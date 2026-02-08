@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronDown, Filter, XCircle, ArrowUpDown } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, XCircle, ArrowUpDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -155,6 +155,15 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
 
   const [showAllColors, setShowAllColors] = useState(false);
 
+  // State for managing collapsible sections
+  const [isGenderOpen, setIsGenderOpen] = useState(true);
+  const [isColorOpen, setIsColorOpen] = useState(true);
+  const [isSizeOpen, setIsSizeOpen] = useState(true);
+  const [isPriceOpen, setIsPriceOpen] = useState(true);
+
+  // Debug price range
+  console.log('Price range initialized:', priceRange);
+
   // Type for category with parent property
   type CategoryWithParent = {
     name?: string;
@@ -237,7 +246,26 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
   const availableSizes = useMemo(() => {
     const sizes = new Set<string>();
     products.forEach((p) => getProductSizes(p).forEach((s) => sizes.add(s)));
-    return ["All", ...Array.from(sizes).sort()];
+    
+    // Debug: Log available sizes from products
+    console.log('Available sizes from products:', Array.from(sizes));
+    
+    // Define the correct size order from XS to XXL
+    const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL"];
+    
+    // Always include all standard sizes, but mark available ones
+    const allStandardSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+    
+    // Filter to only include sizes that are either available or standard sizes
+    const finalSizes = allStandardSizes.filter(size => {
+      // Include if it's in the predefined order (always true here) 
+      // or if it's available in products
+      return sizeOrder.includes(size) || sizes.has(size);
+    });
+    
+    console.log('Final sorted sizes:', finalSizes);
+    
+    return ["All", ...finalSizes];
   }, [products]);
 
   // ✅ Detect mobile screen dynamically
@@ -290,7 +318,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
     setSelectedGenderSubcategory("All");
     setSelectedColors([]);
     setSelectedSize("All");
-    setPriceRange([0, 5000]); // Updated to match new default
+    setPriceRange([0, 5000]); // Fixed: was [710, 5000]
     setPriceSort("none");
     setCurrentPage(1);
   };
@@ -657,7 +685,8 @@ const fetchProducts = async () => {
                     value="none" 
                     className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
                   >
-                    Default
+                    <span className="sm:hidden">Sort</span>
+                    <span className="hidden sm:inline">Default</span>
                   </SelectItem>
                   <SelectItem 
                     value="low-to-high" 
@@ -683,8 +712,8 @@ const fetchProducts = async () => {
                     <Filter className="w-4 h-4 mr-2" /> Filters
                   </Button>
                 </SheetTrigger>
-              <SheetContent side="left" className="w-64 sm:w-80 overflow-y-auto">
-                <SheetHeader className="mb-6 sticky top-0 bg-background z-10 pb-2">
+              <SheetContent side="left" className="w-64 sm:w-80 overflow-y-auto pr-12">
+                <SheetHeader className="mb-6 sticky top-0 bg-background z-10 pb-2 pr-10">
                   <SheetTitle>Filter Products</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col space-y-6 pb-6">
@@ -721,9 +750,9 @@ const fetchProducts = async () => {
                   </Collapsible>
 
                   {/* Gender Filter */}
-                  <Collapsible defaultOpen={true}>
+                  <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen}>
                     <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                      Gender <ChevronDown className="w-4 h-4" />
+                      Gender {isGenderOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2 space-y-2">
                       {[ "All", "Male", "Female", "Unisex" ].map((gender) => (
@@ -769,9 +798,9 @@ const fetchProducts = async () => {
                   )}
 
                   {/* Color Filter */}
-                  <Collapsible defaultOpen={true}>
+                  <Collapsible open={isColorOpen} onOpenChange={setIsColorOpen}>
                     <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                      Color <ChevronDown className="w-4 h-4" />
+                      Color {isColorOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2 space-y-2">
                       {/* Show selected colors */}
@@ -820,9 +849,9 @@ const fetchProducts = async () => {
                   </Collapsible>
 
                   {/* Size Filter */}
-                  <Collapsible defaultOpen={true}>
+                  <Collapsible open={isSizeOpen} onOpenChange={setIsSizeOpen}>
                     <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                      Size <ChevronDown className="w-4 h-4" />
+                      Size {isSizeOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2 space-y-2">
                   {availableSizes.map((size) => (
@@ -842,17 +871,21 @@ const fetchProducts = async () => {
                   </Collapsible>
 
                   {/* Price Filter */}
-                  <Collapsible defaultOpen={true}>
+                  <Collapsible open={isPriceOpen} onOpenChange={setIsPriceOpen}>
                     <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                      Price <ChevronDown className="w-4 h-4" />
+                      Price {isPriceOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2">
                       <Slider
                         min={0}
-                        max={5000} // Updated to match new price range
+                        max={10000} // Updated to match new price range
                         step={10}
                         value={priceRange}
-                        onValueChange={(val: [number, number]) => setPriceRange(val)}
+                        onValueChange={(val: [number, number]) => {
+                          console.log('Mobile slider value changed to:', val);
+                          console.log('Mobile slider current value:', priceRange);
+                          setPriceRange(val);
+                        }}
                         className="w-[90%] mx-auto"
                       />
                       <div className="flex justify-between mt-2 text-sm text-muted-foreground">
@@ -1028,9 +1061,9 @@ const fetchProducts = async () => {
               </Collapsible>
 
               {/* Size Filter */}
-              <Collapsible defaultOpen={true}>
+              <Collapsible open={isSizeOpen} onOpenChange={setIsSizeOpen}>
                 <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                  Size <ChevronDown className="w-4 h-4" />
+                  Size {isSizeOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 pb-2 space-y-2">
                   {availableSizes.map((size) => (
@@ -1050,17 +1083,21 @@ const fetchProducts = async () => {
               </Collapsible>
 
               {/* Price Filter */}
-              <Collapsible defaultOpen={true}>
+              <Collapsible open={isPriceOpen} onOpenChange={setIsPriceOpen}>
                 <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                  Price <ChevronDown className="w-4 h-4" />
+                  Price {isPriceOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 pb-2">
                   <Slider
                     min={0}
                     max={5000} // Updated to match new price range
                     step={10}
-                    value={priceRange}
-                    onValueChange={(val: [number, number]) => setPriceRange(val)}
+                    value={[0, 5000]}
+                    onValueChange={(val: [number, number]) => {
+                      console.log('Desktop slider value changed to:', val);
+                      console.log('Desktop slider current value:', priceRange);
+                      setPriceRange(val);
+                    }}
                     className="w-[90%] mx-auto"
                   />
                   <div className="flex justify-between mt-2 text-sm text-muted-foreground">

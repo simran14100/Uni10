@@ -303,7 +303,7 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
               variant="ghost"
               size="icon"
               onClick={handleSearchFocus}
-              className="md:hidden text-white/90 hover:bg-white hover:text-black p-2"
+              className="md:hidden text-white/90 hover:bg-gray-700 hover:text-black p-2"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
@@ -389,7 +389,7 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
 
         {/* Mobile Menu (sirf md:hidden, desktop untouched) */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-white/10 bg-gray-900">
+          <div className="md:hidden py-4 border-t border-white/10 bg-gray-900 mt-4">
             <div className="flex flex-col gap-1">
               
               {[
