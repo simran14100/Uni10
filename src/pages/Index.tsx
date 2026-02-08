@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { RunningText } from "@/components/RunningText";
 import { ProductCard } from "@/components/ProductCard";
 import { FeatureRow } from "@/components/FeatureRow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -589,11 +590,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#F5F3ED] overflow-x-hidden sm:overflow-x-visible text-gray-800">
       <Navbar />
+      <RunningText />
 
       {/* Ticker line – header ke niche */}
 
       {/* Product Slider Section */}
-      <ProductSlider className="pt-16" />
+      <ProductSlider className="pt-24" />
     
 
       {/* Featured Products */}
@@ -648,14 +650,14 @@ const Index = () => {
           
           {/* Navigation Buttons - Desktop */}
           <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
           </div>
           
           {/* Navigation Buttons - Mobile */}
           <div className="flex sm:hidden justify-center gap-2 mt-6">
-            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
           </div>
         </Carousel>
       </div>
@@ -720,8 +722,8 @@ const Index = () => {
       
 
       {/* New Arrivals */}
-      <section className="container mx-auto px-4 py-16 md:py-24 bg-background rounded-xl shadow-sm">
-        <div className="text-center mb-10 md:mb-16">
+      <section className="container mx-auto px-4 py-12 md:py-12 bg-background rounded-xl shadow-sm">
+        <div className="text-center mb-8 md:mb-8">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
             New <span className="text-primary">Arrivals</span>
           </h2>

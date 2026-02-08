@@ -16,7 +16,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { RunningText } from "@/components/RunningText";
 
 interface NavbarProps {
   cartItemCount?: number;
@@ -463,7 +462,6 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
         )}
       </div>
     </nav>
-    <RunningText />
     </>
   );
 };
