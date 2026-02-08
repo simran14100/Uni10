@@ -116,31 +116,68 @@ All colors MUST be HSL.
 @media (max-width: 640px) {
   button[data-slot="carousel-previous"],
   button[data-slot="carousel-next"] {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    outline: none;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    outline: none !important;
+    transition: all 0.1s ease !important;
+    border-color: #d1d5db !important;
+    background-color: white !important;
+  }
+  
+  button[data-slot="carousel-previous"]:hover,
+  button[data-slot="carousel-next"]:hover {
+    border-color: #d1d5db !important;
+    background-color: white !important;
   }
   
   button[data-slot="carousel-previous"]:active,
   button[data-slot="carousel-next"]:active {
-    background-color: hsl(var(--background)) !important;
-    border-color: hsl(var(--border)) !important;
-    color: hsl(var(--foreground)) !important;
-    transform: scale(1);
+    background-color: white !important;
+    border-color: #d1d5db !important;
+    color: #374151 !important;
+    transform: scale(1) !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
   }
   
   button[data-slot="carousel-previous"]:focus,
   button[data-slot="carousel-next"]:focus {
-    outline: none;
-    box-shadow: none;
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #d1d5db !important;
+    background-color: white !important;
   }
   
   /* Remove any stuck active states after touch */
   button[data-slot="carousel-previous"].focus-visible,
   button[data-slot="carousel-next"].focus-visible {
-    outline: none;
-    box-shadow: none;
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #d1d5db !important;
+    background-color: white !important;
+  }
+  
+  /* Force reset any stuck states */
+  button[data-slot="carousel-previous"]:not(:hover):not(:active):not(:focus),
+  button[data-slot="carousel-next"]:not(:hover):not(:active):not(:focus) {
+    background-color: white !important;
+    border-color: #d1d5db !important;
+    color: #374151 !important;
+    transform: none !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+  }
+  
+  /* Specific fix for brown border stuck state */
+  button[data-slot="carousel-previous"][style*="border-color"],
+  button[data-slot="carousel-next"][style*="border-color"] {
+    border-color: #d1d5db !important;
+  }
+  
+  /* Override any inline styles that might cause stuck states */
+  button[data-slot="carousel-previous"][style],
+  button[data-slot="carousel-next"][style] {
+    border-color: #d1d5db !important;
+    background-color: white !important;
   }
 }

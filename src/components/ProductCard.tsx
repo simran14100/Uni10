@@ -83,10 +83,10 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
           />
           <button
             onClick={handleWishlistClick}
-            className="absolute top-3 right-2 p-1 bg-white/80 hover:bg-white rounded-full transition-all duration-200 z-10 shadow-md"
+            className="absolute top-3 right-2 p-1.5 bg-white/80 hover:bg-white rounded-full transition-all duration-200 z-10 shadow-md"
           >
             <Heart
-              className="h-3 w-3 transition-all"
+              className="h-3 w-3 sm:h-4 sm:w-4 transition-all"
               fill={isInWishlist(id) ? 'currentColor' : 'none'}
               color={isInWishlist(id) ? 'hsl(var(--primary))' : 'currentColor'}
             />
