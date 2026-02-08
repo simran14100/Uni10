@@ -71,7 +71,7 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
             </div>
           )}
           {(discountPercentage && discountPercentage > 0) || (discountAmount && discountAmount > 0) ? (
-            <div className={`absolute top-3 ${isBestSeller ? 'right-3' : 'left-3'} bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md`}>
+            <div className={`absolute ${isBestSeller ? 'top-12 left-3' : 'top-3 left-3'} bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md`}>
               {discountPercentage && discountPercentage > 0 ? `-${discountPercentage}%` : discountAmount && discountAmount > 0 ? `-₹${discountAmount}` : ''}
             </div>
           ) : null}

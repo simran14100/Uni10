@@ -1319,7 +1319,181 @@ const ProductDetail = () => {
         </div>
 
         <div className="max-w-7xl mx-auto w-full mt-6 sm:mt-8">
-          <div className="flex flex-col md:flex-row bg-white rounded-lg shadow border border-gray-200">
+          {/* Mobile Accordion Layout */}
+          <div className="md:hidden bg-white rounded-lg shadow border border-gray-200">
+            {/* Description Accordion */}
+            <div className="border-b border-gray-200">
+              <button
+                type="button"
+                onClick={() => setActiveTab(activeTab === "description" ? "" : "description")}
+                className="w-full text-left py-3 px-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm font-medium text-gray-900">Description</span>
+                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${activeTab === "description" ? "rotate-180" : ""}`} />
+              </button>
+              {activeTab === "description" && (
+                <div className="px-4 pb-4 animate-in fade-in duration-300">
+                  {product?.longDescription ? (
+                    <div className="prose prose-sm max-w-none">
+                      <div className="text-gray-700 leading-relaxed space-y-3 bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                        {descriptionExpanded || product.longDescription.length <= 250 ? (
+                          <p className="whitespace-pre-wrap break-words text-xs leading-6 text-gray-600 overflow-wrap-break-word px-1">
+                            {escapeHtml(product.longDescription)}
+                          </p>
+                        ) : (
+                          <p className="whitespace-pre-wrap break-words text-xs leading-6 text-gray-600 overflow-wrap-break-word px-1">
+                            {escapeHtml(product.longDescription.substring(0, 250))}...
+                          </p>
+                        )}
+                        {product.longDescription.length > 250 && (
+                          <button
+                            onClick={() => setDescriptionExpanded((v) => !v)}
+                            className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 font-semibold mt-3 text-xs px-4 py-2 rounded-lg hover:bg-primary/5 transition-all border border-primary/20 hover:border-primary/40"
+                          >
+                            {descriptionExpanded ? (
+                              <>
+                                <ChevronUp className="h-3 w-3" />
+                                Show less
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="h-3 w-3" />
+                                Read full description
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 text-xs font-medium">No detailed description available</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Product Details Accordion */}
+            {(product?.highlights?.length || product?.specs?.length) > 0 && (
+              <div className="border-b border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab(activeTab === "additional" ? "" : "additional")}
+                  className="w-full text-left py-3 px-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-sm font-medium text-gray-900">Product Details</span>
+                  <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${activeTab === "additional" ? "rotate-180" : ""}`} />
+                </button>
+                {activeTab === "additional" && (
+                  <div className="px-4 pb-4 animate-in fade-in duration-300">
+                    {product?.highlights && product.highlights.length > 0 && (
+                      <div className="min-w-0 mb-6">
+                        <h4 className="text-base font-bold mb-3 text-gray-900 flex items-center gap-1.5">
+                          <span className="w-1 h-4 bg-primary rounded-full"></span>
+                          Key Features
+                        </h4>
+                        <ul className="space-y-2">
+                          {product.highlights.map((highlight, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-xs text-gray-700 leading-relaxed">
+                              <span className="text-primary font-bold mt-0.5">•</span>
+                              <span>{highlight}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {product?.specs && product.specs.length > 0 && (
+                      <div className="min-w-0">
+                        <h4 className="text-base font-bold mb-3 text-gray-900 flex items-center gap-1.5">
+                          <span className="w-1 h-4 bg-primary rounded-full"></span>
+                          Specifications
+                        </h4>
+                        <div className="space-y-2">
+                          {product.specs.map((spec, idx) => (
+                            <div key={idx} className="flex items-start justify-between py-2 border-b border-gray-100 last:border-0">
+                              <span className="text-xs font-medium text-gray-900 min-w-0 flex-1">{spec.key}</span>
+                              <span className="text-xs text-gray-600 min-w-0 flex-1 text-right">{spec.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* FAQ Accordion */}
+            {product?.faq && product.faq.length > 0 && (
+              <div className="border-b border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab(activeTab === "faq" ? "" : "faq")}
+                  className="w-full text-left py-3 px-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-sm font-medium text-gray-900">FAQ ({product.faq.length})</span>
+                  <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${activeTab === "faq" ? "rotate-180" : ""}`} />
+                </button>
+                {activeTab === "faq" && (
+                  <div className="px-4 pb-4 animate-in fade-in duration-300">
+                    <div className="space-y-3">
+                      {product.faq.map((faq, idx) => (
+                        <div key={idx} className="border border-gray-200 rounded-lg overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
+                            className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                          >
+                            <span className="text-xs font-medium text-gray-900 pr-2">{faq.question}</span>
+                            <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform flex-shrink-0 ${openFaqIndex === idx ? "rotate-180" : ""}`} />
+                          </button>
+                          {openFaqIndex === idx && (
+                            <div className="px-4 py-3 bg-white border-t border-gray-200">
+                              <p className="text-xs text-gray-700 leading-relaxed">{faq.answer}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reviews Accordion */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setActiveTab(activeTab === "reviews" ? "" : "reviews")}
+                className="w-full text-left py-3 px-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm font-medium text-gray-900">Reviews ({product?.reviewCount || 0})</span>
+                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${activeTab === "reviews" ? "rotate-180" : ""}`} />
+              </button>
+              {activeTab === "reviews" && (
+                <div className="px-4 pb-4 animate-in fade-in duration-300">
+                  <ReviewsList
+                    productId={String(product?._id || product?.id)}
+                    reviewKey={reviewKey}
+                    isVerifiedBuyer={isVerifiedBuyer}
+                    onReviewSubmitted={() => {
+                      setReviewKey((prev) => prev + 1);
+                      refetchProduct();
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Tab Layout */}
+          <div className="hidden md:flex bg-white rounded-lg shadow border border-gray-200">
             <div className="md:w-1/4 lg:w-1/5 p-3 sm:p-4 md:p-6">
               <button
                 type="button"
@@ -1379,218 +1553,210 @@ const ProductDetail = () => {
               </button>
             </div>
             <div className="md:w-3/4 lg:w-4/5 p-4 sm:p-5 md:p-8">
-  {activeTab === "description" && (
-    <div ref={descriptionRef} className="space-y-4 animate-in fade-in duration-300">
-      <div>
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-          Product Description
-        </h3>
-        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
-      </div>
-      
-      {product?.longDescription ? (
-        <div className="prose prose-sm sm:prose-base max-w-none">
-          <div className="text-gray-700 leading-relaxed space-y-3 bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
-            {descriptionExpanded || product.longDescription.length <= 250 ? (
-              <p className="whitespace-pre-wrap break-words text-xs sm:text-sm leading-6 text-gray-600 overflow-wrap-break-word px-1">
-                {escapeHtml(product.longDescription)}
-              </p>
-            ) : (
-              <p className="whitespace-pre-wrap break-words text-xs sm:text-sm leading-6 text-gray-600 overflow-wrap-break-word px-1">
-                {escapeHtml(product.longDescription.substring(0, 250))}...
-              </p>
-            )}
-            {product.longDescription.length > 250 && (
-              <button
-                onClick={() => setDescriptionExpanded((v) => !v)}
-                className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 font-semibold mt-3 text-xs px-4 py-2 rounded-lg hover:bg-primary/5 transition-all border border-primary/20 hover:border-primary/40"
-              >
-                {descriptionExpanded ? (
-                  <>
-                    <ChevronUp className="h-3 w-3" />
-                    Show less
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="h-3 w-3" />
-                    Read full description
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
-          <div className="max-w-md mx-auto">
-            <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <p className="text-gray-500 text-xs font-medium">No detailed description available</p>
-          </div>
-        </div>
-      )}
-    </div>
-  )}
-
-  {activeTab === "additional" && (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div>
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-          Additional Information
-        </h3>
-        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
-      </div>
-      
-      {product?.highlights && product.highlights.length > 0 && (
-        <div className="min-w-0">
-          <h4 className="text-base sm:text-lg font-bold mb-4 text-gray-900 flex items-center gap-1.5">
-            <span className="w-0.5 h-5 bg-primary rounded-full"></span>
-            Key Highlights
-          </h4>
-          <div className="grid gap-2.5">
-            {product.highlights.map((highlight, idx) => (
-              <div 
-                key={idx} 
-                className="group flex items-center gap-3 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200"
-              >
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center mt-0.5 group-hover:scale-110 transition-transform">
-                  <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
-                </span>
-                <span className="text-gray-700 leading-relaxed text-xs sm:text-sm font-medium">
-                  {highlight}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {product?.specs && product.specs.length > 0 && (
-        <div className="min-w-0">
-          <h4 className="text-base sm:text-lg font-bold mb-4 text-gray-900 flex items-center gap-1.5">
-            <span className="w-0.5 h-5 bg-primary rounded-full"></span>
-            Technical Specifications
-          </h4>
-          <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
-            <table className="w-full">
-              <tbody className="divide-y divide-gray-100">
-                {product.specs.map((spec, idx) => (
-                  <tr
-                    key={idx}
-                    className={cn(
-                      "hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200",
-                      idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                    )}
-                  >
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold text-gray-900 w-2/5">
-                      {spec.key}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 font-medium">
-                      {spec.value}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-      
-      {(!product?.highlights?.length && !product?.specs?.length) && (
-        <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
-          <div className="max-w-md mx-auto">
-            <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <p className="text-gray-500 text-xs font-medium">No additional information available</p>
-          </div>
-        </div>
-      )}
-    </div>
-  )}
-
-  {activeTab === "faq" && product?.faq && product.faq.length > 0 && (
-    <div className="space-y-4 animate-in fade-in duration-300">
-      <div>
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-          Frequently Asked Questions
-        </h3>
-        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
-      </div>
-      
-      <div className="space-y-3">
-        {product.faq.map((item, index) => {
-          const isOpen = openFaqIndex === index;
-          return (
-            <div
-              key={index}
-              className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-            >
-              <button
-                type="button"
-                onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                className="w-full text-left p-4 sm:p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
-              >
-                <h4 className="text-sm sm:text-base font-semibold text-gray-900 pr-4">
-                  {item.question}
-                </h4>
-                <ChevronDown
-                  className={cn(
-                    "h-5 w-5 text-gray-500 flex-shrink-0 transition-transform duration-300",
-                    isOpen && "rotate-180"
+              {/* Desktop Content */}
+              {activeTab === "description" && (
+                <div ref={descriptionRef} className="space-y-4 animate-in fade-in duration-300">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                      Product Description
+                    </h3>
+                    <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+                  </div>
+                  
+                  {product?.longDescription ? (
+                    <div className="prose prose-sm sm:prose-base max-w-none">
+                      <div className="text-gray-700 leading-relaxed space-y-3 bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
+                        {descriptionExpanded || product.longDescription.length <= 250 ? (
+                          <p className="whitespace-pre-wrap break-words text-xs sm:text-sm leading-6 text-gray-600 overflow-wrap-break-word px-1">
+                            {escapeHtml(product.longDescription)}
+                          </p>
+                        ) : (
+                          <p className="whitespace-pre-wrap break-words text-xs sm:text-sm leading-6 text-gray-600 overflow-wrap-break-word px-1">
+                            {escapeHtml(product.longDescription.substring(0, 250))}...
+                          </p>
+                        )}
+                        {product.longDescription.length > 250 && (
+                          <button
+                            onClick={() => setDescriptionExpanded((v) => !v)}
+                            className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 font-semibold mt-3 text-xs px-4 py-2 rounded-lg hover:bg-primary/5 transition-all border border-primary/20 hover:border-primary/40"
+                          >
+                            {descriptionExpanded ? (
+                              <>
+                                <ChevronUp className="h-3 w-3" />
+                                Show less
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="h-3 w-3" />
+                                Read full description
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
+                      <div className="max-w-md mx-auto">
+                        <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 text-xs font-medium">No detailed description available</p>
+                      </div>
+                    </div>
                   )}
-                />
-              </button>
-              <div
-                className={cn(
-                  "transition-all duration-300 ease-in-out overflow-hidden",
-                  isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                )}
-              >
-                <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
-                  <div className="border-t border-gray-200 pt-4">
-                    <p className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
-                      {item.answer}
-                    </p>
+                </div>
+              )}
+
+              {activeTab === "additional" && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                      Additional Information
+                    </h3>
+                    <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+                  </div>
+                  
+                  {product?.highlights && product.highlights.length > 0 && (
+                    <div className="min-w-0">
+                      <h4 className="text-base sm:text-lg font-bold mb-4 text-gray-900 flex items-center gap-1.5">
+                        <span className="w-1 h-4 bg-primary rounded-full"></span>
+                        Key Features
+                      </h4>
+                      <ul className="space-y-3">
+                        {product.highlights.map((highlight, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed">
+                            <span className="text-primary font-bold mt-1">•</span>
+                            <span>{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {product?.specs && product.specs.length > 0 && (
+                    <div className="min-w-0">
+                      <h4 className="text-base sm:text-lg font-bold mb-4 text-gray-900 flex items-center gap-1.5">
+                        <span className="w-0.5 h-5 bg-primary rounded-full"></span>
+                        Technical Specifications
+                      </h4>
+                      <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
+                        <table className="w-full">
+                          <tbody className="divide-y divide-gray-100">
+                            {product.specs.map((spec, idx) => (
+                              <tr
+                                key={idx}
+                                className={cn(
+                                  "hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200",
+                                  idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                                )}
+                              >
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold text-gray-900 w-2/5">
+                                  {spec.key}
+                                </td>
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 font-medium">
+                                  {spec.value}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {(!product?.highlights?.length && !product?.specs?.length) && (
+                    <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
+                      <div className="max-w-md mx-auto">
+                        <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 text-xs font-medium">No additional information available</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "faq" && product?.faq && product.faq.length > 0 && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                      Frequently Asked Questions
+                    </h3>
+                    <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {product.faq.map((item, index) => {
+                      const isOpen = openFaqIndex === index;
+                      return (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                            className="w-full text-left p-4 sm:p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                          >
+                            <h4 className="text-sm sm:text-base font-semibold text-gray-900 pr-4">
+                              {item.question}
+                            </h4>
+                            <ChevronDown
+                              className={cn(
+                                "h-5 w-5 text-gray-500 flex-shrink-0 transition-transform duration-300",
+                                isOpen && "rotate-180"
+                              )}
+                            />
+                          </button>
+                          <div
+                            className={cn(
+                              "transition-all duration-300 ease-in-out overflow-hidden",
+                              isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                            )}
+                          >
+                            <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
+                              <div className="border-t border-gray-200 pt-4">
+                                <p className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
+                                  {item.answer}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  )}
+              )}
 
-  {activeTab === "reviews" && (
-    <div className="space-y-4 animate-in fade-in duration-300">
-      <div>
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-          Customer Reviews
-          {product?.reviewCount > 0 && (
-            <span className="text-base font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-              {product.reviewCount}
-            </span>
-          )}
-        </h3>
-        <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
-      </div>
-      <div className="bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6 rounded-xl border border-gray-100">
-        <ReviewsList 
-          key={product?._id || product?.id || ""} 
-          productId={product?._id || product?.id || ""} 
-        />
-      </div>
-    </div>
-  )}
-</div>
+              {activeTab === "reviews" && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                      Customer Reviews
+                      {product?.reviewCount > 0 && (
+                        <span className="text-base font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
+                          {product.reviewCount}
+                        </span>
+                      )}
+                    </h3>
+                    <div className="h-1 w-16 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+                  </div>
+                  <div className="bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6 rounded-xl border border-gray-100">
+                    <ReviewsList 
+                      key={product?._id || product?.id || ""} 
+                      productId={product?._id || product?.id || ""} 
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>

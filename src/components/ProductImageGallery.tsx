@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -78,6 +78,28 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Global mouse up handler to clear active states
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      // Clear any active states by removing focus from all elements
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      // Remove any active classes from buttons
+      document.querySelectorAll('button:active').forEach(el => {
+        (el as HTMLElement).blur();
+      });
+    };
+
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchend', handleGlobalMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
   }, []);
 
   // Get images for the selected color
@@ -271,15 +293,34 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               /* Desktop: Grid with Navigation */
               <div className="space-y-2">
                 <div className="relative flex items-center gap-2">
-                  {thumbScrollPos > 0 && (
+                {(() => {
+                  const canScrollPrev = thumbScrollPos > 0;
+                  return (
                     <button
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={handlePrevThumbnail}
-                      className="absolute -left-10 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/95 border border-border p-2 rounded-full transition-colors z-10 shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                      className={cn(
+                        "absolute -left-10 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-md transition-all duration-200 z-10 focus:outline-none border border-border",
+                        canScrollPrev 
+                          ? "opacity-100 bg-background/80 hover:bg-background/95 active:bg-background/80" 
+                          : "opacity-0 pointer-events-none"
+                      )}
+                      style={{
+                        opacity: canScrollPrev ? 1 : 0,
+                        pointerEvents: canScrollPrev ? 'auto' : 'none',
+                        transition: 'all 200ms ease-in-out',
+                        WebkitUserSelect: 'none',
+                        userSelect: 'none',
+                        WebkitTapHighlightColor: 'transparent',
+                        outline: 'none'
+                      }}
                       aria-label="Previous thumbnails"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
-                  )}
+                  );
+                })()}
+
 
                   <div className="flex-1 overflow-hidden">
                     <div
@@ -312,15 +353,32 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                     </div>
                   </div>
 
-                  {thumbScrollPos < Math.max(0, validImages.length * 88 - 400) && (
-                    <button
-                      onClick={handleNextThumbnail}
-                      className="absolute -right-10 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/95 border border-border p-2 rounded-full transition-colors z-10 shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                      aria-label="Next thumbnails"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  )}
+                  {(() => {
+                    const canScrollNext = thumbScrollPos < Math.max(0, validImages.length * 88 - 400);
+                    return (
+                      <button
+                        onClick={handleNextThumbnail}
+                        className={cn(
+                          "absolute -right-10 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-md transition-all duration-200 z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 border border-border",
+                          canScrollNext 
+                            ? "opacity-100 bg-background/80 hover:bg-background/95 active:bg-background/80" 
+                            : "opacity-0 pointer-events-none"
+                        )}
+                        style={{
+                          opacity: canScrollNext ? 1 : 0,
+                          pointerEvents: canScrollNext ? 'auto' : 'none',
+                          transition: 'all 200ms ease-in-out',
+                          WebkitUserSelect: 'none',
+                          userSelect: 'none',
+                          WebkitTapHighlightColor: 'transparent',
+                          outline: 'none'
+                        }}
+                        aria-label="Next thumbnails"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    );
+                  })()}
                 </div>
 
                 {/* Image Counter */}

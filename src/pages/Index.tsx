@@ -233,6 +233,28 @@ const Index = () => {
     };
   }, []);
 
+  // Global mouse up handler to clear active states from carousel navigation
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      // Clear any active states by removing focus from all elements
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      // Remove any active classes from carousel buttons
+      document.querySelectorAll('button:active').forEach(el => {
+        (el as HTMLElement).blur();
+      });
+    };
+
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchend', handleGlobalMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+
   // Fetch Featured Products
   const { user } = useAuth();
   useEffect(() => {
