@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plane, Luggage, Package, Feather, Home } from "lucide-react";
 
 const AboutUsSection = () => {
+  const [isReadMore, setIsReadMore] = useState(false);
   return (
     <section className="bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white py-12 lg:py-20 relative overflow-hidden">
       {/* Decorative Elements */}
@@ -29,13 +30,39 @@ const AboutUsSection = () => {
                 and our silhouettes are high on the trend quotient.
               </p>
 
-              <p className="text-sm lg:text-base leading-relaxed opacity-90">
-                We source luxe, sustainable fabrics—from buttery-soft premium cottons and breathable linens to innovative technical blends that offer stretch and structure. Our silhouettes are meticulously cut to flatter the form, offering a modern, trend-aware fit that prioritizes freedom of movement without sacrificing a polished aesthetic.
-              </p>
+              {!isReadMore && (
+                <button 
+                  onClick={() => setIsReadMore(true)}
+                  className="text-red-500 hover:text-red-400 font-semibold text-sm uppercase tracking-wider transition-colors duration-200 flex items-center gap-2"
+                >
+                  Read More
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              )}
 
-              <p className="text-sm lg:text-base leading-relaxed opacity-90">
-                UNI10 is more than apparel; it's an enabler of experience. We outfit you for the fluidity of contemporary life, ensuring you are prepared, confident, and impeccably styled for any scenario.
-              </p>
+              {isReadMore && (
+                <>
+                  <p className="text-sm lg:text-base leading-relaxed opacity-90">
+                    We source luxe, sustainable fabrics—from buttery-soft premium cottons and breathable linens to innovative technical blends that offer stretch and structure. Our silhouettes are meticulously cut to flatter the form, offering a modern, trend-aware fit that prioritizes freedom of movement without sacrificing a polished aesthetic.
+                  </p>
+
+                  <p className="text-sm lg:text-base leading-relaxed opacity-90">
+                    UNI10 is more than apparel; it's an enabler of experience. We outfit you for the fluidity of contemporary life, ensuring you are prepared, confident, and impeccably styled for any scenario.
+                  </p>
+
+                  <button 
+                    onClick={() => setIsReadMore(false)}
+                    className="text-red-500 hover:text-red-400 font-semibold text-sm uppercase tracking-wider transition-colors duration-200 flex items-center gap-2"
+                  >
+                    Read Less
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Features Grid */}

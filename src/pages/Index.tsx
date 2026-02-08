@@ -597,10 +597,10 @@ const Index = () => {
     
 
       {/* Featured Products */}
-      <section className="bg-[#f5f2ee] py-12 sm:py-16 lg:py-20">
+      <section className="bg-[#f5f2ee] py-8 sm:py-16 lg:py-12">
   <div className="container mx-auto px-4 sm:px-6">
     {/* Header */}
-    <div className="flex items-center mb-16 sm:mb-20 justify-center">
+    <div className="flex items-center mb-12 sm:mb-20 justify-center">
       <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-center">
         <span className="text-black">Collection</span>
       </h2>
@@ -664,14 +664,11 @@ const Index = () => {
 </section>
 
       {/* Categories grid with product showcase */}
-        <section className="mx-auto px-2 sm:px-4 pb-6 sm:pb-12 pt-6 sm:pt-12">
-        <div className="text-center mb-20">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">
-            Categories
+        <section className="mx-auto px-2 sm:px-4 pb-6 sm:pb-12 pt-6 sm:pt-10">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
+            Shop By <span className="text-primary">Categories</span>
           </h2>
-          <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
-            Shop By <span className="text-[#ba8c5c]">Collections</span>
-          </p>
         </div>
 
         {catsLoading ? (

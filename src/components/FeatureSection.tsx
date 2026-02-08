@@ -11,7 +11,7 @@ export const FeatureSection = () => {
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900">Free Shipping</h3>
-            <p className="text-sm text-gray-600">Free shipping on all US order or order above $100</p>
+            <p className="text-sm text-gray-600">Free shipping on all  order  above 1000</p>
           </div>
         </div>
 

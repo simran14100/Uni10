@@ -45,25 +45,19 @@ export default function InfluencerImageGrid() {
   }, [fetchInfluencerImages]);
 
   return (
-    <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 sm:py-20 lg:py-24">
+    <section className="w-full bg-gradient-to-b from-gray-50 to-white py-8 sm:py-10 lg:py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div className="flex-1"></div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900">
-              Featured <span className="text-amber-700">Collections</span>
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
+              Featured <span className="text-primary">Collections</span>
             </h2>
-            <div className="flex-1 flex justify-end">
-              <Link to="/all-influencers">
-                <button className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-amber-700 hover:bg-amber-800 transition-colors">
-                  Show all influencers
-                </button>
-              </Link>
-            </div>
+            <div className="flex-1"></div>
           </div>
-          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+          {/* <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             Discover our curated selection styled by leading fashion influencers
-          </p>
+          </p> */}
         </div>
 
         {loading ? (
@@ -129,6 +123,15 @@ export default function InfluencerImageGrid() {
             ))}
           </div>
         )}
+        
+        {/* Show all influencers button at the end */}
+        <div className="text-center mt-12">
+          <Link to="/all-influencers">
+            <button className="px-6 py-3 border border-primary text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">
+              Show all influencers
+            </button>
+          </Link>
+        </div>
       </div>
     </section>
   );

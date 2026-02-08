@@ -92,20 +92,20 @@ export default function BestSellerSection() {
   };
 
   return (
-    <section className="pb-16 pt-0 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <section className="pb-8 pt-4 bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full mb-2">
+          {/* <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full mb-2">
             <TrendingUp className="h-4 w-4 text-orange-600" />
             <span className="text-sm font-medium text-orange-600">Best Sellers</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-            <span className="text-orange-600">Best</span> Seller
+          </div> */}
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
+            Best <span className="text-primary">Seller</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          {/* <p className="text-gray-600 max-w-2xl mx-auto">
             Discover our most popular products loved by our customers
-          </p>
+          </p> */}
         </div>
 
         {/* Products Carousel */}
@@ -138,7 +138,7 @@ export default function BestSellerSection() {
         <div className="text-center mt-8">
           <Link
             to="/shop"
-            className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
           >
             <ShoppingBag className="h-5 w-5" />
             View All Products
