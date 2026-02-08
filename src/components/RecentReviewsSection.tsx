@@ -55,8 +55,8 @@ const ReviewCard = ({ review, color, isExpanded, onToggleExpand }: ReviewCardPro
 
   return (
     <div className={`relative ${bgGradient} rounded-3xl p-6 sm:p-8 h-full min-h-[320px] flex flex-col shadow-xl`}>
-      {/* Top Left Quote */}
-      <Quote className={`absolute top-6 left-6 h-10 w-10 ${quoteColor}`} />
+      {/* Bottom Quote (moved from bottom) */}
+      <Quote className={`absolute top-6 left-6 h-10 w-10 ${quoteColor} transform rotate-180`} />
 
       {/* Curved Border Frame */}
       <div className={`absolute top-4 left-4 right-4 bottom-4 border-2 ${borderColor} rounded-3xl pointer-events-none`} />
@@ -125,8 +125,8 @@ const ReviewCard = ({ review, color, isExpanded, onToggleExpand }: ReviewCardPro
         </div>
       </div>
 
-      {/* Bottom Right Quote */}
-      <Quote className={`absolute bottom-6 right-6 h-10 w-10 ${quoteColor} transform rotate-180`} />
+      {/* Top Quote (moved from top) */}
+      <Quote className={`absolute bottom-6 right-6 h-10 w-10 ${quoteColor}`} />
     </div>
   );
 };
