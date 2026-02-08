@@ -131,30 +131,9 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
           <div className={`md:hidden transition-all duration-300 ease-in-out ${
             isSearchExpanded 
               ? 'absolute inset-0 z-50 bg-black px-4' 
-              : 'flex-1 px-2'
+              : 'hidden'
           }`}>
-            {!isSearchExpanded ? (
-              // Normal search bar (collapsed state)
-              <form onSubmit={handleSearch}>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                  <Input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onFocus={handleSearchFocus}
-                    style={{ 
-                      color: '#ffffff',
-                      backgroundColor: 'rgba(31, 41, 55, 0.9)',
-                      borderColor: 'rgb(75, 85, 99)'
-                    }}
-                    className="pl-10 pr-8 h-9 text-sm border-gray-600 placeholder:text-gray-300 focus-visible:ring-white/30 focus-visible:bg-gray-700 focus-visible:border-gray-500 focus-visible:ring-1"
-                    
-                  />
-                </div>
-              </form>
-            ) : (
+            {isSearchExpanded && (
               // Expanded search bar
               <div className="flex items-center h-full">
                 <Button
@@ -318,6 +297,18 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
 
           {/* Actions */}
           <div className="flex items-center gap-1 md:gap-2">
+            {/* Mobile Search Icon - Only visible on mobile */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleSearchFocus}
+              className="md:hidden text-white/90 hover:bg-white hover:text-black p-2"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+            
             {user ? (
               <>
                 {/* Wishlist: mobile pe hidden, desktop pe same jaisa */}

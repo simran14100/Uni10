@@ -266,6 +266,14 @@ const Index = () => {
       document.querySelectorAll('button:active').forEach(el => {
         (el as HTMLElement).blur();
       });
+      // Specifically target carousel navigation buttons
+      document.querySelectorAll('[data-slot="carousel-previous"], [data-slot="carousel-next"]').forEach(el => {
+        (el as HTMLElement).blur();
+      });
+      // Also target any button with carousel-related classes
+      document.querySelectorAll('button[class*="carousel"]').forEach(el => {
+        (el as HTMLElement).blur();
+      });
     };
 
     document.addEventListener('mouseup', handleGlobalMouseUp);
@@ -274,6 +282,45 @@ const Index = () => {
     return () => {
       document.removeEventListener('mouseup', handleGlobalMouseUp);
       document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+
+  // Additional handler specifically for New Arrivals carousel buttons
+  useEffect(() => {
+    const handleNewArrivalsMouseUp = () => {
+      // Target all buttons aggressively
+      const allButtons = document.querySelectorAll('button');
+      allButtons.forEach(el => {
+        (el as HTMLElement).blur();
+        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
+      });
+      
+      // Specifically target New Arrivals carousel buttons
+      const newArrivalsButtons = document.querySelectorAll('.relative button[class*="carousel"], .relative button[class*="CarouselPrevious"], .relative button[class*="CarouselNext"]');
+      newArrivalsButtons.forEach(el => {
+        (el as HTMLElement).blur();
+        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
+        // Force remove any inline styles that might be causing the issue
+        (el as HTMLElement).style.removeProperty('background-color');
+        (el as HTMLElement).style.removeProperty('color');
+        (el as HTMLElement).style.removeProperty('border-color');
+      });
+      
+      // Also target by specific class patterns
+      document.querySelectorAll('[class*="rounded-full"][class*="border-2"]').forEach(el => {
+        (el as HTMLElement).blur();
+        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
+      });
+    };
+
+    document.addEventListener('mouseup', handleNewArrivalsMouseUp);
+    document.addEventListener('touchend', handleNewArrivalsMouseUp);
+    document.addEventListener('click', handleNewArrivalsMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleNewArrivalsMouseUp);
+      document.removeEventListener('touchend', handleNewArrivalsMouseUp);
+      document.removeEventListener('click', handleNewArrivalsMouseUp);
     };
   }, []);
 
@@ -809,14 +856,14 @@ const Index = () => {
               
               {/* Navigation Buttons - Desktop */}
               <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
               </div>
               
               {/* Navigation Buttons - Mobile */}
               <div className="flex sm:hidden justify-center gap-2 mt-6">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c]  transition-all" />
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
               </div>
             </Carousel>
             
