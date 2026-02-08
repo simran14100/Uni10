@@ -114,13 +114,28 @@ All colors MUST be HSL.
 
 /* Fix for mobile button active states in all carousel navigation */
 @media (max-width: 640px) {
+  /* Universal button reset - catch all */
+  button {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    outline: none !important;
+  }
+  
+  /* Specific carousel button targeting */
   button[data-slot="carousel-previous"],
   button[data-slot="carousel-next"],
   .carousel-previous,
   .carousel-next,
   button[class*="carousel"],
   button[class*="CarouselPrevious"],
-  button[class*="CarouselNext"] {
+  button[class*="CarouselNext"],
+  /* Additional universal selectors */
+  button.rounded-full,
+  button[class*="border-2"],
+  button[class*="h-10"],
+  button[class*="w-10"] {
     -webkit-tap-highlight-color: transparent !important;
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
@@ -137,7 +152,11 @@ All colors MUST be HSL.
   .carousel-next:hover,
   button[class*="carousel"]:hover,
   button[class*="CarouselPrevious"]:hover,
-  button[class*="CarouselNext"]:hover {
+  button[class*="CarouselNext"]:hover,
+  button.rounded-full:hover,
+  button[class*="border-2"]:hover,
+  button[class*="h-10"]:hover,
+  button[class*="w-10"]:hover {
     border-color: #d1d5db !important;
     background-color: white !important;
   }
@@ -148,7 +167,11 @@ All colors MUST be HSL.
   .carousel-next:active,
   button[class*="carousel"]:active,
   button[class*="CarouselPrevious"]:active,
-  button[class*="CarouselNext"]:active {
+  button[class*="CarouselNext"]:active,
+  button.rounded-full:active,
+  button[class*="border-2"]:active,
+  button[class*="h-10"]:active,
+  button[class*="w-10"]:active {
     background-color: white !important;
     border-color: #d1d5db !important;
     color: #374151 !important;
@@ -162,7 +185,11 @@ All colors MUST be HSL.
   .carousel-next:focus,
   button[class*="carousel"]:focus,
   button[class*="CarouselPrevious"]:focus,
-  button[class*="CarouselNext"]:focus {
+  button[class*="CarouselNext"]:focus,
+  button.rounded-full:focus,
+  button[class*="border-2"]:focus,
+  button[class*="h-10"]:focus,
+  button[class*="w-10"]:focus {
     outline: none !important;
     box-shadow: none !important;
     border-color: #d1d5db !important;
@@ -176,7 +203,11 @@ All colors MUST be HSL.
   .carousel-next.focus-visible,
   button[class*="carousel"].focus-visible,
   button[class*="CarouselPrevious"].focus-visible,
-  button[class*="CarouselNext"].focus-visible {
+  button[class*="CarouselNext"].focus-visible,
+  button.rounded-full.focus-visible,
+  button[class*="border-2"].focus-visible,
+  button[class*="h-10"].focus-visible,
+  button[class*="w-10"].focus-visible {
     outline: none !important;
     box-shadow: none !important;
     border-color: #d1d5db !important;
@@ -190,7 +221,11 @@ All colors MUST be HSL.
   .carousel-next:not(:hover):not(:active):not(:focus),
   button[class*="carousel"]:not(:hover):not(:active):not(:focus),
   button[class*="CarouselPrevious"]:not(:hover):not(:active):not(:focus),
-  button[class*="CarouselNext"]:not(:hover):not(:active):not(:focus) {
+  button[class*="CarouselNext"]:not(:hover):not(:active):not(:focus),
+  button.rounded-full:not(:hover):not(:active):not(:focus),
+  button[class*="border-2"]:not(:hover):not(:active):not(:focus),
+  button[class*="h-10"]:not(:hover):not(:active):not(:focus),
+  button[class*="w-10"]:not(:hover):not(:active):not(:focus) {
     background-color: white !important;
     border-color: #d1d5db !important;
     color: #374151 !important;
@@ -205,7 +240,11 @@ All colors MUST be HSL.
   .carousel-next[style*="border-color"],
   button[class*="carousel"][style*="border-color"],
   button[class*="CarouselPrevious"][style*="border-color"],
-  button[class*="CarouselNext"][style*="border-color"] {
+  button[class*="CarouselNext"][style*="border-color"],
+  button.rounded-full[style*="border-color"],
+  button[class*="border-2"][style*="border-color"],
+  button[class*="h-10"][style*="border-color"],
+  button[class*="w-10"][style*="border-color"] {
     border-color: #d1d5db !important;
   }
   
@@ -216,7 +255,17 @@ All colors MUST be HSL.
   .carousel-next[style],
   button[class*="carousel"][style],
   button[class*="CarouselPrevious"][style],
-  button[class*="CarouselNext"][style] {
+  button[class*="CarouselNext"][style],
+  button.rounded-full[style],
+  button[class*="border-2"][style],
+  button[class*="h-10"][style],
+  button[class*="w-10"][style] {
+    border-color: #d1d5db !important;
+    background-color: white !important;
+  }
+  
+  /* Aggressive universal reset for any button with inline styles */
+  button[style] {
     border-color: #d1d5db !important;
     background-color: white !important;
   }
