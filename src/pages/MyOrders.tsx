@@ -9,9 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Loader2, Package, ArrowRight, AlertCircle } from 'lucide-react';
+import { Loader2, Package, ArrowRight, AlertCircle, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { ReviewModal } from '@/components/ReviewModal';
 
 interface OrderItem {
   id: string;
@@ -74,6 +75,8 @@ const MyOrders = () => {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -371,6 +374,40 @@ const MyOrders = () => {
                         </Button>
                       </Link>
 
+                      {order.status === 'delivered' && (
+                        <div className="flex flex-col gap-1">
+                          {order.items.slice(0, 2).map((item, index) => (
+                            <Button
+                              key={`${item.id}-${index}`}
+                              size="sm"
+                              variant="secondary"
+                              className="w-full text-xs justify-start"
+                              onClick={() => {
+                                setSelectedProduct({ id: item.id, name: item.title });
+                                setShowReviewModal(true);
+                              }}
+                            >
+                              <Star className="h-3 w-3 mr-1" />
+                              Review {item.title.length > 20 ? item.title.substring(0, 20) + '...' : item.title}
+                            </Button>
+                          ))}
+                          {order.items.length > 2 && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full text-xs"
+                              onClick={() => {
+                                setSelectedProduct({ id: order.items[0].id, name: 'Multiple Items' });
+                                setShowReviewModal(true);
+                              }}
+                            >
+                              <Star className="h-3 w-3 mr-1" />
+                              Review More Items
+                            </Button>
+                          )}
+                        </div>
+                      )}
+
                       {isReturnWindowActive(order) && (!order.returnStatus || order.returnStatus === 'None' || order.returnStatus === 'Rejected') ? (
                         <Dialog open={returnDialogOpen} onOpenChange={setReturnDialogOpen}>
                           <DialogTrigger asChild>
@@ -575,6 +612,19 @@ const MyOrders = () => {
         )}
       </main>
       <Footer />
+      
+      {/* Review Modal */}
+      {selectedProduct && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => {
+            setShowReviewModal(false);
+            setSelectedProduct(null);
+          }}
+          productId={selectedProduct.id}
+          productName={selectedProduct.name}
+        />
+      )}
     </div>
   );
 };

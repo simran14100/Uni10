@@ -140,7 +140,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedGender, setSelectedGender] = useState<string>("All");
   const [selectedGenderSubcategory, setSelectedGenderSubcategory] = useState<string>("All");
-  const [selectedColor, setSelectedColor] = useState<string>("All");
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSize, setSelectedSize] = useState<string>("All");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]); // Increased default price range
   const [priceSort, setPriceSort] = useState<string>("none"); // "none", "low-to-high", "high-to-low"
@@ -284,11 +284,11 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
     }
   }, [location.search]);
 
-  const handleClearFilters = () => {
+  const resetFilters = () => {
     setSelectedCategory("All");
     setSelectedGender("All");
     setSelectedGenderSubcategory("All");
-    setSelectedColor("All");
+    setSelectedColors([]);
     setSelectedSize("All");
     setPriceRange([0, 5000]); // Updated to match new default
     setPriceSort("none");
@@ -298,10 +298,11 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
   // ✅ Products per page based on device
   const PRODUCTS_PER_PAGE = isMobile ? 8 : 16;
 
+
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, sortBy, collectionSlug, selectedCategory, selectedGender, selectedColor, selectedSize, priceRange, productUpdateKey]);
+  }, [searchQuery, sortBy, collectionSlug, selectedCategory, selectedGender, selectedColors, selectedSize, priceRange, productUpdateKey]);
 
   // Add this new useEffect for custom event
   useEffect(() => {
@@ -341,59 +342,142 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
     };
   }, []);
 
-  const fetchProducts = async () => {
-    console.log('fetchProducts called in Shop.tsx');
+useEffect(() => {
+  let ignore = false;
+  (async () => {
     try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (searchQuery) params.append("q", searchQuery);
-      if (collectionSlug) params.append("category", collectionSlug);
-      if (selectedCategory !== "All") params.append("category", selectedCategory);
-      if (selectedGender !== "All") params.append("gender", selectedGender.toLowerCase());
-      if (selectedColor !== "All") params.append("colors", selectedColor);
-      if (selectedSize !== "All") params.append("sizes", selectedSize);
-      params.append("minPrice", String(priceRange[0]));
-      params.append("maxPrice", String(priceRange[1]));
-      params.append("active", "all");
-      params.append("limit", "200");
+      const { ok, json } = await api("/api/categories");
+      const list =
+        ok && Array.isArray(json?.data)
+          ? (json.data as Array<CategoryWithParent>)
+          : [];
+      // Filter to only show subcategories (where parent !== null)
+      const subcategories = list.filter((c) => c.parent !== null && c.parent !== undefined);
+      const names = subcategories
+        .map((c) => String(c.name || c.slug || "").trim())
+        .filter(Boolean);
+      if (!ignore) setApiCategories(names);
+    } catch {
+      if (!ignore) setApiCategories([]);
+    }
+  })();
+  return () => {
+    ignore = true;
+  };
+}, []);
 
+const fetchProducts = async () => {
+  console.log('fetchProducts called in Shop.tsx');
+  try {
+    setLoading(true);
+    
+    // If multiple colors selected, make separate API calls and combine results
+    if (selectedColors.length > 1) {
+      console.log('Multiple colors selected, making separate API calls');
+      const allProducts = new Set();
+      
+      for (const color of selectedColors) {
+        const params = new URLSearchParams();
+        if (searchQuery) params.append("q", searchQuery);
+        if (collectionSlug) params.append("category", collectionSlug);
+        if (selectedCategory !== "All") params.append("category", selectedCategory);
+        if (selectedGender !== "All") params.append("gender", selectedGender.toLowerCase());
+        params.append("colors", color); // Send one color at a time
+        if (selectedSize !== "All") params.append("sizes", selectedSize);
+        params.append("minPrice", String(priceRange[0]));
+        params.append("maxPrice", String(priceRange[1]));
+        params.append("active", "all");
+        params.append("limit", "200");
 
-      const query = params.toString();
-      const url = query ? `/api/products?${query}` : "/api/products";
-      const { ok, json } = await api(url);
-      if (!ok) throw new Error(json?.message || json?.error || "Failed to load");
-
-      let list = Array.isArray(json?.data)
-        ? (json.data as ProductRow[])
-        : [];
-      console.log('Products fetched by Shop.tsx:', list);
-      console.log('Selected filters:', {
-        selectedCategory,
-        selectedGender,
-        selectedColor,
-        selectedSize,
-        priceRange
-      });
-
+        const query = params.toString();
+        const url = query ? `/api/products?${query}` : "/api/products";
+        const { ok, json } = await api(url);
+        
+        if (ok && json?.data) {
+          json.data.forEach((product: any) => {
+            // Use product ID as key to avoid duplicates
+            allProducts.add(JSON.stringify(product));
+          });
+        }
+      }
+      
+      // Convert Set back to array
+      const list = Array.from(allProducts).map(p => JSON.parse(p as string));
+      console.log('Combined products from multiple API calls:', list.length);
+      
+      // Continue with the rest of the processing
+      let processedList = list;
       if (sortBy === "newest") {
-        list = list.sort((a, b) => {
+        processedList = processedList.sort((a, b) => {
           const dateA = new Date(a.createdAt || "").getTime();
           const dateB = new Date(b.createdAt || "").getTime();
           return dateB - dateA;
         });
       }
 
-      setProducts(list);
-      setCurrentPage(1);
-    } catch (e: any) {
-      toast.error(e?.message || "Failed to load products");
-      setProducts([]);
-    } finally {
+      setProducts(processedList);
       setLoading(false);
+      return;
     }
-  };
+    
+    // Single color or no colors - use original API call
+    const params = new URLSearchParams();
+    if (searchQuery) params.append("q", searchQuery);
+    if (collectionSlug) params.append("category", collectionSlug);
+    if (selectedCategory !== "All") params.append("category", selectedCategory);
+    if (selectedGender !== "All") params.append("gender", selectedGender.toLowerCase());
+    if (selectedColors.length > 0) {
+      const colorsString = selectedColors.join(",");
+      params.append("colors", colorsString);
+      console.log('Sending colors to API:', colorsString);
+    }
+    if (selectedSize !== "All") params.append("sizes", selectedSize);
+    params.append("minPrice", String(priceRange[0]));
+    params.append("maxPrice", String(priceRange[1]));
+    params.append("active", "all");
+    params.append("limit", "200");
 
-  const categories = useMemo(() => {
+    const query = params.toString();
+    const url = query ? `/api/products?${query}` : "/api/products";
+    const { ok, json } = await api(url);
+    if (!ok) throw new Error(json?.message || json?.error || "Failed to load");
+
+    let list = Array.isArray(json?.data)
+      ? (json.data as ProductRow[])
+      : [];
+    console.log('Products fetched by Shop.tsx:', list);
+    console.log('Selected filters:', {
+      selectedCategory,
+      selectedGender,
+      selectedColors,
+      selectedSize,
+      priceRange
+    });
+
+    if (sortBy === "newest") {
+      list = list.sort((a, b) => {
+        const dateA = new Date(a.createdAt || "").getTime();
+        const dateB = new Date(b.createdAt || "").getTime();
+        return dateB - dateA;
+      });
+    }
+
+    setProducts(list);
+    setLoading(false);
+  } catch (error: any) {
+    console.error("Failed to fetch products:", error);
+    toast({
+      title: "Error",
+      description: error.message || "Failed to load products",
+      variant: "destructive",
+    });
+    setProducts([]);
+    setLoading(false);
+  }
+};
+
+  // Available categories (filtered to subcategories only)
+  const availableCategories = useMemo(() => {
     const cats = new Set<string>(["All"]);
     // Only add categories that are in apiCategories (which are filtered to subcategories only)
     apiCategories.forEach((n) => {
@@ -468,9 +552,9 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
       }
     }
 
-    if (selectedColor !== "All") {
+    if (selectedColors.length > 0) {
       result = result.filter(
-        (p) => p.colors?.some(c => c.toLowerCase() === selectedColor.toLowerCase())
+        (p) => p.colors?.some(c => selectedColors.some(selectedColor => c.toLowerCase() === selectedColor.toLowerCase()))
       );
       console.log('After color filter:', result.length, 'products');
     }
@@ -496,7 +580,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
 
     console.log('Final filtered products:', result.length);
     return result;
-  }, [products, selectedCategory, selectedGender, selectedGenderSubcategory, selectedColor, selectedSize, priceRange, priceSort]);
+  }, [products, selectedCategory, selectedGender, selectedGenderSubcategory, selectedColors, selectedSize, priceRange, priceSort]);
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const startIdx = (currentPage - 1) * PRODUCTS_PER_PAGE;
@@ -533,7 +617,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
-              onClick={handleClearFilters}
+              onClick={resetFilters}
               className="hidden lg:flex items-center shrink-0"
             >
               <XCircle className="w-4 h-4 mr-2" /> Clear Filters
@@ -607,7 +691,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                   {/* Clear Filters Button (Mobile) */}
                   <Button
                     variant="outline"
-                    onClick={handleClearFilters}
+                    onClick={resetFilters}
                     className="w-full flex items-center"
                   >
                     <XCircle className="w-4 h-4 mr-2" /> Clear Filters
@@ -619,7 +703,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                       Categories <ChevronDown className="w-4 h-4" />
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2 space-y-2">
-                      {categories.map((category) => (
+                      {availableCategories.map((category) => (
                         <Button
                           key={category}
                           variant={selectedCategory === category ? "default" : "ghost"}
@@ -690,6 +774,15 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                       Color <ChevronDown className="w-4 h-4" />
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2 space-y-2">
+                      {/* Show selected colors */}
+                      {selectedColors.length > 0 && (
+                        <div className="mb-4 p-2 bg-blue-50 rounded text-sm">
+                          <strong>Selected Colors ({selectedColors.length}):</strong> {selectedColors.join(', ')}
+                        </div>
+                      )}
+                      
+                      
+                      
                       {(showAllColors ? availableColors : availableColors.slice(0, 10)).map((color) => {
                         const colorData = staticColors.find(c => c.name === color);
                         const displayColor = colorData ? colorData.hex : "#808080"; // Default to grey
@@ -698,12 +791,15 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                             <input
                               type="checkbox"
                               id={`mobile-color-${color}`}
-                              checked={selectedColor === color}
+                              checked={selectedColors.includes(color)}
                               onChange={() => {
-                                setSelectedColor(color);
+                                if (selectedColors.includes(color)) {
+                                  setSelectedColors(selectedColors.filter(c => c !== color));
+                                } else {
+                                  setSelectedColors([...selectedColors, color]);
+                                }
                                 setCurrentPage(1);
                               }}
-                              className="appearance-none bg-white h-4 w-4 border border-gray-400 rounded-sm cursor-pointer checked:bg-blue-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             />
                             <label htmlFor={`mobile-color-${color}`} className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200">
                               <span
@@ -826,7 +922,7 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                   Categories <ChevronDown className="w-4 h-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 pb-2 space-y-2">
-                  {categories.map((category) => (
+                  {availableCategories.map((category) => (
                     <Button
                       key={category}
                       variant={selectedCategory === category ? "default" : "ghost"}
@@ -903,12 +999,15 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
                         <input
                           type="checkbox"
                           id={`color-${color}`}
-                          checked={selectedColor === color}
+                          checked={selectedColors.includes(color)}
                           onChange={() => {
-                            setSelectedColor(color);
+                            if (selectedColors.includes(color)) {
+                              setSelectedColors(selectedColors.filter(c => c !== color));
+                            } else {
+                              setSelectedColors([...selectedColors, color]);
+                            }
                             setCurrentPage(1);
                           }}
-                          className="appearance-none bg-white h-4 w-4 border border-gray-400 rounded-sm cursor-pointer checked:bg-blue-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         />
                         <label htmlFor={`color-${color}`} className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200">
                           <span

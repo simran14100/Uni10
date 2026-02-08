@@ -209,14 +209,6 @@ const Wishlist = () => {
                       <p className="text-sm sm:text-lg font-bold">
                         ₹{Number(product.price || 0).toLocaleString('en-IN')}
                       </p>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemove(id); }}
-                        className="h-8 w-8 sm:h-10 sm:w-10"
-                      >
-                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                      </Button>
                     </div>
                   </div>
                 </Card>

@@ -18,6 +18,71 @@ const Cart = () => {
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [productData, setProductData] = useState<Record<string, any>>({});
+
+  // Fetch product data for color images
+  useEffect(() => {
+    const uniqueProductIds = [...new Set(items.map(item => item.id))];
+    
+    uniqueProductIds.forEach(async (productId) => {
+      if (!productData[productId]) {
+        try {
+          const response = await fetch(`/api/products/${productId}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.ok && data.data) {
+              setProductData(prev => ({
+                ...prev,
+                [productId]: data.data
+              }));
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch product data:', error);
+        }
+      }
+    });
+  }, [items]);
+
+  // Helper function to get color-specific image
+  const getColorImage = (item: any): string => {
+    console.log('Cart getColorImage called with:', {
+      hasColor: !!item.meta?.color,
+      color: item.meta?.color,
+      hasColorVariants: !!item.colorVariants,
+      hasColorImages: !!item.colorImages,
+      originalImage: item.image
+    });
+    
+    if (!item.meta?.color) return item.image;
+    
+    // Get product data for color images
+    const product = productData[item.id] || (item.colorVariants && item.colorVariants.length > 0 ? item : null);
+    
+    if (!product) return item.image;
+    
+    // Try colorVariants first (new structure)
+    const colorVariants = product.colorVariants || item.colorVariants;
+    if (colorVariants && Array.isArray(colorVariants)) {
+      const variant = colorVariants.find((cv: any) => cv.colorName === item.meta.color);
+      console.log('Found variant:', variant);
+      if (variant && Array.isArray(variant.images) && variant.images.length > 0) {
+        console.log('Using variant image:', variant.images[0]);
+        return variant.images[0];
+      }
+    }
+    
+    // Fallback to colorImages (old structure)
+    const colorImages = product.colorImages || item.colorImages;
+    if (colorImages && typeof colorImages === 'object' && colorImages[item.meta.color]?.length > 0) {
+      console.log('Using colorImages:', colorImages[item.meta.color][0]);
+      return colorImages[item.meta.color][0];
+    }
+    
+    // Default to original image
+    console.log('Using default image:', item.image);
+    return item.image;
+  };
 
   useEffect(() => {
     const couponFromUrl = searchParams.get('coupon');
@@ -110,10 +175,13 @@ const Cart = () => {
               {items.map((item) => (
                 <Card key={item.cartKey || item.id} className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-2 sm:gap-4">
-                    {item.image && <img src={item.image} alt={item.title} className="w-16 sm:w-20 h-16 sm:h-20 object-cover rounded flex-shrink-0" />}
+                    {item.image && <img src={getColorImage(item)} alt={item.title} className="w-16 sm:w-20 h-16 sm:h-20 object-cover rounded flex-shrink-0" />}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-xs sm:text-base line-clamp-2">{item.title}</h3>
-                      {item.meta?.size && <p className="text-xs sm:text-sm text-muted-foreground">Size: {item.meta.size}</p>}
+                      <div className="flex flex-col gap-1">
+                        {item.meta?.size && <p className="text-xs sm:text-sm text-muted-foreground">Size: {item.meta.size}</p>}
+                        {item.meta?.color && <p className="text-xs sm:text-sm text-muted-foreground">Color: {item.meta.color}</p>}
+                      </div>
                       <p className="font-bold mt-1 text-xs sm:text-base">₹{(item.price || 0).toLocaleString("en-IN")}</p>
                     </div>
                   </div>

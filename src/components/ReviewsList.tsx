@@ -171,16 +171,6 @@ export const ReviewsList = ({ productId }: ReviewsListProps) => {
             </span>
           </div>
         </div>
-        
-        {user && (
-          <Button
-            onClick={() => setShowReviewForm(!showReviewForm)}
-            variant="outline"
-          >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Write a Review
-          </Button>
-        )}
       </div>
 
       {/* Review Form */}

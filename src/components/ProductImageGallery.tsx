@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductImageGalleryProps {
@@ -13,6 +13,12 @@ interface ProductImageGalleryProps {
     images: string[];
     primaryImageIndex?: number;
   }>;
+  productId?: string;
+  showWishlistButton?: boolean;
+  showShareButton?: boolean;
+  onWishlistClick?: () => void;
+  onShareClick?: () => void;
+  isInWishlist?: boolean;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
@@ -55,6 +61,12 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   selectedColor,
   colorImages,
   colorVariants,
+  productId,
+  showWishlistButton = false,
+  showShareButton = false,
+  onWishlistClick,
+  onShareClick,
+  isInWishlist = false,
 }) => {
   console.log('images prop:', images);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -165,6 +177,40 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           alt={productTitle}
           className="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-110"
         />
+
+        {/* Wishlist and Share Buttons */}
+        <div className="absolute top-3 right-3 flex gap-2 z-10">
+          {showWishlistButton && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onWishlistClick?.();
+              }}
+              className="p-2 bg-white/90 hover:bg-white rounded-full transition-all duration-200 shadow-md"
+              aria-label="Add to wishlist"
+            >
+              <Heart
+                className="h-5 w-5 transition-all"
+                fill={isInWishlist ? 'rgb(239, 68, 68)' : 'none'}
+                color={isInWishlist ? 'rgb(239, 68, 68)' : 'rgb(0, 0, 0)'}
+              />
+            </button>
+          )}
+          {showShareButton && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onShareClick?.();
+              }}
+              className="p-2 bg-white/90 hover:bg-white rounded-full transition-all duration-200 shadow-md"
+              aria-label="Share product"
+            >
+              <Share2 className="h-5 w-5" />
+            </button>
+          )}
+        </div>
 
         {/* Navigation Arrows and Counter (visible on both mobile and desktop) */}
         {hasMultiple && (

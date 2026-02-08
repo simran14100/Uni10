@@ -49,10 +49,75 @@ async function safeParseResponse<T = any>(response: Response): Promise<T> {
   }
 }
 
+// Helper function to get color-specific image
+const getColorImage = (item: any): string => {
+  console.log('CheckoutPayment getColorImage called with:', {
+    hasColor: !!item.meta?.color,
+    color: item.meta?.color,
+    hasColorVariants: !!item.colorVariants,
+    hasColorImages: !!item.colorImages,
+    originalImage: item.image
+  });
+  
+  if (!item.meta?.color) return item.image;
+  
+  // Get product data for color images
+  const product = productData[item.id] || (item.colorVariants && item.colorVariants.length > 0 ? item : null);
+  
+  if (!product) return item.image;
+  
+  // Try colorVariants first (new structure)
+  const colorVariants = product.colorVariants || item.colorVariants;
+  if (colorVariants && Array.isArray(colorVariants)) {
+    const variant = colorVariants.find((cv: any) => cv.colorName === item.meta.color);
+    console.log('Found variant:', variant);
+    if (variant && Array.isArray(variant.images) && variant.images.length > 0) {
+      console.log('Using variant image:', variant.images[0]);
+      return variant.images[0];
+    }
+  }
+  
+  // Fallback to colorImages (old structure)
+  const colorImages = product.colorImages || item.colorImages;
+  if (colorImages && typeof colorImages === 'object' && colorImages[item.meta.color]?.length > 0) {
+    console.log('Using colorImages:', colorImages[item.meta.color][0]);
+    return colorImages[item.meta.color][0];
+  }
+  
+  // Default to original image
+  console.log('Using default image:', item.image);
+  return item.image;
+};
+
 const CheckoutPayment = () => {
   const { items, subtotal, discountAmount, total, appliedCoupon, clearCart, placeOrder } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [productData, setProductData] = useState<Record<string, any>>({});
+
+  // Fetch product data for color images
+  useEffect(() => {
+    const uniqueProductIds = [...new Set(items.map(item => item.id))];
+    
+    uniqueProductIds.forEach(async (productId) => {
+      if (!productData[productId]) {
+        try {
+          const response = await fetch(`/api/products/${productId}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.ok && data.data) {
+              setProductData(prev => ({
+                ...prev,
+                [productId]: data.data
+              }));
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch product data:', error);
+        }
+      }
+    });
+  }, [items]);
 
   const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'upi' | 'cod'>('razorpay');
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings | null>(null);
@@ -967,18 +1032,31 @@ const CheckoutPayment = () => {
 
               <div className="border-t border-gray-200 pt-6 space-y-3">
                 <h3 className="font-semibold text-sm">Items ({items.length})</h3>
-                <div className="max-h-48 overflow-y-auto space-y-2">
+                <div className="max-h-48 overflow-y-auto space-y-3">
                   {items.map((item) => (
-                    <div key={item.id} className="text-xs text-muted-foreground">
-                      <div className="flex justify-between">
-                        <span>{item.title}</span>
-                        <span>x{item.qty}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>₹{item.price.toLocaleString('en-IN')} each</span>
-                        <span className="font-medium">
-                          ₹{(item.qty * item.price).toLocaleString('en-IN')}
-                        </span>
+                    <div key={item.id} className="flex gap-3 text-xs text-muted-foreground">
+                      {item.image && (
+                        <img 
+                          src={getColorImage(item)} 
+                          alt={item.title} 
+                          className="w-12 h-12 object-cover rounded flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <span>{item.title}</span>
+                          <span>x{item.qty}</span>
+                        </div>
+                        <div className="flex flex-col gap-1 ml-2">
+                          {item.meta?.size && <span className="text-xs">Size: {item.meta.size}</span>}
+                          {item.meta?.color && <span className="text-xs">Color: {item.meta.color}</span>}
+                        </div>
+                        <div className="flex justify-between">
+                          <span>₹{item.price.toLocaleString('en-IN')} each</span>
+                          <span className="font-medium">
+                            ₹{(item.qty * item.price).toLocaleString('en-IN')}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}

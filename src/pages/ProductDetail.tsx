@@ -43,6 +43,8 @@ import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { ShareButton } from "@/components/ShareButton";
 import { useCouponRefresh } from "@/hooks/useCouponRefresh";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { useWishlist } from "@/hooks/useWishlist";
+import { Heart } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const resolveImage = (src?: string) => {
@@ -144,13 +146,14 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const { refreshKey } = useCouponRefresh(); // Use global refreshKey
   const { add: addRecentlyViewed } = useRecentlyViewed();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [product, setProduct] = useState<P | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>("");
-  // ✅ NEW: selected color
-  const [selectedColor, setSelectedColor] = useState<string>("");
+  // ✅ NEW: selected colors (array for multi-selection)
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [showSizeChartTable, setShowSizeChartTable] = useState(false);
@@ -201,7 +204,7 @@ const ProductDetail = () => {
         }
 
         // Don't auto-select color - let user choose manually
-        setSelectedColor("");
+        setSelectedColors([]);
         setQuantity(1);
         }
       } catch (e: any) {
@@ -403,13 +406,15 @@ const ProductDetail = () => {
   // Get stock based on per-size inventory, color inventory, or general stock
   const getCurrentStock = useCallback(() => {
     // Check color inventory if color-wise stock tracking is enabled
-    if (selectedColor && Array.isArray(product?.colorInventory)) {
-      const colorStock = product.colorInventory.find(
-        (c) => c.color === selectedColor
-      );
-      if (colorStock) {
-        return colorStock.qty ?? 0;
-      }
+    if (selectedColors.length > 0 && Array.isArray(product?.colorInventory)) {
+      // For multi-color selection, return the minimum stock among selected colors
+      const selectedColorStocks = selectedColors.map(color => {
+        const colorStock = product.colorInventory.find(
+          (c) => c.color === color
+        );
+        return colorStock?.qty ?? 0;
+      });
+      return Math.min(...selectedColorStocks);
     }
 
     if (
@@ -423,7 +428,7 @@ const ProductDetail = () => {
       return sizeInfo?.qty ?? 0;
     }
     return Number(product?.stock ?? 0);
-  }, [product, selectedSize, selectedColor]);
+  }, [product, selectedSize, selectedColors]);
 
   const stockNum = useMemo(() => getCurrentStock(), [getCurrentStock]);
   const outOfStock = stockNum === 0;
@@ -490,10 +495,10 @@ const ProductDetail = () => {
       return;
     }
 
-    if (Array.isArray(product.colors) && product.colors.length > 0 && !selectedColor) {
+    if (Array.isArray(product.colors) && product.colors.length > 0 && selectedColors.length === 0) {
       toast({
-        title: "Select a color",
-        description: "Please choose a color before adding to cart.",
+        title: "Select colors",
+        description: "Please choose at least one color before adding to cart.",
         variant: "destructive",
       });
       return;
@@ -532,31 +537,59 @@ const ProductDetail = () => {
     }
 
     setSizeStockError("");
-    const item: any = {
-      id: String(product._id || product.id),
-      title,
-      price: Number(product.price || 0),
-      image: img,
-      meta: {} as any,
-    };
-    if (selectedSize) item.meta.size = selectedSize;
-    // ✅ color ko meta me save karo
-    if (selectedColor) item.meta.color = selectedColor;
+    
+    // Create items for each selected color
+    const itemsToAdd: any[] = [];
+    
+    if (selectedColors.length > 0) {
+      // Add each selected color as a separate item
+      selectedColors.forEach(color => {
+        const item: any = {
+          id: String(product._id || product.id),
+          title,
+          price: Number(product.price || 0),
+          image: img,
+          meta: {} as any,
+        };
+        if (selectedSize) item.meta.size = selectedSize;
+        item.meta.color = color;
+        itemsToAdd.push(item);
+      });
+    } else {
+      // No colors selected, add single item
+      const item: any = {
+        id: String(product._id || product.id),
+        title,
+        price: Number(product.price || 0),
+        image: img,
+        meta: {} as any,
+      };
+      if (selectedSize) item.meta.size = selectedSize;
+      itemsToAdd.push(item);
+    }
 
     if (!user) {
       try {
         localStorage.setItem(
           "uni_add_intent",
-          JSON.stringify({ item, qty: quantity })
+          JSON.stringify({ items: itemsToAdd, qty: quantity })
         );
       } catch {}
       navigate("/auth");
       return;
     }
-    addToCart(item, quantity);
+
+    // Add all items to cart
+    itemsToAdd.forEach(item => {
+      addToCart(item, quantity);
+    });
+
+    const colorText = selectedColors.length > 0 
+      ? ` (${selectedColors.join(', ')})` 
+      : '';
     toast({
       title: "Added to cart!",
-      description: `${title} has been added to your cart.`,
+      description: `${title}${colorText} has been added to your cart.`,
     });
   };
 
@@ -577,10 +610,10 @@ const ProductDetail = () => {
       return;
     }
 
-    if (Array.isArray(product.colors) && product.colors.length > 0 && !selectedColor) {
+    if (Array.isArray(product.colors) && product.colors.length > 0 && selectedColors.length === 0) {
       toast({
-        title: "Select a color",
-        description: "Please choose a color before proceeding to checkout.",
+        title: "Select colors",
+        description: "Please choose at least one color before proceeding to checkout.",
         variant: "destructive",
       });
       return;
@@ -603,27 +636,51 @@ const ProductDetail = () => {
       return;
     }
 
-    const item: any = {
-      id: String(product._id || product.id),
-      title,
-      price: Number(product.price || 0),
-      image: img,
-      meta: {} as any,
-    };
-    if (selectedSize) item.meta.size = selectedSize;
-    if (selectedColor) item.meta.color = selectedColor;
+    // Create items for each selected color
+    const itemsToAdd: any[] = [];
+    
+    if (selectedColors.length > 0) {
+      // Add each selected color as a separate item
+      selectedColors.forEach(color => {
+        const item: any = {
+          id: String(product._id || product.id),
+          title,
+          price: Number(product.price || 0),
+          image: img,
+          meta: {} as any,
+        };
+        if (selectedSize) item.meta.size = selectedSize;
+        item.meta.color = color;
+        itemsToAdd.push(item);
+      });
+    } else {
+      // No colors selected, add single item
+      const item: any = {
+        id: String(product._id || product.id),
+        title,
+        price: Number(product.price || 0),
+        image: img,
+        meta: {} as any,
+      };
+      if (selectedSize) item.meta.size = selectedSize;
+      itemsToAdd.push(item);
+    }
 
     if (!user) {
       try {
         localStorage.setItem(
           "uni_add_intent",
-          JSON.stringify({ item, qty: 1 })
+          JSON.stringify({ items: itemsToAdd, qty: 1 })
         );
       } catch {}
       navigate("/auth");
       return;
     }
-    addToCart(item, 1);
+
+    // Add all items to cart
+    itemsToAdd.forEach(item => {
+      addToCart(item, 1);
+    });
     navigate("/dashboard?checkout=true");
   };
 
@@ -703,9 +760,31 @@ const ProductDetail = () => {
               <ProductImageGallery
                 images={product?.images || []}
                 productTitle={title}
-                selectedColor={selectedColor}
+                selectedColor={selectedColors[0] || ''}
                 colorImages={product?.colorImages}
                 colorVariants={product?.colorVariants}
+                productId={String(product?._id || product?.id)}
+                showWishlistButton={true}
+                showShareButton={true}
+                onWishlistClick={() => toggleWishlist(String(product?._id || product?.id))}
+                onShareClick={() => {
+                  // Share functionality - using native share if available, fallback to copying URL
+                  if (navigator.share) {
+                    navigator.share({
+                      title: title,
+                      text: `Check out this product: ${title}`,
+                      url: window.location.href
+                    });
+                  } else {
+                    // Fallback: copy URL to clipboard
+                    navigator.clipboard.writeText(window.location.href);
+                    toast({
+                      title: "Link copied!",
+                      description: "Product link copied to clipboard",
+                    });
+                  }
+                }}
+                isInWishlist={isInWishlist(String(product?._id || product?.id))}
               />
             </div>
 
@@ -719,38 +798,55 @@ const ProductDetail = () => {
                 </h1>
               </div>
               <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
-                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
-                  ₹{(() => {
-                    const basePrice = Number(product.price ?? 0);
-                    let final = basePrice;
-                    if (product?.discount?.value && product.discount.type === 'percentage') {
-                      final = basePrice - (basePrice * product.discount.value / 100);
-                      const priceStr = final.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                      return priceStr;
-                    } else if (product?.discount?.value && product.discount.type === 'flat') {
-                      final = Math.max(0, basePrice - product.discount.value);
-                      const priceStr = final.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                      return priceStr;
-                    }
-                    const priceStr = basePrice.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                    return priceStr;
-                  })()}
-                </p>
-                {product?.discount?.value && product.discount.value > 0 && (
-                  <div className="flex items-baseline">
-                    <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
-                      ₹{Number(product.price ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                    </span>
-                    <span className="text-xs font-medium text-red-600">
-                      {product.discount.type === 'percentage' ? `${product.discount.value}% OFF` : `₹${product.discount.value} OFF`}
-                    </span>
-                  </div>
-                )}
-              </div>
+  <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
+    ₹
+    {(() => {
+      const basePrice = Number(product?.price ?? 0);
+      let finalPrice = basePrice;
+
+      if (
+        product?.discount?.value > 0 &&
+        product.discount.type === "percentage"
+      ) {
+        finalPrice =
+          basePrice - (basePrice * product.discount.value) / 100;
+      } else if (
+        product?.discount?.value > 0 &&
+        product.discount.type === "flat"
+      ) {
+        finalPrice = Math.max(0, basePrice - product.discount.value);
+      }
+
+      return finalPrice.toLocaleString("en-IN", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+    })()}
+  </p>
+
+  {product?.discount?.value > 0 && (
+    <div className="flex items-baseline">
+      <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
+        ₹
+        {Number(product?.price ?? 0).toLocaleString("en-IN", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })}
+      </span>
+
+      <span className="text-xs font-medium text-red-600">
+        {product.discount.type === "percentage"
+          ? `${product.discount.value}% OFF`
+          : `₹${product.discount.value} OFF`}
+      </span>
+    </div>
+  )}
+</div>
+
               <div className="flex items-center justify-between gap-4 mb-2">
                 <div className="flex flex-col gap-1 flex-1">
                   {product.paragraph1 && (
-                    <div className="flex items-start gap-1 text-xs">
+                    <div className="flex items-center gap-1 text-xs">
                       <span className="text-red-800 mt-0.5">
                         <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                           <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
@@ -761,7 +857,7 @@ const ProductDetail = () => {
                   )}
 
                   {product.paragraph2 && (
-                    <div className="flex items-start gap-1 text-xs">
+                    <div className="flex items-center gap-1 text-xs">
                       <span className="text-gray-900 mt-0.5">
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                           <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
@@ -771,11 +867,11 @@ const ProductDetail = () => {
                     </div>
                   )}
                 </div>
-                <ShareButton
+                {/* <ShareButton
                   productName={title}
                   productUrl={window.location.href}
                   productImage={img}
-                />
+                /> */}
               </div>
               <div className="mb-3 sm:mb-4 hidden sm:block">
                 <Badge
@@ -846,7 +942,7 @@ const ProductDetail = () => {
               <div className="flex items-center justify-between gap-4 mb-2">
                 <div className="flex flex-col gap-1 flex-1">
                   {product.paragraph1 && (
-                    <div className="flex items-start gap-1 text-xs">
+                    <div className="flex items-center gap-1 text-xs">
                       <span className="text-red-800 mt-0.5">
                         <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                           <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
@@ -857,7 +953,7 @@ const ProductDetail = () => {
                   )}
 
                   {product.paragraph2 && (
-                    <div className="flex items-start gap-1 text-xs">
+                    <div className="flex items-center gap-1 text-xs">
                       <span className="text-gray-900 mt-0.5">
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                           <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
@@ -867,11 +963,11 @@ const ProductDetail = () => {
                     </div>
                   )}
                 </div>
-                <ShareButton
+                {/* <ShareButton
                   productName={title}
                   productUrl={window.location.href}
                   productImage={img}
-                />
+                /> */}
               </div>
              
 
@@ -901,35 +997,48 @@ const ProductDetail = () => {
                           ? product.colorInventory.find(ci => ci.color === c)?.qty ?? 0
                           : Number(product.stock ?? 0);
                         const isOutOfStock = colorStock === 0;
+                        const isSelected = selectedColors.includes(c);
 
                         return (
-                          <button
+                          <label
                             key={c}
-                            type="button"
-                            disabled={isOutOfStock}
-                            onClick={() => {
-                              setSelectedColor((prevColor) => {
-                                const newColor = prevColor === c ? undefined : c;
-                                console.log('Selected color changed to:', newColor);
-                                return newColor;
-                              });
-                            }}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs transition-colors",
+                              "flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs transition-colors cursor-pointer",
                               isOutOfStock
                                 ? "opacity-50 cursor-not-allowed bg-muted border-border text-muted-foreground"
-                                : selectedColor === c
+                                : isSelected
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-transparent border-border hover:border-primary"
                             )}
                           >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              disabled={isOutOfStock}
+                              onChange={() => {
+                                setSelectedColors((prevColors) => {
+                                  if (prevColors.includes(c)) {
+                                    // Remove color if already selected
+                                    const newColors = prevColors.filter(color => color !== c);
+                                    console.log('Removed color:', c, 'Selected colors:', newColors);
+                                    return newColors;
+                                  } else {
+                                    // Add color if not selected
+                                    const newColors = [...prevColors, c];
+                                    console.log('Added color:', c, 'Selected colors:', newColors);
+                                    return newColors;
+                                  }
+                                });
+                              }}
+                              className="sr-only" // Hide the actual checkbox, use the label as the clickable element
+                            />
                             <span
                               className="h-3 w-3 rounded-full border border-current"
                               style={{ backgroundColor: colorOpt.code ? colorOpt.code : colorToCss(c) }}
                             />
                             <span>{c}</span>
                             {isOutOfStock && <span className="text-[10px]">Out of Stock</span>}
-                          </button>
+                          </label>
                         );
                       })}
                     </div>
@@ -1004,7 +1113,7 @@ const ProductDetail = () => {
                             )}
                             {isLowStock && !isOutOfStock && (
                               <span className="text-[10px] text-orange-600 font-medium whitespace-nowrap mt-1 block">
-                                Only {sizeItem.qty} left
+                                 {sizeItem.qty} left
                               </span>
                             )}
                           </div>
@@ -1156,39 +1265,6 @@ const ProductDetail = () => {
                   >
                     Buy Now
                   </Button>
-                )}
-                {user ? (
-                  <Button
-                    size="lg"
-                    variant={isVerifiedBuyer ? "secondary" : "outline"}
-                    className="w-full text-xs sm:text-sm h-10 sm:h-11"
-                    onClick={() => setShowReviewModal(true)}
-                    disabled={!isVerifiedBuyer}
-                  >
-                    {isVerifiedBuyer
-                      ? "Write a Review"
-                      : "Available after purchase"}
-                  </Button>
-                ) : (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="w-full block">
-                          <Button
-                            size="lg"
-                            variant="outline"
-                            className="w-full text-xs sm:text-sm h-10 sm:h-11"
-                            disabled
-                          >
-                            Write a Review
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Sign in to write a review
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                 )}
               </div>
 
@@ -1378,7 +1454,7 @@ const ProductDetail = () => {
             {product.highlights.map((highlight, idx) => (
               <div 
                 key={idx} 
-                className="group flex items-start gap-3 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+                className="group flex items-center gap-3 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200"
               >
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center mt-0.5 group-hover:scale-110 transition-transform">
                   <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

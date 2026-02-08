@@ -322,7 +322,7 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
             {user ? (
               <>
                 {/* Wishlist: mobile pe hidden, desktop pe same jaisa */}
-                <Link to="/wishlist">
+                {/* <Link to="/wishlist">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -330,7 +330,7 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                   >
                     <Heart className="h-5 w-5" />
                   </Button>
-                </Link>
+                </Link> */}
 
                 {/* Support: pehle se hi sirf md+ pe dikh raha tha */}
                 <Link to="/account/support" className="hidden md:block">
