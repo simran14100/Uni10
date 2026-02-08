@@ -111,3 +111,36 @@ All colors MUST be HSL.
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* Fix for mobile button active states in carousel navigation */
+@media (max-width: 640px) {
+  button[data-slot="carousel-previous"],
+  button[data-slot="carousel-next"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: none;
+  }
+  
+  button[data-slot="carousel-previous"]:active,
+  button[data-slot="carousel-next"]:active {
+    background-color: hsl(var(--background)) !important;
+    border-color: hsl(var(--border)) !important;
+    color: hsl(var(--foreground)) !important;
+    transform: scale(1);
+  }
+  
+  button[data-slot="carousel-previous"]:focus,
+  button[data-slot="carousel-next"]:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  
+  /* Remove any stuck active states after touch */
+  button[data-slot="carousel-previous"].focus-visible,
+  button[data-slot="carousel-next"].focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
