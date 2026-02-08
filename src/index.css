@@ -269,4 +269,81 @@ All colors MUST be HSL.
     border-color: #d1d5db !important;
     background-color: white !important;
   }
+  
+  /* Mobile click/tap effect */
+  button:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+    background-color: #f3f4f6 !important;
+    border-color: #9ca3af !important;
+  }
+  
+  /* Ensure tap effect is visible on mobile */
+  @media (max-width: 640px) {
+    button:active {
+      transform: scale(0.9) !important;
+      transition: transform 0.05s ease !important;
+      background-color: #e5e7eb !important;
+      border-color: #6b7280 !important;
+      box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.1) !important;
+    }
+  }
+}
+
+/* Enhanced hover effects for InfluencerSection carousel buttons */
+button[class*="p-2"][class*="bg-white"]:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2), 0 4px 8px -2px rgba(0, 0, 0, 0.15) !important;
+  background-color: #f8fafc !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Specific hover for left chevron button */
+button[class*="p-2"][class*="bg-white"]:hover:nth-of-type(1) {
+  transform: scale(1.1) translateX(-1px) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%) !important;
+  box-shadow: 0 6px 12px -3px rgba(59, 130, 246, 0.3), 0 3px 6px -2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Specific hover for right chevron button */
+button[class*="p-2"][class*="bg-white"]:hover:nth-of-type(2) {
+  transform: scale(1.1) translateX(1px) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%) !important;
+  box-shadow: 0 6px 12px -3px rgba(59, 130, 246, 0.3), 0 3px 6px -2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Active states for carousel buttons */
+button[class*="p-2"][class*="bg-white"]:active {
+  transform: scale(0.95) !important;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
+  background-color: #e5e7eb !important;
+  transition: all 0.1s ease !important;
+}
+
+/* Mobile effects for carousel buttons */
+@media (max-width: 640px) {
+  button[class*="p-2"][class*="bg-white"]:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 8px -2px rgba(59, 130, 246, 0.2), 0 2px 4px -1px rgba(59, 130, 246, 0.15) !important;
+  }
+  
+  button[class*="p-2"][class*="bg-white"]:active {
+    transform: scale(0.9) !important;
+    background-color: #d1d5db !important;
+  }
+}
+
+/* Mobile specific effects for Show All buttons */
+@media (max-width: 640px) {
+  a[href="/videos"] button:hover,
+  a[href="/all-influencers"] button:hover {
+    transform: translateY(-1px) scale(1.01) !important;
+    box-shadow: 0 6px 12px -3px rgba(0, 0, 0, 0.15), 0 3px 6px -2px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  a[href="/videos"] button:active,
+  a[href="/all-influencers"] button:active {
+    transform: translateY(0) scale(0.95) !important;
+    box-shadow: 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+  }
 }

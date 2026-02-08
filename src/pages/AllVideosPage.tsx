@@ -93,7 +93,7 @@ export default function AllVideosPage() {
               <span className="text-sm font-medium text-purple-600">Video Collection</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              All <span className="text-purple-600">Videos</span>
+              All Videos
             </h1>
             <p className="text-gray-600">No videos available at the moment.</p>
           </div>

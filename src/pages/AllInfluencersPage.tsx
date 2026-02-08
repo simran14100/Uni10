@@ -55,7 +55,7 @@ export default function AllInfluencersPage() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12 md:mb-16">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-gray-900">
-                All <span className="text-amber-700">Influencers</span>
+                All  Influencers
               </h2>
               <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
                 Explore all our talented fashion influencers and their curated collections.
