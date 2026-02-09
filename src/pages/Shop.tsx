@@ -630,10 +630,8 @@ const fetchProducts = async () => {
       <main className="container mx-auto px-3 sm:px-4 pt-32 pb-12 md:pt-36 lg:pt-40">
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tighter mb-3">
-            {pageTitle.split(" ")[0]}{" "}
-            <span className="text-primary">
-              {pageTitle.split(" ").slice(1).join(" ")}
-            </span>
+            {pageTitle}
+          
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             {pageSubtitle}
@@ -664,10 +662,49 @@ const fetchProducts = async () => {
 
           {/* Right Section: Sort Dropdown and Mobile Filter */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Sort By Price Dropdown */}
-            <div className="flex items-center gap-2">
+            {/* Mobile Sort Dropdown - Left side in mobile */}
+            <div className="lg:hidden flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <ArrowUpDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">Sort:</span>
+              </div>
+              <Select 
+                value={priceSort} 
+                onValueChange={(value) => {
+                  setPriceSort(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[120px] h-9 border-2 border-gray-200 hover:border-[#ba8c5c] transition-all duration-200 shadow-sm hover:shadow-md bg-white focus:ring-2 focus:ring-[#ba8c5c] focus:ring-offset-1 rounded-md font-medium text-sm">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-2 border-gray-200 shadow-xl rounded-md">
+                  <SelectItem 
+                    value="none" 
+                    className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                  >
+                    Default
+                  </SelectItem>
+                  <SelectItem 
+                    value="low-to-high" 
+                    className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                  >
+                    Low to High
+                  </SelectItem>
+                  <SelectItem 
+                    value="high-to-low" 
+                    className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                  >
+                    High to Low
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Sort By Price Dropdown - Desktop only */}
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-muted-foreground hidden lg:block">Sort:</span>
               </div>
               <Select 
@@ -704,7 +741,7 @@ const fetchProducts = async () => {
               </Select>
             </div>
 
-            {/* Mobile Filter Trigger */}
+            {/* Mobile Filter Trigger - Right side in mobile */}
             <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
@@ -721,7 +758,7 @@ const fetchProducts = async () => {
                   <Button
                     variant="outline"
                     onClick={resetFilters}
-                    className="w-full flex items-center"
+                    className="w-full flex items-center text-gray-900 hover:text-gray-900"
                   >
                     <XCircle className="w-4 h-4 mr-2" /> Clear Filters
                   </Button>
@@ -741,7 +778,7 @@ const fetchProducts = async () => {
                             setSelectedGenderSubcategory("All"); // Reset gender subcategory when main category is selected
                             setCurrentPage(1);
                           }}
-                          className="w-full justify-start"
+                          className="w-full justify-start text-gray-900 hover:text-gray-900"
                         >
                           {category}
                         </Button>
@@ -764,7 +801,7 @@ const fetchProducts = async () => {
                             setSelectedGenderSubcategory("All"); // Reset subcategory when gender changes
                             setCurrentPage(1);
                           }}
-                          className="w-full justify-start"
+                          className="w-full justify-start text-gray-900 hover:text-gray-900"
                         >
                           {gender}
                         </Button>
@@ -788,7 +825,7 @@ const fetchProducts = async () => {
                               setSelectedCategory("All"); // Reset main category when gender subcategory is selected
                               setCurrentPage(1);
                             }}
-                            className="w-full justify-start"
+                            className="w-full justify-start text-gray-900 hover:text-gray-900"
                           >
                             {subcat}
                           </Button>
@@ -862,7 +899,7 @@ const fetchProducts = async () => {
                         setSelectedSize(size);
                         setCurrentPage(1);
                       }}
-                      className="w-full justify-start"
+                      className="w-full justify-start text-gray-900 hover:text-gray-900"
                     >
                       {size}
                     </Button>
@@ -912,25 +949,25 @@ const fetchProducts = async () => {
                           setCurrentPage(1);
                         }}
                       >
-                        <SelectTrigger className="w-full h-11 border-2 border-gray-200 hover:border-[#ba8c5c] transition-all duration-200 shadow-sm hover:shadow-md bg-white focus:ring-2 focus:ring-[#ba8c5c] focus:ring-offset-1 rounded-md font-medium">
+                        <SelectTrigger className="w-full h-11 border-2 border-gray-200 hover:border-[#ba8c5c] transition-all duration-200 shadow-sm hover:shadow-md bg-white focus:ring-2 focus:ring-[#ba8c5c] focus:ring-offset-1 rounded-md font-medium text-gray-900">
                           <SelectValue placeholder="Sort by price" />
                         </SelectTrigger>
                         <SelectContent className="bg-white border-2 border-gray-200 shadow-xl rounded-md">
                           <SelectItem 
                             value="none" 
-                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors text-gray-900"
                           >
                             Default
                           </SelectItem>
                           <SelectItem 
                             value="low-to-high" 
-                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors text-gray-900"
                           >
                             Price: Low to High
                           </SelectItem>
                           <SelectItem 
                             value="high-to-low" 
-                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
+                            className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors text-gray-900"
                           >
                             Price: High to Low
                           </SelectItem>

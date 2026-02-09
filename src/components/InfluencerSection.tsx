@@ -218,7 +218,7 @@ export default function InfluencerSection() {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                       <div className="flex-1"></div>
                       <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
-                        Influencer <span className="text-primary">Spotlight</span>
+                        Influencer Spotlight
                       </h2>
                       <div className="flex-1"></div>
                     </div>

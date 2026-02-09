@@ -760,7 +760,7 @@ const Index = () => {
         <section className="mx-auto px-2 sm:px-4 pb-6 sm:pb-12 pt-6 sm:pt-10">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
-            Shop By <span className="text-primary">Categories</span>
+            Shop By Categories
           </h2>
         </div>
 
@@ -816,7 +816,7 @@ const Index = () => {
       <section className="container mx-auto px-4 py-12 md:py-12 bg-background rounded-xl shadow-sm">
         <div className="text-center mb-8 md:mb-8">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
-            New <span className="text-primary">Arrivals</span>
+            New Arrivals
           </h2>
           <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
             Discover our latest additions and stay ahead of the trends. Fresh styles just dropped!

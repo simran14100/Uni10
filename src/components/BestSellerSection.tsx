@@ -101,7 +101,7 @@ export default function BestSellerSection() {
             <span className="text-sm font-medium text-orange-600">Best Sellers</span>
           </div> */}
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
-            Best <span className="text-primary">Seller</span>
+            Best Seller
           </h2>
           {/* <p className="text-gray-600 max-w-2xl mx-auto">
             Discover our most popular products loved by our customers
