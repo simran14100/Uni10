@@ -238,18 +238,15 @@ const Index = () => {
   const clearHoverState = (e: React.TouchEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => {
     if (!e?.currentTarget) return;
     
-    // Don't prevent default - let the carousel work!
     const button = e.currentTarget;
     
-    // Immediate blur
-    button.blur();
-    
-    // Force blur in next frame
-    requestAnimationFrame(() => {
+    // Don't blur immediately - wait for click to complete
+    setTimeout(() => {
       button.blur();
-      // Remove focus-related attributes
-      button.setAttribute('data-focus', 'false');
-    });
+      requestAnimationFrame(() => {
+        button.blur();
+      });
+    }, 100);
   };
 
   // Aggressive focus clearing for carousel buttons
@@ -932,21 +929,11 @@ const Index = () => {
           <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
             <CarouselPrevious 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-              onClick={(e) => {
-                if (e?.currentTarget) {
-                  e.currentTarget.blur();
-                  setTimeout(() => e.currentTarget?.blur(), 10);
-                }
-              }}
+              onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
             />
             <CarouselNext 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-              onClick={(e) => {
-                if (e?.currentTarget) {
-                  e.currentTarget.blur();
-                  setTimeout(() => e.currentTarget?.blur(), 10);
-                }
-              }}
+              onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
             />
           </div>
           
@@ -954,35 +941,11 @@ const Index = () => {
           <div className="flex sm:hidden justify-center gap-2 mt-6">
             <CarouselPrevious 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 transition-all duration-200 shadow-md focus:outline-none focus:ring-0 active:scale-95" 
-              onClick={(e) => {
-                if (e?.currentTarget) {
-                  e.currentTarget.blur();
-                  setTimeout(() => e.currentTarget?.blur(), 10);
-                }
-              }}
-              onTouchStart={(e) => e?.currentTarget?.blur()}
-              onTouchEnd={(e) => {
-                if (e?.currentTarget) {
-                  e.currentTarget.blur();
-                  setTimeout(() => e.currentTarget?.blur(), 50);
-                }
-              }}
+              onTouchEnd={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
             />
             <CarouselNext 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 transition-all duration-200 shadow-md focus:outline-none focus:ring-0 active:scale-95" 
-              onClick={(e) => {
-                if (e?.currentTarget) {
-                  e.currentTarget.blur();
-                  setTimeout(() => e.currentTarget?.blur(), 10);
-                }
-              }}
-              onTouchStart={(e) => e?.currentTarget?.blur()}
-              onTouchEnd={(e) => {
-                if (e?.currentTarget) {
-                  e.currentTarget.blur();
-                  setTimeout(() => e.currentTarget?.blur(), 50);
-                }
-              }}
+              onTouchEnd={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
             />
           </div>
         </Carousel>
@@ -1093,11 +1056,11 @@ const Index = () => {
               <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
                 <CarouselPrevious 
                   className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-                  onTouchEnd={clearHoverState}
+                  onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
                 />
                 <CarouselNext 
                   className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-                  onTouchEnd={clearHoverState}
+                  onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
                 />
               </div>
               
@@ -1105,11 +1068,11 @@ const Index = () => {
               <div className="flex sm:hidden justify-center gap-2 mt-6">
                 <CarouselPrevious 
                   className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-                  onTouchEnd={clearHoverState}
+                  onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
                 />
                 <CarouselNext 
                   className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-                  onTouchEnd={clearHoverState}
+                  onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
                 />
               </div>
             </Carousel>
