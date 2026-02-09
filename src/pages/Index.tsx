@@ -233,98 +233,19 @@ const Index = () => {
     };
   }, []);
 
-  // Global mouse up handler to clear active states from carousel navigation
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      // Clear any active states by removing focus from all elements
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-      // Remove any active classes from carousel buttons
-      document.querySelectorAll('button:active').forEach(el => {
-        (el as HTMLElement).blur();
-      });
-    };
 
-    document.addEventListener('mouseup', handleGlobalMouseUp);
-    document.addEventListener('touchend', handleGlobalMouseUp);
-
-    return () => {
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-      document.removeEventListener('touchend', handleGlobalMouseUp);
-    };
-  }, []);
-
-  // Global mouse up handler to clear active states from all buttons (ProductCard buttons)
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      // Clear any active states by removing focus from all elements
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-      // Remove any active classes from all buttons
-      document.querySelectorAll('button:active').forEach(el => {
-        (el as HTMLElement).blur();
-      });
-      // Specifically target carousel navigation buttons
-      document.querySelectorAll('[data-slot="carousel-previous"], [data-slot="carousel-next"]').forEach(el => {
-        (el as HTMLElement).blur();
-      });
-      // Also target any button with carousel-related classes
-      document.querySelectorAll('button[class*="carousel"]').forEach(el => {
-        (el as HTMLElement).blur();
-      });
-    };
-
-    document.addEventListener('mouseup', handleGlobalMouseUp);
-    document.addEventListener('touchend', handleGlobalMouseUp);
-
-    return () => {
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-      document.removeEventListener('touchend', handleGlobalMouseUp);
-    };
-  }, []);
-
-  // Additional handler specifically for New Arrivals carousel buttons
-  useEffect(() => {
-    const handleNewArrivalsMouseUp = () => {
-      // Target all buttons aggressively
-      const allButtons = document.querySelectorAll('button');
-      allButtons.forEach(el => {
-        (el as HTMLElement).blur();
-        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
-      });
-      
-      // Specifically target New Arrivals carousel buttons
-      const newArrivalsButtons = document.querySelectorAll('.relative button[class*="carousel"], .relative button[class*="CarouselPrevious"], .relative button[class*="CarouselNext"]');
-      newArrivalsButtons.forEach(el => {
-        (el as HTMLElement).blur();
-        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
-        // Force remove any inline styles that might be causing the issue
-        (el as HTMLElement).style.removeProperty('background-color');
-        (el as HTMLElement).style.removeProperty('color');
-        (el as HTMLElement).style.removeProperty('border-color');
-      });
-      
-      // Also target by specific class patterns
-      document.querySelectorAll('[class*="rounded-full"][class*="border-2"]').forEach(el => {
-        (el as HTMLElement).blur();
-        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
-      });
-    };
-
-    document.addEventListener('mouseup', handleNewArrivalsMouseUp);
-    document.addEventListener('touchend', handleNewArrivalsMouseUp);
-    document.addEventListener('click', handleNewArrivalsMouseUp);
-
-    return () => {
-      document.removeEventListener('mouseup', handleNewArrivalsMouseUp);
-      document.removeEventListener('touchend', handleNewArrivalsMouseUp);
-      document.removeEventListener('click', handleNewArrivalsMouseUp);
-    };
-  }, []);
-
-  // Fetch Featured Products
+  // Handler to clear hover states on mobile after touch
+  const clearHoverState = (e: React.TouchEvent<HTMLButtonElement>) => {
+    const button = e.currentTarget;
+    setTimeout(() => {
+      button.blur();
+      // Force remove hover state by removing pointer-events temporarily
+      button.style.pointerEvents = 'none';
+      setTimeout(() => {
+        button.style.pointerEvents = 'auto';
+      }, 50);
+    }, 1000);
+  };
   const { user } = useAuth();
   useEffect(() => {
     let ignore = false;
@@ -741,14 +662,26 @@ const Index = () => {
           
           {/* Navigation Buttons - Desktop */}
           <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
-            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+            <CarouselPrevious 
+              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              onTouchEnd={clearHoverState}
+            />
+            <CarouselNext 
+              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              onTouchEnd={clearHoverState}
+            />
           </div>
           
           {/* Navigation Buttons - Mobile */}
           <div className="flex sm:hidden justify-center gap-2 mt-6">
-            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
-            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+            <CarouselPrevious 
+              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              onTouchEnd={clearHoverState}
+            />
+            <CarouselNext 
+              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              onTouchEnd={clearHoverState}
+            />
           </div>
         </Carousel>
       </div>
@@ -856,14 +789,26 @@ const Index = () => {
               
               {/* Navigation Buttons - Desktop */}
               <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+                <CarouselPrevious 
+                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+                  onTouchEnd={clearHoverState}
+                />
+                <CarouselNext 
+                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+                  onTouchEnd={clearHoverState}
+                />
               </div>
               
               {/* Navigation Buttons - Mobile */}
               <div className="flex sm:hidden justify-center gap-2 mt-6">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+                <CarouselPrevious 
+                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+                  onTouchEnd={clearHoverState}
+                />
+                <CarouselNext 
+                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+                  onTouchEnd={clearHoverState}
+                />
               </div>
             </Carousel>
             
