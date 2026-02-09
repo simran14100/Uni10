@@ -253,260 +253,32 @@ const Index = () => {
       // Force reflow to clear any cached states
       button.offsetHeight;
       
-      // Temporarily disable and re-enable hover
-      button.style.pointerEvents = 'none';
-      setTimeout(() => {
-        button.style.pointerEvents = 'auto';
       }, 100);
-    }, 1000);
   };
 
-  // Global touch end handler to clear all button states
+  // Simple focus clearing for carousel buttons
   useEffect(() => {
-    const handleGlobalTouchEnd = () => {
-      console.log('[Index] handleGlobalTouchEnd triggered');
-      // Target all carousel buttons aggressively - try multiple selectors
-      const buttons1 = document.querySelectorAll('button[data-slot*="carousel"]');
-      const buttons2 = document.querySelectorAll('button[class*="carousel"]');
-      const buttons3 = document.querySelectorAll('button[class*="Carousel"]');
-      const buttons4 = document.querySelectorAll('button[class*="Previous"]');
-      const buttons5 = document.querySelectorAll('button[class*="Next"]');
-      const buttons6 = document.querySelectorAll('button.rounded-full.h-10.w-10');
-      
-      console.log('[Index] Selector results:', {
-        dataSlotCarousel: buttons1.length,
-        classCarousel: buttons2.length,
-        classCarouselCapital: buttons3.length,
-        classPrevious: buttons4.length,
-        classNext: buttons5.length,
-        roundedFull: buttons6.length
-      });
-      
-      // Combine all found buttons
-      const allButtons = [
-        ...Array.from(buttons1),
-        ...Array.from(buttons2),
-        ...Array.from(buttons3),
-        ...Array.from(buttons4),
-        ...Array.from(buttons5),
-        ...Array.from(buttons6)
-      ];
-      
-      // Remove duplicates
-      const uniqueButtons = Array.from(new Set(allButtons));
-      console.log('[Index] Found unique carousel buttons:', uniqueButtons.length);
-      
-      uniqueButtons.forEach((btn, index) => {
-        const button = btn as HTMLElement;
-        console.log(`[Index] Processing button ${index}:`, {
-          className: button.className,
-          hasFocus: document.activeElement === button,
-          classes: Array.from(button.classList),
-          styles: button.getAttribute('style'),
-          dataSlot: button.getAttribute('data-slot')
-        });
-        button.blur();
-        button.classList.remove('hover', 'focus', 'active');
-        button.style.removeProperty('background-color');
-        button.style.removeProperty('border-color');
-        button.style.removeProperty('color');
-        button.style.removeProperty('transform');
-        button.style.removeProperty('box-shadow');
-        button.style.removeProperty('outline');
-        button.style.removeProperty('transition');
-        
-        // Force normal appearance with !important override
-        button.style.setProperty('background-color', 'white', 'important');
-        button.style.setProperty('border-color', '#d1d5db', 'important');
-        button.style.setProperty('color', '#374151', 'important');
-        button.style.setProperty('transform', 'none', 'important');
-        button.style.setProperty('box-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', 'important');
-        button.style.setProperty('outline', 'none', 'important');
-        button.style.setProperty('transition', 'all 0.1s ease', 'important');
-        
-        // Force reflow to apply styles
-        button.offsetHeight;
-        
-        // Remove any hover/active pseudo-classes by temporarily disabling pointer events
-        const originalPointerEvents = button.style.pointerEvents;
-        button.style.setProperty('pointer-events', 'none', 'important');
-        setTimeout(() => {
-          button.style.setProperty('pointer-events', originalPointerEvents || 'auto', 'important');
-        }, 30);
-      });
-    };
-
-    // Immediate clear on touch start
-    const handleTouchStart = (e: TouchEvent) => {
-      const target = e.target as HTMLElement;
-      console.log('[Index] handleTouchStart triggered on:', target.tagName, target.className);
-      // Check for various button patterns
-      const isCarouselButton = target.tagName === 'BUTTON' && (
-        target.getAttribute('data-slot')?.includes('carousel') ||
-        target.className.includes('carousel') ||
-        target.className.includes('Carousel') ||
-        target.className.includes('Previous') ||
-        target.className.includes('Next') ||
-        (target.className.includes('rounded-full') && target.className.includes('h-10') && target.className.includes('w-10'))
-      );
-      
-      if (isCarouselButton) {
-        console.log('[Index] Carousel button touch start detected');
-        // Clear immediately on touch start
-        setTimeout(() => {
-          console.log('[Index] Clearing button state after touch start');
-          (target as HTMLElement).blur();
-          (target as HTMLElement).classList.remove('hover', 'focus', 'active');
-        }, 30);
-      }
-    };
-
-    // Clear on any click
-    const handleGlobalClick = () => {
-      console.log('[Index] handleGlobalClick triggered');
-      setTimeout(() => {
-        // Try multiple selectors again
-        const buttons1 = document.querySelectorAll('button[data-slot*="carousel"]');
-        const buttons2 = document.querySelectorAll('button[class*="carousel"]');
-        const buttons3 = document.querySelectorAll('button[class*="Carousel"]');
-        const buttons4 = document.querySelectorAll('button[class*="Previous"]');
-        const buttons5 = document.querySelectorAll('button[class*="Next"]');
-        const buttons6 = document.querySelectorAll('button.rounded-full.h-10.w-10');
-        
-        const allButtons = [
-          ...Array.from(buttons1),
-          ...Array.from(buttons2),
-          ...Array.from(buttons3),
-          ...Array.from(buttons4),
-          ...Array.from(buttons5),
-          ...Array.from(buttons6)
-        ];
-        
-        const uniqueButtons = Array.from(new Set(allButtons));
-        console.log('[Index] Global click - clearing', uniqueButtons.length, 'carousel buttons');
-        
-        uniqueButtons.forEach((btn, index) => {
-          const button = btn as HTMLElement;
-          console.log(`[Index] Global click - button ${index} before:`, {
-            hasFocus: document.activeElement === button,
-            classes: Array.from(button.classList)
-          });
-          button.blur();
-          button.classList.remove('hover', 'focus', 'active');
-          
-          console.log(`[Index] Global click - button ${index} after:`, {
-            hasFocus: document.activeElement === button,
-            classes: Array.from(button.classList)
-          });
-        });
-      }, 20);
-    };
-
-    // Immediate blur on button click
     const handleButtonClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      console.log('[Index] handleButtonClick triggered on:', target.tagName, target.className);
-      
-      // Check for various button patterns
-      const isCarouselButton = target.tagName === 'BUTTON' && (
-        target.getAttribute('data-slot')?.includes('carousel') ||
-        target.className.includes('carousel') ||
-        target.className.includes('Carousel') ||
-        target.className.includes('Previous') ||
-        target.className.includes('Next') ||
-        (target.className.includes('rounded-full') && target.className.includes('h-10') && target.className.includes('w-10'))
-      );
-      
-      if (isCarouselButton) {
-        console.log('[Index] Carousel button click detected - forcing blur');
-        console.log('[Index] Button state before blur:', {
-          hasFocus: document.activeElement === target,
-          classes: Array.from((target as HTMLElement).classList),
-          activeElement: document.activeElement?.tagName
-        });
-        // Force immediate blur after click
+      if (target.tagName === 'BUTTON' && (
+        target.className.includes('rounded-full') && 
+        target.className.includes('h-10') && 
+        target.className.includes('w-10')
+      )) {
+        // Simple blur after click
         setTimeout(() => {
-          console.log('[Index] Executing blur after click');
           (target as HTMLElement).blur();
-          (target as HTMLElement).classList.remove('hover', 'focus', 'active');
-          
-          console.log('[Index] Button state after blur:', {
-            hasFocus: document.activeElement === target,
-            classes: Array.from((target as HTMLElement).classList),
-            activeElement: document.activeElement?.tagName
-          });
-        }, 30);
+        }, 10);
       }
     };
 
-    // Aggressive focus clearing
-    const handleMouseDown = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      console.log('[Index] handleMouseDown triggered on:', target.tagName, target.className);
-      
-      // Check for various button patterns
-      const isCarouselButton = target.tagName === 'BUTTON' && (
-        target.getAttribute('data-slot')?.includes('carousel') ||
-        target.className.includes('carousel') ||
-        target.className.includes('Carousel') ||
-        target.className.includes('Previous') ||
-        target.className.includes('Next') ||
-        (target.className.includes('rounded-full') && target.className.includes('h-10') && target.className.includes('w-10'))
-      );
-      
-      if (isCarouselButton) {
-        console.log('[Index] Carousel button mouse down - clearing focus immediately');
-        console.log('[Index] Focus before mousedown blur:', document.activeElement?.tagName, document.activeElement?.className);
-        // Clear focus immediately on mouse down
-        (target as HTMLElement).blur();
-        console.log('[Index] Focus after mousedown blur:', document.activeElement?.tagName, document.activeElement?.className);
-      }
-    };
-
-    // Monitor focus changes
-    const handleFocusChange = () => {
-      const activeElement = document.activeElement;
-      if (activeElement && activeElement.tagName === 'BUTTON') {
-        const isCarouselButton = (
-          (activeElement as HTMLElement).getAttribute('data-slot')?.includes('carousel') ||
-          (activeElement as HTMLElement).className.includes('carousel') ||
-          (activeElement as HTMLElement).className.includes('Carousel') ||
-          (activeElement as HTMLElement).className.includes('Previous') ||
-          (activeElement as HTMLElement).className.includes('Next') ||
-          ((activeElement as HTMLElement).className.includes('rounded-full') && (activeElement as HTMLElement).className.includes('h-10') && (activeElement as HTMLElement).className.includes('w-10'))
-        );
-        
-        if (isCarouselButton) {
-          console.log('[Index] Carousel button gained focus:', {
-            element: activeElement,
-            className: (activeElement as HTMLElement).className,
-            classes: Array.from((activeElement as HTMLElement).classList)
-          });
-        }
-      }
-    };
-
-    document.addEventListener('touchend', handleGlobalTouchEnd);
-    document.addEventListener('touchcancel', handleGlobalTouchEnd);
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('click', handleGlobalClick);
     document.addEventListener('click', handleButtonClick);
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('focusin', handleFocusChange);
-
-    console.log('[Index] All carousel button event listeners attached');
 
     return () => {
-      console.log('[Index] Cleaning up carousel button event listeners');
-      document.removeEventListener('touchend', handleGlobalTouchEnd);
-      document.removeEventListener('touchcancel', handleGlobalTouchEnd);
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('click', handleGlobalClick);
       document.removeEventListener('click', handleButtonClick);
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('focusin', handleFocusChange);
     };
   }, []);
+
   const { user } = useAuth();
   useEffect(() => {
     let ignore = false;
