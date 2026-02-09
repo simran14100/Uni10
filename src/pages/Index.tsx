@@ -357,27 +357,6 @@ const Index = () => {
           console.log('[Index] Clearing button state after touch start');
           (target as HTMLElement).blur();
           (target as HTMLElement).classList.remove('hover', 'focus', 'active');
-          
-          // Aggressive style override for touch
-          const button = target as HTMLElement;
-          button.style.removeProperty('background-color');
-          button.style.removeProperty('border-color');
-          button.style.removeProperty('color');
-          button.style.removeProperty('transform');
-          button.style.removeProperty('box-shadow');
-          button.style.removeProperty('outline');
-          button.style.removeProperty('transition');
-          
-          button.style.setProperty('background-color', 'white', 'important');
-          button.style.setProperty('border-color', '#d1d5db', 'important');
-          button.style.setProperty('color', '#374151', 'important');
-          button.style.setProperty('transform', 'none', 'important');
-          button.style.setProperty('box-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', 'important');
-          button.style.setProperty('outline', 'none', 'important');
-          button.style.setProperty('transition', 'all 0.1s ease', 'important');
-          
-          // Force reflow
-          button.offsetHeight;
         }, 30);
       }
     };
@@ -414,25 +393,6 @@ const Index = () => {
           });
           button.blur();
           button.classList.remove('hover', 'focus', 'active');
-          button.style.removeProperty('background-color');
-          button.style.removeProperty('border-color');
-          button.style.removeProperty('color');
-          button.style.removeProperty('transform');
-          button.style.removeProperty('box-shadow');
-          button.style.removeProperty('outline');
-          button.style.removeProperty('transition');
-          
-          // Force normal appearance with !important override
-          button.style.setProperty('background-color', 'white', 'important');
-          button.style.setProperty('border-color', '#d1d5db', 'important');
-          button.style.setProperty('color', '#374151', 'important');
-          button.style.setProperty('transform', 'none', 'important');
-          button.style.setProperty('box-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', 'important');
-          button.style.setProperty('outline', 'none', 'important');
-          button.style.setProperty('transition', 'all 0.1s ease', 'important');
-          
-          // Force reflow to apply styles
-          button.offsetHeight;
           
           console.log(`[Index] Global click - button ${index} after:`, {
             hasFocus: document.activeElement === button,
@@ -469,27 +429,6 @@ const Index = () => {
           console.log('[Index] Executing blur after click');
           (target as HTMLElement).blur();
           (target as HTMLElement).classList.remove('hover', 'focus', 'active');
-          
-          // Aggressive style override for clicked button
-          const button = target as HTMLElement;
-          button.style.removeProperty('background-color');
-          button.style.removeProperty('border-color');
-          button.style.removeProperty('color');
-          button.style.removeProperty('transform');
-          button.style.removeProperty('box-shadow');
-          button.style.removeProperty('outline');
-          button.style.removeProperty('transition');
-          
-          button.style.setProperty('background-color', 'white', 'important');
-          button.style.setProperty('border-color', '#d1d5db', 'important');
-          button.style.setProperty('color', '#374151', 'important');
-          button.style.setProperty('transform', 'none', 'important');
-          button.style.setProperty('box-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', 'important');
-          button.style.setProperty('outline', 'none', 'important');
-          button.style.setProperty('transition', 'all 0.1s ease', 'important');
-          
-          // Force reflow
-          button.offsetHeight;
           
           console.log('[Index] Button state after blur:', {
             hasFocus: document.activeElement === target,
