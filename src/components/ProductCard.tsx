@@ -116,7 +116,7 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
         </div>
           <div className="flex items-center justify-between mt-auto">
             <div className="flex flex-col">
-              <div className="flex items-center gap-1.5 bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-200">
+              <div className="flex items-center gap-1.5 bg-yellow-50 px-1 py-1.5 rounded-full border border-yellow-200">
                 <span className="text-sm font-bold text-gray-900">
                   {rating && rating > 0 ? rating.toFixed(1) : '5.0'}
                 </span>

@@ -4,7 +4,15 @@ import { Plane, Luggage, Package, Feather, Home } from "lucide-react";
 const AboutUsSection = () => {
   const [isReadMore, setIsReadMore] = useState(false);
   return (
-    <section className="bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white py-12 lg:py-20 relative overflow-hidden">
+    <section className="bg-gradient-to-br  from-gray-900 via-black to-gray-800 text-white py-12 lg:py-20 relative overflow-hidden" 
+             style={{
+               backgroundImage: 'url(/bg.jpeg)',
+               backgroundSize: 'cover',
+               backgroundPosition: 'center',
+               backgroundRepeat: 'no-repeat'
+             }}>
+      {/* Semi-transparent overlay for better text readability */}
+      <div className="absolute inset-0 bg-black bg-opacity-60"></div>
       {/* Decorative Elements */}
       <div className="absolute top-12 left-8 text-red-600 text-6xl font-bold opacity-30">///</div>
       <div className="absolute bottom-0 right-0 w-48 h-48 bg-red-600 rounded-tl-full opacity-10"></div>

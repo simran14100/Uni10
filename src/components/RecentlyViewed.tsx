@@ -250,12 +250,13 @@ export const RecentlyViewed = ({
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center text-sm text-yellow-500 mt-2">
-                      {"★".repeat(5)}
-                      <span className="ml-1 text-gray-500 uppercase">
-                        (5)
-                      </span>
+                    <div className="flex items-center bg-yellow-50 py-2 px-3 rounded-full border border-yellow-200 mt-2" style={{minWidth: 'auto', width: 'fit-content', maxWidth: 'none'}}>
+                      <span className="text-sm font-bold text-gray-900 leading-none" style={{paddingRight: '2px'}}>4.2</span>
+                      <span className="text-yellow-500 leading-none" style={{fontSize: '14px'}}>★</span>
                     </div>
+                    <span className="text-xs text-gray-600 mt-1 font-medium">
+                      4.9K Ratings
+                    </span>
                   </div>
                 </Card>
               </Link>
