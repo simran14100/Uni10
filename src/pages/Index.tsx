@@ -1067,12 +1067,12 @@ const Index = () => {
               {/* Navigation Buttons - Mobile */}
               <div className="flex sm:hidden justify-center gap-2 mt-6">
                 <CarouselPrevious 
-                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-                  onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
+                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 transition-all duration-200 shadow-md focus:outline-none focus:ring-0 active:scale-95" 
+                  onTouchEnd={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
                 />
                 <CarouselNext 
-                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-                  onMouseDown={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
+                  className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 transition-all duration-200 shadow-md focus:outline-none focus:ring-0 active:scale-95" 
+                  onTouchEnd={(e) => setTimeout(() => e.currentTarget.blur(), 150)}
                 />
               </div>
             </Carousel>
