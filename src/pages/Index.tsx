@@ -238,7 +238,7 @@ const Index = () => {
   const clearHoverState = (e: React.TouchEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => {
     if (!e?.currentTarget) return;
     
-    e.preventDefault(); // Prevent default behavior
+    // Don't prevent default - let the carousel work!
     const button = e.currentTarget;
     
     // Immediate blur
