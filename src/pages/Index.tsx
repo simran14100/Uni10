@@ -237,13 +237,27 @@ const Index = () => {
   // Handler to clear hover states on mobile after touch
   const clearHoverState = (e: React.TouchEvent<HTMLButtonElement>) => {
     const button = e.currentTarget;
+    // Immediate blur
+    button.blur();
+    
+    // More aggressive state clearing after 1 second
     setTimeout(() => {
       button.blur();
-      // Force remove hover state by removing pointer-events temporarily
+      button.classList.remove('hover', 'focus', 'active');
+      button.style.removeProperty('background-color');
+      button.style.removeProperty('border-color');
+      button.style.removeProperty('color');
+      button.style.removeProperty('transform');
+      button.style.removeProperty('box-shadow');
+      
+      // Force reflow to clear any cached states
+      button.offsetHeight;
+      
+      // Temporarily disable and re-enable hover
       button.style.pointerEvents = 'none';
       setTimeout(() => {
         button.style.pointerEvents = 'auto';
-      }, 50);
+      }, 100);
     }, 1000);
   };
   const { user } = useAuth();
@@ -601,6 +615,84 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#F5F3ED] overflow-x-hidden sm:overflow-x-visible text-gray-800">
+      <style>{`
+        @media (max-width: 640px) and (hover: none) and (pointer: coarse) {
+          button[data-slot="carousel-previous"],
+          button[data-slot="carousel-next"],
+          .carousel-previous,
+          .carousel-next,
+          button[class*="carousel"],
+          button[class*="CarouselPrevious"],
+          button[class*="CarouselNext"] {
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            user-select: none !important;
+            outline: none !important;
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: none !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+          }
+          
+          button[data-slot="carousel-previous"]:hover,
+          button[data-slot="carousel-next"]:hover,
+          .carousel-previous:hover,
+          .carousel-next:hover,
+          button[class*="carousel"]:hover,
+          button[class*="CarouselPrevious"]:hover,
+          button[class*="CarouselNext"]:hover {
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: none !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+          }
+          
+          button[data-slot="carousel-previous"]:active,
+          button[data-slot="carousel-next"]:active,
+          .carousel-previous:active,
+          .carousel-next:active,
+          button[class*="carousel"]:active,
+          button[class*="CarouselPrevious"]:active,
+          button[class*="CarouselNext"]:active {
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: scale(0.95) !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+          }
+          
+          button[data-slot="carousel-previous"]:focus,
+          button[data-slot="carousel-next"]:focus,
+          .carousel-previous:focus,
+          .carousel-next:focus,
+          button[class*="carousel"]:focus,
+          button[class*="CarouselPrevious"]:focus,
+          button[class*="CarouselNext"]:focus {
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: none !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+            outline: none !important;
+          }
+          
+          button[data-slot="carousel-previous"][style],
+          button[data-slot="carousel-next"][style],
+          .carousel-previous[style],
+          .carousel-next[style],
+          button[class*="carousel"][style],
+          button[class*="CarouselPrevious"][style],
+          button[class*="CarouselNext"][style] {
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: none !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+          }
+        }
+      `}</style>
       <Navbar />
       <RunningText />
 
