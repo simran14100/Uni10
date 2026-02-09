@@ -152,6 +152,8 @@ const Shop = ({ sortBy = "all", collectionSlug }: ShopPageProps = {}) => {
   const [apiCategories, setApiCategories] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [productUpdateKey, setProductUpdateKey] = useState(0); // New state variable for triggering updates
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+  const [isGenderCategoriesOpen, setIsGenderCategoriesOpen] = useState(true);
 
   const [showAllColors, setShowAllColors] = useState(false);
 
@@ -764,9 +766,9 @@ const fetchProducts = async () => {
                   </Button>
 
                   {/* Categories Filter */}
-                  <Collapsible defaultOpen={true}>
+                  <Collapsible open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
                     <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                      Categories <ChevronDown className="w-4 h-4" />
+                      Categories {isCategoriesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 pb-2 space-y-2">
                       {availableCategories.map((category) => (
@@ -811,9 +813,9 @@ const fetchProducts = async () => {
 
                   {/* Gender Subcategories Dropdown - Only show when gender is selected */}
                   {selectedGender !== "All" && genderSubcategories.length > 1 && (
-                    <Collapsible defaultOpen={true}>
+                    <Collapsible open={isGenderCategoriesOpen} onOpenChange={setIsGenderCategoriesOpen}>
                       <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                        {selectedGender} Categories <ChevronDown className="w-4 h-4" />
+                        {selectedGender} Categories {isGenderCategoriesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </CollapsibleTrigger>
                       <CollapsibleContent className="pt-4 pb-2 space-y-2">
                         {genderSubcategories.map((subcat) => (
@@ -987,9 +989,9 @@ const fetchProducts = async () => {
           <aside className="hidden lg:block w-64 pr-8 shrink-0">
             <div className="flex flex-col space-y-6 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
               {/* Categories Filter */}
-              <Collapsible defaultOpen={true}>
+              <Collapsible open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
                 <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                  Categories <ChevronDown className="w-4 h-4" />
+                  Categories {isCategoriesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 pb-2 space-y-2">
                   {availableCategories.map((category) => (
@@ -1009,9 +1011,9 @@ const fetchProducts = async () => {
               </Collapsible>
 
               {/* Gender Filter */}
-              <Collapsible defaultOpen={true}>
+              <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen}>
                 <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                  Gender <ChevronDown className="w-4 h-4" />
+                  Gender {isGenderOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 pb-2 space-y-2">
                   {[ "All", "Male", "Female", "Unisex" ].map((gender) => (
@@ -1033,9 +1035,9 @@ const fetchProducts = async () => {
 
               {/* Gender Subcategories Dropdown - Only show when gender is selected */}
               {selectedGender !== "All" && genderSubcategories.length > 1 && (
-                <Collapsible defaultOpen={true}>
+                <Collapsible open={isGenderCategoriesOpen} onOpenChange={setIsGenderCategoriesOpen}>
                   <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                    {selectedGender} Categories <ChevronDown className="w-4 h-4" />
+                    {selectedGender} Categories {isGenderCategoriesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </CollapsibleTrigger>
                   <CollapsibleContent className="pt-4 pb-2 space-y-2">
                     {genderSubcategories.map((subcat) => (
@@ -1056,9 +1058,9 @@ const fetchProducts = async () => {
               )}
 
               {/* Color Filter */}
-              <Collapsible defaultOpen={true}>
+              <Collapsible open={isColorOpen} onOpenChange={setIsColorOpen}>
                 <CollapsibleTrigger className="flex justify-between items-center w-full py-2 text-lg font-semibold border-b">
-                  Color <ChevronDown className="w-4 h-4" />
+                  Color {isColorOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 pb-2 space-y-2">
                   {(showAllColors ? availableColors : availableColors.slice(0, 10)).map((color) => {
