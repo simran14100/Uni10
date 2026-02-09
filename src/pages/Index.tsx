@@ -235,25 +235,21 @@ const Index = () => {
 
 
   // Handler to clear hover states on mobile after touch
-  const clearHoverState = (e: React.TouchEvent<HTMLButtonElement>) => {
+  const clearHoverState = (e: React.TouchEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => {
     const button = e.currentTarget;
-    // Immediate blur
-    button.blur();
     
-    // More aggressive state clearing after 1 second
+    // Don't prevent default - let the button work normally
+    // Clear focus after a short delay to allow the click to complete
     setTimeout(() => {
       button.blur();
-      button.classList.remove('hover', 'focus', 'active');
-      button.style.removeProperty('background-color');
-      button.style.removeProperty('border-color');
-      button.style.removeProperty('color');
-      button.style.removeProperty('transform');
-      button.style.removeProperty('box-shadow');
       
-      // Force reflow to clear any cached states
-      button.offsetHeight;
-      
-      }, 100);
+      // Additional blur in requestAnimationFrame to ensure it clears
+      requestAnimationFrame(() => {
+        button.blur();
+        // Force a reflow to clear browser state
+        void button.offsetHeight;
+      });
+    }, 50);
   };
 
   // Aggressive focus clearing for carousel buttons
@@ -716,6 +712,31 @@ const Index = () => {
           button[class*="carousel"]:active,
           button[class*="CarouselPrevious"]:active,
           button[class*="CarouselNext"]:active {
+            transform: scale(0.95) !important;
+          }
+        }
+        
+        /* Add this to your existing style tag */
+        button[data-slot="carousel-previous"]:focus,
+        button[data-slot="carousel-next"]:focus {
+          outline: none !important;
+          background-color: white !important;
+          border-color: #d1d5db !important;
+        }
+
+        button[data-slot="carousel-previous"]:not(:active):not(:hover),
+        button[data-slot="carousel-next"]:not(:active):not(:hover) {
+          background-color: white !important;
+          border-color: #d1d5db !important;
+          color: #374151 !important;
+        }
+          button[data-slot="carousel-previous"]:active,
+          button[data-slot="carousel-next"]:active,
+          .carousel-previous:active,
+          .carousel-next:active,
+          button[class*="carousel"]:active,
+          button[class*="CarouselPrevious"]:active,
+          button[class*="CarouselNext"]:active {
             background-color: white !important;
             border-color: #d1d5db !important;
             color: #374151 !important;
@@ -901,7 +922,6 @@ const Index = () => {
           <div className="flex sm:hidden justify-center gap-2 mt-6">
             <CarouselPrevious 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
-              onTouchEnd={clearHoverState}
             />
             <CarouselNext 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
