@@ -260,6 +260,39 @@ const Index = () => {
       }, 100);
     }, 1000);
   };
+
+  // Global touch end handler to clear all button states
+  useEffect(() => {
+    const handleGlobalTouchEnd = () => {
+      // Target all carousel buttons aggressively
+      const buttons = document.querySelectorAll('button[data-slot*="carousel"], button[class*="carousel"], button[class*="Carousel"]');
+      buttons.forEach((btn) => {
+        const button = btn as HTMLElement;
+        button.blur();
+        button.classList.remove('hover', 'focus', 'active');
+        button.style.removeProperty('background-color');
+        button.style.removeProperty('border-color');
+        button.style.removeProperty('color');
+        button.style.removeProperty('transform');
+        button.style.removeProperty('box-shadow');
+        
+        // Force normal appearance
+        button.style.backgroundColor = 'white';
+        button.style.borderColor = '#d1d5db';
+        button.style.color = '#374151';
+        button.style.transform = 'none';
+        button.style.boxShadow = '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)';
+      });
+    };
+
+    document.addEventListener('touchend', handleGlobalTouchEnd);
+    document.addEventListener('touchcancel', handleGlobalTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchend', handleGlobalTouchEnd);
+      document.removeEventListener('touchcancel', handleGlobalTouchEnd);
+    };
+  }, []);
   const { user } = useAuth();
   useEffect(() => {
     let ignore = false;
@@ -616,7 +649,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#F5F3ED] overflow-x-hidden sm:overflow-x-visible text-gray-800">
       <style>{`
-        @media (max-width: 640px) and (hover: none) and (pointer: coarse) {
+        /* Nuclear option for mobile carousel buttons */
+        @media (max-width: 768px) {
           button[data-slot="carousel-previous"],
           button[data-slot="carousel-next"],
           .carousel-previous,
@@ -624,17 +658,19 @@ const Index = () => {
           button[class*="carousel"],
           button[class*="CarouselPrevious"],
           button[class*="CarouselNext"] {
-            -webkit-tap-highlight-color: transparent !important;
-            -webkit-touch-callout: none !important;
-            user-select: none !important;
-            outline: none !important;
             background-color: white !important;
             border-color: #d1d5db !important;
             color: #374151 !important;
             transform: none !important;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            user-select: none !important;
+            outline: none !important;
+            transition: all 0.1s ease !important;
           }
           
+          /* Completely disable hover on mobile */
           button[data-slot="carousel-previous"]:hover,
           button[data-slot="carousel-next"]:hover,
           .carousel-previous:hover,
@@ -649,6 +685,7 @@ const Index = () => {
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
           }
           
+          /* Active state - slight scale for feedback */
           button[data-slot="carousel-previous"]:active,
           button[data-slot="carousel-next"]:active,
           .carousel-previous:active,
@@ -663,6 +700,7 @@ const Index = () => {
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
           }
           
+          /* Focus state - no outline */
           button[data-slot="carousel-previous"]:focus,
           button[data-slot="carousel-next"]:focus,
           .carousel-previous:focus,
@@ -678,6 +716,7 @@ const Index = () => {
             outline: none !important;
           }
           
+          /* Override any inline styles */
           button[data-slot="carousel-previous"][style],
           button[data-slot="carousel-next"][style],
           .carousel-previous[style],
@@ -690,6 +729,29 @@ const Index = () => {
             color: #374151 !important;
             transform: none !important;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+          }
+          
+          /* Force remove hover effect completely */
+          * {
+            -webkit-tap-highlight-color: transparent !important;
+          }
+        }
+        
+        /* Additional mobile-specific override */
+        @media (max-width: 640px) {
+          button[data-slot="carousel-previous"],
+          button[data-slot="carousel-next"],
+          .carousel-previous,
+          .carousel-next,
+          button[class*="carousel"],
+          button[class*="CarouselPrevious"],
+          button[class*="CarouselNext"] {
+            pointer-events: auto !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
           }
         }
       `}</style>
