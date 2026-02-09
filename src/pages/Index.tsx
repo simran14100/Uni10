@@ -379,12 +379,12 @@ const Index = () => {
           // Force reflow
           button.offsetHeight;
           
-          // Temporarily disable pointer events to break hover state
+          // Temporarily disable pointer events to break hover state (shorter time)
           const originalPointerEvents = button.style.pointerEvents;
           button.style.setProperty('pointer-events', 'none', 'important');
           setTimeout(() => {
             button.style.setProperty('pointer-events', originalPointerEvents || 'auto', 'important');
-          }, 30);
+          }, 10);
         }, 30);
       }
     };
@@ -453,7 +453,7 @@ const Index = () => {
             classes: Array.from(button.classList)
           });
         });
-      }, 50);
+      }, 20);
     };
 
     // Immediate blur on button click
@@ -505,12 +505,12 @@ const Index = () => {
           // Force reflow
           button.offsetHeight;
           
-          // Temporarily disable pointer events to break hover state
+          // Temporarily disable pointer events to break hover state (shorter time)
           const originalPointerEvents = button.style.pointerEvents;
           button.style.setProperty('pointer-events', 'none', 'important');
           setTimeout(() => {
             button.style.setProperty('pointer-events', originalPointerEvents || 'auto', 'important');
-          }, 30);
+          }, 10);
           
           console.log('[Index] Button state after blur:', {
             hasFocus: document.activeElement === target,
