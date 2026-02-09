@@ -236,20 +236,20 @@ const Index = () => {
 
   // Handler to clear hover states on mobile after touch
   const clearHoverState = (e: React.TouchEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => {
+    if (!e?.currentTarget) return;
+    
+    e.preventDefault(); // Prevent default behavior
     const button = e.currentTarget;
     
-    // Don't prevent default - let the button work normally
-    // Clear focus after a short delay to allow the click to complete
-    setTimeout(() => {
+    // Immediate blur
+    button.blur();
+    
+    // Force blur in next frame
+    requestAnimationFrame(() => {
       button.blur();
-      
-      // Additional blur in requestAnimationFrame to ensure it clears
-      requestAnimationFrame(() => {
-        button.blur();
-        // Force a reflow to clear browser state
-        void button.offsetHeight;
-      });
-    }, 50);
+      // Remove focus-related attributes
+      button.setAttribute('data-focus', 'false');
+    });
   };
 
   // Aggressive focus clearing for carousel buttons
@@ -831,6 +831,26 @@ const Index = () => {
           }
         }
         
+        /* Force remove focus/active states on carousel buttons */
+        button[class*="Carousel"]:focus,
+        button[class*="Carousel"]:active,
+        button[class*="Carousel"]:focus-visible {
+          outline: none !important;
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+        }
+
+        /* Remove hover styles on mobile completely */
+        @media (hover: none) and (pointer: coarse) {
+          button[class*="Carousel"]:hover,
+          button[class*="Carousel"]:focus,
+          button[class*="Carousel"]:active {
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: none !important;
+          }
+        }
+        
         /* Additional mobile-specific override */
         @media (max-width: 640px) {
           button[data-slot="carousel-previous"],
@@ -912,19 +932,57 @@ const Index = () => {
           <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
             <CarouselPrevious 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              onClick={(e) => {
+                if (e?.currentTarget) {
+                  e.currentTarget.blur();
+                  setTimeout(() => e.currentTarget?.blur(), 10);
+                }
+              }}
             />
             <CarouselNext 
               className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              onClick={(e) => {
+                if (e?.currentTarget) {
+                  e.currentTarget.blur();
+                  setTimeout(() => e.currentTarget?.blur(), 10);
+                }
+              }}
             />
           </div>
           
           {/* Navigation Buttons - Mobile */}
           <div className="flex sm:hidden justify-center gap-2 mt-6">
             <CarouselPrevious 
-              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 transition-all duration-200 shadow-md focus:outline-none focus:ring-0 active:scale-95" 
+              onClick={(e) => {
+                if (e?.currentTarget) {
+                  e.currentTarget.blur();
+                  setTimeout(() => e.currentTarget?.blur(), 10);
+                }
+              }}
+              onTouchStart={(e) => e?.currentTarget?.blur()}
+              onTouchEnd={(e) => {
+                if (e?.currentTarget) {
+                  e.currentTarget.blur();
+                  setTimeout(() => e.currentTarget?.blur(), 50);
+                }
+              }}
             />
             <CarouselNext 
-              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" 
+              className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 transition-all duration-200 shadow-md focus:outline-none focus:ring-0 active:scale-95" 
+              onClick={(e) => {
+                if (e?.currentTarget) {
+                  e.currentTarget.blur();
+                  setTimeout(() => e.currentTarget?.blur(), 10);
+                }
+              }}
+              onTouchStart={(e) => e?.currentTarget?.blur()}
+              onTouchEnd={(e) => {
+                if (e?.currentTarget) {
+                  e.currentTarget.blur();
+                  setTimeout(() => e.currentTarget?.blur(), 50);
+                }
+              }}
             />
           </div>
         </Carousel>
