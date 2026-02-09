@@ -378,13 +378,6 @@ const Index = () => {
           
           // Force reflow
           button.offsetHeight;
-          
-          // Temporarily disable pointer events to break hover state (shorter time)
-          const originalPointerEvents = button.style.pointerEvents;
-          button.style.setProperty('pointer-events', 'none', 'important');
-          setTimeout(() => {
-            button.style.setProperty('pointer-events', originalPointerEvents || 'auto', 'important');
-          }, 10);
         }, 30);
       }
     };
@@ -440,13 +433,6 @@ const Index = () => {
           
           // Force reflow to apply styles
           button.offsetHeight;
-          
-          // Remove any hover/active pseudo-classes by temporarily disabling pointer events
-          const originalPointerEvents = button.style.pointerEvents;
-          button.style.setProperty('pointer-events', 'none', 'important');
-          setTimeout(() => {
-            button.style.setProperty('pointer-events', originalPointerEvents || 'auto', 'important');
-          }, 30);
           
           console.log(`[Index] Global click - button ${index} after:`, {
             hasFocus: document.activeElement === button,
@@ -504,13 +490,6 @@ const Index = () => {
           
           // Force reflow
           button.offsetHeight;
-          
-          // Temporarily disable pointer events to break hover state (shorter time)
-          const originalPointerEvents = button.style.pointerEvents;
-          button.style.setProperty('pointer-events', 'none', 'important');
-          setTimeout(() => {
-            button.style.setProperty('pointer-events', originalPointerEvents || 'auto', 'important');
-          }, 10);
           
           console.log('[Index] Button state after blur:', {
             hasFocus: document.activeElement === target,
