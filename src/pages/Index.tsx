@@ -285,12 +285,44 @@ const Index = () => {
       });
     };
 
+    // Immediate clear on touch start
+    const handleTouchStart = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'BUTTON' && (
+        target.getAttribute('data-slot')?.includes('carousel') ||
+        target.className.includes('carousel') ||
+        target.className.includes('Carousel')
+      )) {
+        // Clear immediately on touch start
+        setTimeout(() => {
+          (target as HTMLElement).blur();
+          (target as HTMLElement).classList.remove('hover', 'focus', 'active');
+        }, 100);
+      }
+    };
+
+    // Clear on any click
+    const handleGlobalClick = () => {
+      setTimeout(() => {
+        const buttons = document.querySelectorAll('button[data-slot*="carousel"], button[class*="carousel"], button[class*="Carousel"]');
+        buttons.forEach((btn) => {
+          const button = btn as HTMLElement;
+          button.blur();
+          button.classList.remove('hover', 'focus', 'active');
+        });
+      }, 50);
+    };
+
     document.addEventListener('touchend', handleGlobalTouchEnd);
     document.addEventListener('touchcancel', handleGlobalTouchEnd);
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('click', handleGlobalClick);
 
     return () => {
       document.removeEventListener('touchend', handleGlobalTouchEnd);
       document.removeEventListener('touchcancel', handleGlobalTouchEnd);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('click', handleGlobalClick);
     };
   }, []);
   const { user } = useAuth();
@@ -668,6 +700,7 @@ const Index = () => {
             user-select: none !important;
             outline: none !important;
             transition: all 0.1s ease !important;
+            position: relative !important;
           }
           
           /* Completely disable hover on mobile */
@@ -716,6 +749,22 @@ const Index = () => {
             outline: none !important;
           }
           
+          /* Focus-visible state - no outline */
+          button[data-slot="carousel-previous"]:focus-visible,
+          button[data-slot="carousel-next"]:focus-visible,
+          .carousel-previous:focus-visible,
+          .carousel-next:focus-visible,
+          button[class*="carousel"]:focus-visible,
+          button[class*="CarouselPrevious"]:focus-visible,
+          button[class*="CarouselNext"]:focus-visible {
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: none !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+            outline: none !important;
+          }
+          
           /* Override any inline styles */
           button[data-slot="carousel-previous"][style],
           button[data-slot="carousel-next"][style],
@@ -734,6 +783,21 @@ const Index = () => {
           /* Force remove hover effect completely */
           * {
             -webkit-tap-highlight-color: transparent !important;
+          }
+          
+          /* Remove focus ring immediately after click */
+          button[data-slot="carousel-previous"]:not(:hover):not(:active),
+          button[data-slot="carousel-next"]:not(:hover):not(:active),
+          .carousel-previous:not(:hover):not(:active),
+          .carousel-next:not(:hover):not(:active),
+          button[class*="carousel"]:not(:hover):not(:active),
+          button[class*="CarouselPrevious"]:not(:hover):not(:active),
+          button[class*="CarouselNext"]:not(:hover):not(:active) {
+            background-color: white !important;
+            border-color: #d1d5db !important;
+            color: #374151 !important;
+            transform: none !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
           }
         }
         
