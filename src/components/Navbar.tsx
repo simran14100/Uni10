@@ -138,12 +138,12 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
               <div className="flex items-center h-full">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="link"
                   size="icon"
                   onClick={handleSearchCollapse}
-                  className="text-white hover:bg-white/20 hover:text-white mr-2 p-2 min-w-[44px] min-h-[44px]"
+                  className="text-white hover:text-white hover:bg-white/20 mr-2 p-2 min-w-[44px] min-h-[44px] no-underline"
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-5 w-5 text-white" />
                 </Button>
                 <form onSubmit={handleSearch} className="flex-1">
                   <div className="relative">
@@ -165,12 +165,12 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                     {searchQuery && (
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="link"
                         size="icon"
-                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-white"
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 text-white hover:text-white no-underline"
                         onClick={() => setSearchQuery("")}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 text-white" />
                       </Button>
                     )}
                   </div>
@@ -300,13 +300,13 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
             {/* Mobile Search Icon - Only visible on mobile */}
             <Button
               type="button"
-              variant="ghost"
+              variant="link"
               size="icon"
               onClick={handleSearchFocus}
-              className="md:hidden text-white/90 hover:bg-gray-700 hover:text-black p-2"
+              className="md:hidden text-white hover:text-white hover:bg-white/10 p-2 no-underline"
               aria-label="Search"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-5 w-5 text-white" />
             </Button>
             
             {user ? (
@@ -323,66 +323,65 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                 </Link> */}
 
                 {/* Support: pehle se hi sirf md+ pe dikh raha tha */}
-                <Link to="/account/support" className="hidden md:block">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-white/90 hover:bg-gray-700"
-                  >
-                    Support
-                  </Button>
-                </Link>
+<Link to="/account/support" className="hidden md:block">
+  <Button
+    variant="link"
+    size="sm"
+    className="text-white hover:text-black hover:bg-white no-underline px-3 py-2 transition-colors"
+  >
+    Support
+  </Button>
+</Link>
 
-                {/* Dashboard / User Profile */}
-                <Link to="/dashboard">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white/90 hover:bg-gray-700"
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                </Link>
+{/* Dashboard / User Profile */}
+<Link to="/dashboard">
+  <Button
+    variant="link"
+    size="icon"
+    className="text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+  >
+    <User className="h-5 w-5 text-white md:hover:text-black" />
+  </Button>
+</Link>
 
- 
-              </>
-            ) : (
-              <Link to="/auth">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white/90 hover:bg-gray-700"
-                >
-                  <User className="h-5 w-5" />
-                </Button>
-              </Link>
-            )}
+</>
+) : (
+  <Link to="/auth">
+    <Button
+      variant="link"
+      size="icon"
+      className="text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+    >
+      <User className="h-5 w-5" />
+    </Button>
+  </Link>
+)}
 
-            {/* Cart (same desktop + mobile) */}
-            <Link to="/cart">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-white/90 hover:bg-gray-700"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {liveCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
-                    {liveCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+{/* Cart (same desktop + mobile) */}
+<Link to="/cart">
+  <Button
+    variant="link"
+    size="icon"
+    className="relative text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+  >
+    <ShoppingCart className="h-5 w-5 md:inherit-color" />
+    {liveCount > 0 && (
+      <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
+        {liveCount}
+      </span>
+    )}
+  </Button>
+</Link>
 
             {/* Mobile Menu Toggle (only mobile) */}
             <Button
-              variant="ghost"
+              variant="link"
               size="icon"
-              className="md:hidden text-white/90 hover:bg-gray-700"
+              className="md:hidden text-white hover:text-white hover:bg-white/10 no-underline"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5 text-white" />
             </Button>
           </div>
         </div>

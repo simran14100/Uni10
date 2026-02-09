@@ -114,8 +114,8 @@ All colors MUST be HSL.
 
 /* Fix for mobile button active states in all carousel navigation */
 @media (max-width: 640px) {
-  /* Universal button reset - catch all */
-  button {
+  /* Universal button reset - catch all BUT EXCLUDE NAVBAR */
+  button:not(nav button):not(nav a button):not(nav div button):not(nav div a button) {
     -webkit-tap-highlight-color: transparent !important;
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
@@ -264,23 +264,23 @@ All colors MUST be HSL.
     background-color: white !important;
   }
   
-  /* Aggressive universal reset for any button with inline styles */
-  button[style] {
+  /* Aggressive universal reset for any button with inline styles - REMOVED for mobile navbar */
+  /* button[style] {
     border-color: #d1d5db !important;
     background-color: white !important;
-  }
+  } */
   
-  /* Mobile click/tap effect */
-  button:active {
+  /* Mobile click/tap effect - EXCLUDE NAVBAR BUTTONS */
+  button:not(nav button):not(nav a button):not(nav div button):not(nav div a button):active {
     transform: scale(0.95) !important;
     transition: transform 0.1s ease !important;
     background-color: #f3f4f6 !important;
     border-color: #9ca3af !important;
   }
   
-  /* Ensure tap effect is visible on mobile */
+  /* Ensure tap effect is visible on mobile - EXCLUDE NAVBAR BUTTONS */
   @media (max-width: 640px) {
-    button:active {
+    button:not(nav button):not(nav a button):not(nav div button):not(nav div a button):active {
       transform: scale(0.9) !important;
       transition: transform 0.05s ease !important;
       background-color: #e5e7eb !important;
@@ -333,6 +333,42 @@ button[class*="p-2"][class*="bg-white"]:active {
   }
 }
 
+/* FINAL MOBILE NAVBAR OVERRIDE - Must come after all other button rules */
+@media (max-width: 768px) {
+  nav button,
+  nav button:hover,
+  nav button:active,
+  nav button:focus,
+  button[class*="text-white/90"],
+  button[class*="text-white/90"]:hover,
+  button[class*="text-white/90"]:active,
+  button[class*="text-white/90"]:focus,
+  button[class*="md:hidden"],
+  button[class*="md:hidden"]:hover,
+  button[class*="md:hidden"]:active,
+  button[class*="md:hidden"]:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+}
+
+/* ULTRA HIGH SPECIFICITY OVERRIDE */
+@media (max-width: 768px) {
+  body nav div button,
+  body nav div button:hover,
+  body nav div button:active,
+  body nav div button:focus,
+  body nav div a button,
+  body nav div a button:hover,
+  body nav div a button:active,
+  body nav div a button:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+}
+
 /* Mobile specific effects for Show All buttons */
 @media (max-width: 640px) {
   a[href="/videos"] button:hover,
@@ -347,3 +383,376 @@ button[class*="p-2"][class*="bg-white"]:active {
     box-shadow: 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
   }
 }
+
+/* Override white background for navbar buttons specifically in mobile */
+@media (max-width: 768px) {
+  nav button {
+    background-color: transparent !important;
+  }
+
+  nav button:hover {
+    background-color: transparent !important;
+  }
+
+  nav button:active {
+    background-color: transparent !important;
+  }
+
+  /* More specific targeting for mobile navbar buttons */
+  button[class*="text-white/90"],
+  button[class*="md:hidden"] {
+    background-color: transparent !important;
+  }
+
+  button[class*="text-white/90"]:hover,
+  button[class*="md:hidden"]:hover {
+    background-color: transparent !important;
+  }
+
+  button[class*="text-white/90"]:active,
+  button[class*="md:hidden"]:active {
+    background-color: transparent !important;
+  }
+
+  /* Force transparent background on all navbar buttons in mobile */
+  @media (max-width: 768px) {
+    nav button,
+    button[class*="text-white/90"],
+    button[class*="md:hidden"] {
+      background-color: transparent !important;
+    }
+  }
+}
+
+/* Ultra-specific override for mobile navbar buttons */
+@media (max-width: 768px) {
+  button[style*="backgroundColor"],
+  button[style*="background-color"] {
+    background-color: transparent !important;
+  }
+  
+  nav > div > button,
+  nav > div > a > button {
+    background-color: transparent !important;
+  }
+  
+  nav > div > button:hover,
+  nav > div > a > button:hover {
+    background-color: transparent !important;
+  }
+  
+  nav > div > button:active,
+  nav > div > a > button:active {
+    background-color: transparent !important;
+  }
+}
+
+/* Final override - most specific selector possible */
+@media (max-width: 768px) {
+  nav button[style],
+  nav button[style*="transparent"],
+  nav button[style*="backgroundColor"] {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+  
+  nav button[style]:hover,
+  nav button[style*="transparent"]:hover,
+  nav button[style*="backgroundColor"]:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+}
+
+
+/* FINAL NAVBAR BUTTON FIX - Must be last rule */
+@media (max-width: 768px) {
+  /* Target navbar buttons specifically with highest specificity */
+  nav.fixed button,
+  nav.fixed button:hover,
+  nav.fixed button:active,
+  nav.fixed button:focus,
+  nav.fixed button:focus-visible,
+  nav.fixed a button,
+  nav.fixed a button:hover,
+  nav.fixed a button:active,
+  nav.fixed a button:focus,
+  nav.fixed a button:focus-visible {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  
+  /* Allow only subtle hover effect */
+  nav.fixed button:hover,
+  nav.fixed a button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  /* Remove active state background */
+  nav.fixed button:active,
+  nav.fixed a button:active {
+    background-color: transparent !important;
+    transform: scale(0.95) !important;
+  }
+}
+
+/* ADDITIONAL FIX FOR SMALLER SCREENS - 518px and below */
+@media (max-width: 550px) {
+  nav button,
+  nav button:hover,
+  nav button:active,
+  nav button:focus,
+  nav a button,
+  nav a button:hover,
+  nav a button:active,
+  nav a button:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  nav button:hover,
+  nav a button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* ULTRA SPECIFIC FIX FOR 518px WIDTH */
+@media (max-width: 520px) {
+  html body nav button,
+  html body nav button:hover,
+  html body nav button:active,
+  html body nav button:focus,
+  html body nav a button,
+  html body nav a button:hover,
+  html body nav a button:active,
+  html body nav a button:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    background-size: auto !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  
+  html body nav button:hover,
+  html body nav a button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* ABSOLUTE FINAL OVERRIDE - Highest possible specificity */
+@media (max-width: 768px) {
+  html body nav.fixed div div button,
+  html body nav.fixed div div button:hover,
+  html body nav.fixed div div button:active,
+  html body nav.fixed div div button:focus,
+  html body nav.fixed div div a button,
+  html body nav.fixed div div a button:hover,
+  html body nav.fixed div div a button:active,
+  html body nav.fixed div div a button:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Override accent color for mobile navbar buttons */
+@media (max-width: 768px) {
+  nav button:hover,
+  nav a button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* Override inputs.css white background for buttons */
+@media (max-width: 768px) {
+  nav button,
+  nav a button {
+    background-color: transparent !important;
+  }
+}
+
+/* FINAL ATTEMPT - Most specific rule possible */
+@media (max-width: 768px) {
+  html body nav.fixed div div button,
+  html body nav.fixed div div button:hover,
+  html body nav.fixed div div button:active,
+  html body nav.fixed div div button:focus,
+  html body nav.fixed div div a button,
+  html body nav.fixed div div a button:hover,
+  html body nav.fixed div div a button:active,
+  html body nav.fixed div div a button:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    background-size: auto !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+  }
+}
+
+/* FINAL ULTRA SPECIFIC RULE - Must be absolute last */
+@media (max-width: 520px) {
+  html body nav.fixed div div button[style*="transparent"],
+  html body nav.fixed div div button[style*="transparent"]:hover,
+  html body nav.fixed div div button[style*="transparent"]:active,
+  html body nav.fixed div div button[style*="transparent"]:focus,
+  html body nav.fixed div div a button[style*="transparent"],
+  html body nav.fixed div div a button[style*="transparent"]:hover,
+  html body nav.fixed div div a button[style*="transparent"]:active,
+  html body nav.fixed div div a button[style*="transparent"]:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    background-size: auto !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
+
+/* AGGRESSIVE MOBILE OVERRIDE - All mobile breakpoints */
+@media (max-width: 768px) {
+  /* Target ALL buttons with any inline styles */
+  html body nav button[style],
+  html body nav button[style]:hover,
+  html body nav button[style]:active,
+  html body nav button[style]:focus,
+  html body nav a button[style],
+  html body nav a button[style]:hover,
+  html body nav a button[style]:active,
+  html body nav a button[style]:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    background-size: auto !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  
+  /* Also target buttons without inline styles but with mobile classes */
+  html body nav button[class*="md:hidden"],
+  html body nav button[class*="text-white/90"],
+  html body nav a button[class*="md:hidden"],
+  html body nav a button[class*="text-white/90"] {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+  }
+}
+
+/* NUCLEAR OPTION - Override ghost variant completely for navbar */
+@media (max-width: 768px) {
+  /* Target all navbar buttons - override ghost variant */
+  nav button,
+  nav a button {
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+  }
+  
+  nav button:hover,
+  nav a button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  nav button:active,
+  nav a button:active {
+    background-color: transparent !important;
+  }
+  
+  /* Override ANY Tailwind utility classes */
+  nav button[class],
+  nav a button[class] {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+  
+  nav button[class]:hover,
+  nav a button[class]:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* Maximum specificity for all mobile sizes */
+@media (max-width: 768px) {
+  html body div#root nav.fixed button,
+  html body div#root nav.fixed a button {
+    background-color: transparent !important;
+    background-image: none !important;
+    background: transparent !important;
+  }
+  
+  html body div#root nav.fixed button:hover,
+  html body div#root nav.fixed a button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  html body div#root nav.fixed button:active,
+  html body div#root nav.fixed a button:active {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+}
+
+/* Force navbar icon buttons to inherit text color */
+@media (max-width: 768px) {
+  nav button[class*="variant-link"] svg,
+  nav a button[class*="variant-link"] svg {
+    color: inherit !important;
+  }
+}
+
+/* Fix specific navbar icons - mobile white, desktop hover black */
+@media (max-width: 768px) {
+  nav button svg,
+  nav a button svg {
+    color: white !important;
+  }
+}
+
+@media (min-width: 769px) {
+  nav button:hover svg,
+  nav a button:hover svg {
+    color: black !important;
+  }
+}
+
+/* Fix desktop search bar text visibility */
+@media (min-width: 769px) {
+  nav input[type="text"],
+  nav input::placeholder {
+    color: white !important;
+  }
+  
+  nav input[type="text"]:focus {
+    color: white !important;
+  }
+  
+  /* Remove underline from Support button on hover */
+  nav a button:hover {
+    text-decoration: none !important;
+  }
+}
+

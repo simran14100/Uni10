@@ -30,7 +30,6 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { useButtonActiveStateFix } from "@/hooks/useButtonActiveStateFix";
 import {  Carousel,
   CarouselContent,
   CarouselItem,
@@ -137,9 +136,6 @@ function slugify(input: string) {
 }
 
 const Index = () => {
-  // Use custom hook to fix button active states
-  useButtonActiveStateFix();
-  
   // Feature Rows state
   const [featureRows, setFeatureRows] = useState<FeatureRowData[]>([]);
   const [featureRowsLoading, setFeatureRowsLoading] = useState(true);
@@ -234,6 +230,97 @@ const Index = () => {
 
     return () => {
       ignore = true;
+    };
+  }, []);
+
+  // Global mouse up handler to clear active states from carousel navigation
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      // Clear any active states by removing focus from all elements
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      // Remove any active classes from carousel buttons
+      document.querySelectorAll('button:active').forEach(el => {
+        (el as HTMLElement).blur();
+      });
+    };
+
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchend', handleGlobalMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+
+  // Global mouse up handler to clear active states from all buttons (ProductCard buttons)
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      // Clear any active states by removing focus from all elements
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      // Remove any active classes from all buttons
+      document.querySelectorAll('button:active').forEach(el => {
+        (el as HTMLElement).blur();
+      });
+      // Specifically target carousel navigation buttons
+      document.querySelectorAll('[data-slot="carousel-previous"], [data-slot="carousel-next"]').forEach(el => {
+        (el as HTMLElement).blur();
+      });
+      // Also target any button with carousel-related classes
+      document.querySelectorAll('button[class*="carousel"]').forEach(el => {
+        (el as HTMLElement).blur();
+      });
+    };
+
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchend', handleGlobalMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+
+  // Additional handler specifically for New Arrivals carousel buttons
+  useEffect(() => {
+    const handleNewArrivalsMouseUp = () => {
+      // Target all buttons aggressively
+      const allButtons = document.querySelectorAll('button');
+      allButtons.forEach(el => {
+        (el as HTMLElement).blur();
+        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
+      });
+      
+      // Specifically target New Arrivals carousel buttons
+      const newArrivalsButtons = document.querySelectorAll('.relative button[class*="carousel"], .relative button[class*="CarouselPrevious"], .relative button[class*="CarouselNext"]');
+      newArrivalsButtons.forEach(el => {
+        (el as HTMLElement).blur();
+        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
+        // Force remove any inline styles that might be causing the issue
+        (el as HTMLElement).style.removeProperty('background-color');
+        (el as HTMLElement).style.removeProperty('color');
+        (el as HTMLElement).style.removeProperty('border-color');
+      });
+      
+      // Also target by specific class patterns
+      document.querySelectorAll('[class*="rounded-full"][class*="border-2"]').forEach(el => {
+        (el as HTMLElement).blur();
+        (el as HTMLElement).classList.remove('active', 'focus', 'hover');
+      });
+    };
+
+    document.addEventListener('mouseup', handleNewArrivalsMouseUp);
+    document.addEventListener('touchend', handleNewArrivalsMouseUp);
+    document.addEventListener('click', handleNewArrivalsMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleNewArrivalsMouseUp);
+      document.removeEventListener('touchend', handleNewArrivalsMouseUp);
+      document.removeEventListener('click', handleNewArrivalsMouseUp);
     };
   }, []);
 
