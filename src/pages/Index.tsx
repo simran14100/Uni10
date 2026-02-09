@@ -256,7 +256,7 @@ const Index = () => {
       }, 100);
   };
 
-  // Simple focus clearing for carousel buttons
+  // Aggressive focus clearing for carousel buttons
   useEffect(() => {
     const handleButtonClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -265,17 +265,52 @@ const Index = () => {
         target.className.includes('h-10') && 
         target.className.includes('w-10')
       )) {
-        // Simple blur after click
+        // Immediate blur
+        (target as HTMLElement).blur();
+        
+        // Prevent focus from returning
         setTimeout(() => {
           (target as HTMLElement).blur();
-        }, 10);
+          (target as HTMLElement).setAttribute('tabindex', '-1');
+        }, 5);
+        
+        // Restore tabindex after a short delay
+        setTimeout(() => {
+          (target as HTMLElement).removeAttribute('tabindex');
+        }, 100);
+      }
+    };
+
+    // Also handle touch events for mobile
+    const handleTouchEnd = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'BUTTON' && (
+        target.className.includes('rounded-full') && 
+        target.className.includes('h-10') && 
+        target.className.includes('w-10')
+      )) {
+        // Immediate blur for touch
+        (target as HTMLElement).blur();
+        
+        // Prevent focus from returning
+        setTimeout(() => {
+          (target as HTMLElement).blur();
+          (target as HTMLElement).setAttribute('tabindex', '-1');
+        }, 5);
+        
+        // Restore tabindex after a short delay
+        setTimeout(() => {
+          (target as HTMLElement).removeAttribute('tabindex');
+        }, 100);
       }
     };
 
     document.addEventListener('click', handleButtonClick);
+    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       document.removeEventListener('click', handleButtonClick);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
 
