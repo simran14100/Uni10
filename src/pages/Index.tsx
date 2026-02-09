@@ -741,14 +741,14 @@ const Index = () => {
           
           {/* Navigation Buttons - Desktop */}
           <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
-            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
           </div>
           
           {/* Navigation Buttons - Mobile */}
           <div className="flex sm:hidden justify-center gap-2 mt-6">
-            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
-            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+            <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+            <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
           </div>
         </Carousel>
       </div>
@@ -856,14 +856,14 @@ const Index = () => {
               
               {/* Navigation Buttons - Desktop */}
               <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
               </div>
               
               {/* Navigation Buttons - Mobile */}
               <div className="flex sm:hidden justify-center gap-2 mt-6">
-                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
-                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg" />
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-[#ba8c5c] hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-0 active:scale-95" />
               </div>
             </Carousel>
             

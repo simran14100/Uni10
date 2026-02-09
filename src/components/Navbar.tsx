@@ -296,94 +296,79 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 md:gap-2">
-            {/* Mobile Search Icon - Only visible on mobile */}
-            <Button
-              type="button"
-              variant="link"
-              size="icon"
-              onClick={handleSearchFocus}
-              className="md:hidden text-white hover:text-white hover:bg-white/10 p-2 no-underline"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5 text-white" />
-            </Button>
-            
-            {user ? (
-              <>
-                {/* Wishlist: mobile pe hidden, desktop pe same jaisa */}
-                {/* <Link to="/wishlist">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hidden md:inline-flex text-white/90 hover:bg-white/10"
-                  >
-                    <Heart className="h-5 w-5" />
-                  </Button>
-                </Link> */}
-
-                {/* Support: pehle se hi sirf md+ pe dikh raha tha */}
-<Link to="/account/support" className="hidden md:block">
+         <div className="flex items-center -space-x-2 md:space-x-0 md:gap-2">
+  {/* Mobile Search Icon - Only visible on mobile */}
   <Button
-    variant="link"
-    size="sm"
-    className="text-white hover:text-black hover:bg-white no-underline px-3 py-2 transition-colors"
-  >
-    Support
-  </Button>
-</Link>
-
-{/* Dashboard / User Profile */}
-<Link to="/dashboard">
-  <Button
+    type="button"
     variant="link"
     size="icon"
-    className="text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+    onClick={handleSearchFocus}
+    className="md:hidden text-white hover:text-white hover:bg-white/10 no-underline"
+    aria-label="Search"
   >
-    <User className="h-5 w-5 text-white md:hover:text-black" />
+    <Search className="h-5 w-5 text-white" />
   </Button>
-</Link>
-
-</>
-) : (
-  <Link to="/auth">
+  
+  {user ? (
+    <>
+      {/* Support: pehle se hi sirf md+ pe dikh raha tha */}
+      <Link to="/account/support" className="hidden md:block">
+        <Button
+          variant="link"
+          size="sm"
+          className="text-white hover:text-black hover:bg-white no-underline px-3 py-2 transition-colors"
+        >
+          Support
+        </Button>
+      </Link>
+      {/* Dashboard / User Profile */}
+      <Link to="/dashboard">
+        <Button
+          variant="link"
+          size="icon"
+          className="text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+        >
+          <User className="h-5 w-5 text-white md:hover:text-black" />
+        </Button>
+      </Link>
+    </>
+  ) : (
+    <Link to="/auth">
+      <Button
+        variant="link"
+        size="icon"
+        className="text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+      >
+        <User className="h-5 w-5" />
+      </Button>
+    </Link>
+  )}
+  {/* Cart (same desktop + mobile) */}
+  <Link to="/cart">
     <Button
       variant="link"
       size="icon"
-      className="text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+      className="relative text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
     >
-      <User className="h-5 w-5" />
+      <ShoppingCart className="h-5 w-5 md:inherit-color" />
+      {liveCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
+          {liveCount}
+        </span>
+      )}
     </Button>
   </Link>
-)}
-
-{/* Cart (same desktop + mobile) */}
-<Link to="/cart">
+  {/* Mobile Menu Toggle (only mobile) */}
   <Button
     variant="link"
     size="icon"
-    className="relative text-white md:hover:text-black hover:bg-white/10 md:hover:bg-white no-underline transition-colors"
+    className="md:hidden text-white hover:text-white hover:bg-white/10 no-underline"
+    onClick={() => setIsMenuOpen(!isMenuOpen)}
+    aria-label="Toggle menu"
   >
-    <ShoppingCart className="h-5 w-5 md:inherit-color" />
-    {liveCount > 0 && (
-      <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
-        {liveCount}
-      </span>
-    )}
+    <Menu className="h-5 w-5 text-white" />
   </Button>
-</Link>
-
-            {/* Mobile Menu Toggle (only mobile) */}
-            <Button
-              variant="link"
-              size="icon"
-              className="md:hidden text-white hover:text-white hover:bg-white/10 no-underline"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              <Menu className="h-5 w-5 text-white" />
-            </Button>
-          </div>
+</div>
         </div>
 
         {/* Mobile Menu (sirf md:hidden, desktop untouched) */}
