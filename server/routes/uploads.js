@@ -32,13 +32,17 @@ const upload = multer({
   storage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB for videos
   fileFilter: function (req, file, cb) {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']; // Added video mimes
+    const allowedMimes = [
+      'image/jpeg', 'image/png', 'image/webp', 
+      'video/mp4', 'video/webm', 'video/quicktime', // Original video mimes
+      'video/mpeg', 'video/mpg', 'video/3gpp', 'video/x-msvideo' // Additional video mimes
+    ];
     console.log('File mimetype:', file.mimetype);
     if (allowedMimes.includes(file.mimetype.toLowerCase())) {
       cb(null, true);
     } else {
       console.log('Disallowed mimetype:', file.mimetype);
-      cb(new Error('Only JPEG, PNG, WebP images, MP4, WebM, and MOV videos are allowed'));
+      cb(new Error('Only JPEG, PNG, WebP images, MP4, WebM, MOV, MPEG, and AVI videos are allowed'));
     }
   }
 });

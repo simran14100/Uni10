@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-import { Loader2, Star, TrendingUp, Clock, Play, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Star, TrendingUp, Clock, Play, ArrowRight, ChevronLeft, ChevronRight, Volume2, VolumeX } from 'lucide-react';
 
 import { Link } from 'react-router-dom';
 
@@ -54,6 +54,23 @@ export default function InfluencerSection() {
 
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
+  const [isMuted, setIsMuted] = useState(false);
+  const [hasVideoEnded, setHasVideoEnded] = useState(false);
+  const [hasAudioTrack, setHasAudioTrack] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+      if (hasVideoEnded) {
+        setHasVideoEnded(false);
+        videoRef.current.currentTime = 0;
+        videoRef.current.play();
+      }
+    }
+  };
+
 
 
   useEffect(() => {
@@ -63,6 +80,8 @@ export default function InfluencerSection() {
       setLoading(true);
 
       setError(null);
+
+      console.log('=== INFLUENCER SECTION INIT ===');
 
       try {
 
@@ -81,12 +100,19 @@ export default function InfluencerSection() {
           const data = res.json.data;
 
           setInfluencerData(data);
+          
+          console.log('Influencer data loaded:', data.length, 'videos');
+          data.forEach((video, index) => {
+            console.log(`Video ${index}:`, video.videoUrl);
+          });
 
           if (data.length > 0) {
 
             setSelectedVideo(data[0]);
 
             setCurrentVideoIndex(0);
+            
+            console.log('Selected first video:', data[0].videoUrl);
 
           }
 
@@ -105,12 +131,19 @@ export default function InfluencerSection() {
           }
 
           setInfluencerData(json.data);
+          
+          console.log('Influencer data loaded (fallback):', json.data.length, 'videos');
+          json.data.forEach((video, index) => {
+            console.log(`Video ${index}:`, video.videoUrl);
+          });
 
           if (json.data.length > 0) {
 
             setSelectedVideo(json.data[0]);
 
             setCurrentVideoIndex(0);
+            
+            console.log('Selected first video (fallback):', json.data[0].videoUrl);
 
           }
 
@@ -228,7 +261,7 @@ export default function InfluencerSection() {
                   </div>
         </div>
 
-        {/* Mobile View - Carousel */}
+     
         {/* Mobile View - Carousel */}
 <div className="lg:hidden mb-6">
   {/* Main Video Display with Navigation */}
@@ -238,12 +271,16 @@ export default function InfluencerSection() {
       <button
         onClick={(e) => {
           handlePrevious();
-          setTimeout(() => e.currentTarget.blur(), 150);
+          setTimeout(() => {
+            if (e.currentTarget && e.currentTarget.blur) {
+              e.currentTarget.blur();
+            }
+          }, 150);
         }}
-        className="p-2.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 border border-gray-200 focus:outline-none active:scale-95"
+        className="p-2.5 bg-transparent   "
         disabled={influencerData.length <= 1}
       >
-        <ChevronLeft className="w-5 h-5 text-gray-700" />
+        <ChevronLeft className="w-8 h-8 text-white drop-shadow-lg" strokeWidth={2.5} />
       </button>
     </div>
     
@@ -252,12 +289,16 @@ export default function InfluencerSection() {
       <button
         onClick={(e) => {
           handleNext();
-          setTimeout(() => e.currentTarget.blur(), 150);
+          setTimeout(() => {
+            if (e.currentTarget && e.currentTarget.blur) {
+              e.currentTarget.blur();
+            }
+          }, 150);
         }}
-        className="p-2.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 border border-gray-200 focus:outline-none active:scale-95"
+        className="p-2.5 bg-transparent "
         disabled={influencerData.length <= 1}
       >
-        <ChevronRight className="w-5 h-5 text-gray-700" />
+        <ChevronRight className="w-8 h-8 text-white drop-shadow-lg" strokeWidth={2.5} />
       </button>
     </div>
     
@@ -266,19 +307,88 @@ export default function InfluencerSection() {
       {currentVideoIndex + 1} / {influencerData.length}
     </div>
     
+        
+        
     <div className="relative aspect-[9/16] w-full bg-gray-900 overflow-hidden" style={{ minHeight: '400px' }}>
       <video
-        src={selectedVideo?.videoUrl}
-        controls
-        className="w-full h-full object-cover"
-        preload="metadata"
-        onLoadedMetadata={(e) => {
-          const videoElement = e.currentTarget;
-          if (videoElement.duration > 0 && videoElement.readyState >= 2) {
-            videoElement.currentTime = 0.1;
-          }
-        }}
-      />
+                ref={videoRef}
+                src={selectedVideo?.videoUrl}
+                controls
+                muted={false}
+                onClick={(e) => {
+                  // Ensure user interaction enables audio
+                  const video = e.currentTarget;
+                  console.log('Video clicked - Current muted state:', video.muted);
+                  console.log('Video volume:', video.volume);
+                  console.log('Video readyState:', video.readyState);
+                  
+                  video.muted = false;
+                  video.volume = 5.0;
+                  setIsMuted(false);
+                  
+                  console.log('After click - muted:', video.muted, 'volume:', video.volume);
+                }}
+                onVolumeChange={(e) => {
+                  const video = e.currentTarget;
+                  console.log('Volume change event - muted:', video.muted, 'volume:', video.volume);
+                  setIsMuted(video.muted);
+                }}
+                onLoadedMetadata={(e) => {
+                  const video = e.currentTarget as HTMLVideoElement;
+                  console.log('Video metadata loaded');
+                  console.log('Video duration:', video.duration);
+                  console.log('Video readyState:', video.readyState);
+                  console.log('Video muted:', video.muted);
+                  console.log('Video volume:', video.volume);
+                  
+                  // Better audio detection
+                  let hasAudio = false;
+                  
+                  // Method 1: Check if video has audio tracks (modern browsers)
+                  if ('audioTracks' in video) {
+                    hasAudio = (video as any).audioTracks.length > 0;
+                    console.log('Audio tracks method:', hasAudio);
+                  }
+                  
+                  // Method 2: Check webkitAudioDecodedByteCount (Chrome/Safari)
+                  if ('webkitAudioDecodedByteCount' in video) {
+                    hasAudio = (video as any).webkitAudioDecodedByteCount > 0;
+                    console.log('Webkit audio bytes method:', hasAudio);
+                  }
+                  
+                  // Method 3: Try to detect by playing briefly and checking audio context
+                  if (!hasAudio && video.duration > 0) {
+                    // Assume videos under 6 seconds might be muted WhatsApp videos
+                    hasAudio = video.duration > 6;
+                    console.log('Duration-based detection:', hasAudio, 'duration:', video.duration);
+                  }
+                  
+                  setHasAudioTrack(hasAudio);
+                  console.log('Final audio detection result:', hasAudio);
+                  
+                  if (video.duration > 0 && video.readyState >= 2) {
+                    video.currentTime = 0.1;
+                  }
+                }}
+                onPlay={(e) => {
+                  // Force unmute on play and ensure user interaction
+                  const video = e.currentTarget;
+                  console.log('Video play event triggered');
+                  console.log('Play - muted before:', video.muted, 'volume:', video.volume);
+                  
+                  video.muted = false;
+                  video.volume = 1.0;
+                  setIsMuted(false);
+                  setHasVideoEnded(false);
+                  
+                  console.log('Play - muted after:', video.muted, 'volume:', video.volume);
+                }}
+                onEnded={() => {
+                  setHasVideoEnded(true);
+                }}
+                className="w-full h-full object-cover"
+                preload="metadata"
+              />
     </div>
   </div>
 </div>
@@ -296,26 +406,39 @@ export default function InfluencerSection() {
                         key={selectedVideo._id}
                         src={selectedVideo.videoUrl}
                         controls
+                        muted={false}
+                        onVolumeChange={(e) => {
+                          const video = e.currentTarget;
+                          console.log('Desktop volume change - muted:', video.muted, 'volume:', video.volume);
+                          setIsMuted(video.muted);
+                        }}
+                        onPlay={(e) => {
+                          // Force unmute on play
+                          const video = e.currentTarget;
+                          console.log('Desktop video play event');
+                          console.log('Desktop - muted before:', video.muted, 'volume:', video.volume);
+                          
+                          video.muted = false;
+                          video.volume = 1.0;
+                          setIsMuted(false);
+                          setHasVideoEnded(false);
+                          
+                          console.log('Desktop - muted after:', video.muted, 'volume:', video.volume);
+                        }}
+                        onEnded={() => {
+                          setHasVideoEnded(true);
+                        }}
                         className="w-full h-full object-cover"
                         preload="metadata"
                         onLoadedMetadata={(e) => {
-                          // Seek to first frame to show preview
                           const videoElement = e.currentTarget;
+                          console.log('Desktop video metadata loaded');
+                          console.log('Desktop duration:', videoElement.duration);
+                          console.log('Desktop readyState:', videoElement.readyState);
+                          console.log('Desktop muted:', videoElement.muted);
+                          console.log('Desktop volume:', videoElement.volume);
+                          
                           if (videoElement.duration > 0 && videoElement.readyState >= 2) {
-                            videoElement.currentTime = 0.1;
-                          }
-                        }}
-                        onLoadedData={(e) => {
-                          // Ensure first frame is shown
-                          const videoElement = e.currentTarget;
-                          if (videoElement.readyState >= 2) {
-                            videoElement.currentTime = 0.1;
-                          }
-                        }}
-                        onCanPlay={(e) => {
-                          // Show first frame when video can play
-                          const videoElement = e.currentTarget;
-                          if (videoElement.currentTime === 0) {
                             videoElement.currentTime = 0.1;
                           }
                         }}
@@ -326,6 +449,17 @@ export default function InfluencerSection() {
                         <h3 className="text-xl font-bold text-gray-900">
                           {selectedVideo.productId?.title || 'Featured Product'}
                         </h3>
+                        <button
+                          onClick={toggleMute}
+                          className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                          aria-label={isMuted ? "Unmute" : "Mute"}
+                        >
+                          {isMuted ? (
+                            <VolumeX className="h-5 w-5 text-gray-600" />
+                          ) : (
+                            <Volume2 className="h-5 w-5 text-gray-600" />
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>

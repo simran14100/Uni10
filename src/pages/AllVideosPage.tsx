@@ -196,7 +196,13 @@ export default function AllVideosPage() {
                   controls
                   autoPlay
                   playsInline
+                  muted={false}
                   className="w-full h-full object-cover rounded-t-2xl"
+                  onPlay={(e) => {
+                    // Force unmute when video plays
+                    const video = e.currentTarget;
+                    video.muted = false;
+                  }}
                 />
               </div>
               <div className="p-6 bg-gradient-to-b from-card to-card/95">
