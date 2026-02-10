@@ -50,7 +50,7 @@ export default function Contact() {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardHeader className="relative">
                 <div className="flex items-center gap-4 mb-2">
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="bg-black rounded-xl p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <Mail className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -84,7 +84,7 @@ export default function Contact() {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardHeader className="relative">
                 <div className="flex items-center gap-4 mb-2">
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="bg-black rounded-xl p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="h-6 w-6 text-white" />
                   </div>
                   <div>

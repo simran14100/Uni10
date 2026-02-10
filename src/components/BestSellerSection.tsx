@@ -48,7 +48,7 @@ export default function BestSellerSection() {
 
   if (loading) {
     return (
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4 text-center">
           <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
           <p className="mt-4 text-muted-foreground">Loading best sellers...</p>
@@ -92,7 +92,7 @@ export default function BestSellerSection() {
   };
 
   return (
-    <section className="pb-8 pt-4 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <section className="pb-8 pt-4 bg-white">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12 space-y-3">

@@ -156,7 +156,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
 
   if (validImages.length === 0) {
     return (
-      <div className="w-full aspect-square bg-secondary rounded-lg flex items-center justify-center">
+      <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center">
         <div className="text-center">
           <img
             src="/placeholder.svg"
@@ -191,7 +191,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     <div className="w-full space-y-4">
       {/* Main Image */}
       <div
-        className="relative w-full bg-secondary rounded-lg overflow-hidden group cursor-zoom-in"
+        className="relative w-full bg-whiterounded-lg overflow-hidden group cursor-zoom-in"
         style={{ aspectRatio: '1' }}
       >
         <img
@@ -239,19 +239,19 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           <>
             <button
               onClick={() => setSelectedIndex((i) => (i - 1 + validImages.length) % validImages.length)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/60 hover:bg-background/80 text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className="absolute left-3 top-1/2 -translate-y-1/2  text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => setSelectedIndex((i) => (i + 1) % validImages.length)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/60 hover:bg-background/80 text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Next image"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/60 text-foreground text-xs px-3 py-1.5 rounded-full">
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-foreground text-xs px-3 py-1.5 rounded-full">
               {selectedIndex + 1} / {validImages.length}
             </div>
           </>

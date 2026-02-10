@@ -3,40 +3,37 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+  CarouselApi,
 } from "@/components/ui/carousel";
 import { products } from "@/data/products";
-import Autoplay from "embla-carousel-autoplay";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const ProductSlider = ({ className }: { className?: string }) => {
   const [currentSlide, setCurrentSlide] = React.useState(0);
-  const headings = [
-    "Own the sky",
-    "TRAVEL-READY CO-ORDS",
-    "NOBERO'S ACTIVE WEAR",
-  ];
-  const subHeadings = [
-    "In style",
-    "BUY 2 OR MORE GET 10%OFF",
-    "JUST LAUNCHED",
-  ];
+  const [api, setApi] = React.useState<CarouselApi>();
+  
+  React.useEffect(() => {
+    if (!api) {
+      return;
+    }
 
-  const plugin = React.useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: false })
-  );
+    api.on("select", () => {
+      setCurrentSlide(api.selectedScrollSnap());
+    });
+  }, [api]);
 
-  const handleSlideChange = (emblaApi: any) => {
-    setCurrentSlide(emblaApi.selectedScrollSnap());
-  };
+  const scrollPrev = React.useCallback(() => {
+    if (api) api.scrollPrev();
+  }, [api]);
+
+  const scrollNext = React.useCallback(() => {
+    if (api) api.scrollNext();
+  }, [api]);
 
   return (
     <div className={`relative w-full overflow-hidden ${className}`}>
       <Carousel
-        plugins={[plugin.current]}
-        onSelect={handleSlideChange}
+        setApi={setApi}
         opts={{
           loop: true,
         }}
@@ -51,14 +48,38 @@ export const ProductSlider = ({ className }: { className?: string }) => {
                   className="h-full w-full object-contain"
                 />
               </div>
-             
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white text-[#283e74] shadow-md hover:bg-gray-100 transition-all duration-300" />
-        <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white text-[#283e74] shadow-md hover:bg-gray-100 transition-all duration-300" />
+        
+        {/* Hide the default buttons */}
+        <style>
+          {`
+            [data-carousel="previous"],
+            [data-carousel="next"] {
+              display: none !important;
+            }
+          `}
+        </style>
       </Carousel>
+      
+      {/* Custom Navigation Buttons */}
+      <div className="absolute inset-0 flex items-center justify-between p-4  pointer-events-none">
+        <button
+          onClick={scrollPrev}
+          className="h-12 w-12 flex items-center justify-center bg-transparent text-white hover:text-[#283e74] pointer-events-auto transition-all duration-300"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft className="h-8 w-8" />
+        </button>
+        <button
+          onClick={scrollNext}
+          className="h-12 w-12 flex items-center justify-center bg-transparent text-white hover:text-[#283e74] pointer-events-auto transition-all duration-300"
+          aria-label="Next slide"
+        >
+          <ChevronRight className="h-8 w-8" />
+        </button>
+      </div>
     </div>
   );
 };
-

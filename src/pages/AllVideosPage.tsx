@@ -108,12 +108,9 @@ export default function AllVideosPage() {
       <main className="container mx-auto px-4 pt-32 pb-12 md:pt-36 lg:pt-40">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-2">
-            <Video className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium text-purple-600">Video Collection</span>
-          </div>
+         
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900">
-            All <span className="text-purple-600">Videos</span>
+            All Videos
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto text-base md:text-lg">
             Watch all product reviews and influencer content from our community

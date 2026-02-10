@@ -661,7 +661,7 @@ const Index = () => {
   const coordLink = getFeatureCategoryLink("co-ord", coordTitle);
 
   return (
-    <div className="min-h-screen bg-[#F5F3ED] overflow-x-hidden sm:overflow-x-visible text-gray-800">
+    <div className="min-h-screen bg-white overflow-x-hidden sm:overflow-x-visible text-gray-800">
       <style>{`
         /* Nuclear option for mobile carousel buttons */
         @media (max-width: 768px) {
@@ -876,7 +876,7 @@ const Index = () => {
     
 
       {/* Featured Products */}
-      <section className="bg-[#f5f2ee] py-8 sm:py-16 lg:py-12">
+      <section className="bg-white py-8 sm:py-16 lg:py-12">
   <div className="container mx-auto px-4 sm:px-6">
     {/* Header */}
     <div className="flex items-center mb-12 sm:mb-20 justify-center">
@@ -1011,7 +1011,7 @@ const Index = () => {
       
 
       {/* New Arrivals */}
-      <section className="container mx-auto px-4 py-12 md:py-12 bg-background rounded-xl shadow-sm">
+      <section className="container mx-auto px-4 py-12 md:py-12 bg-white rounded-xl shadow-sm">
         <div className="text-center mb-8 md:mb-8">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
             New Arrivals

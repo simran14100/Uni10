@@ -138,7 +138,7 @@ export default function InfluencerSection() {
 
     return (
 
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+      <section className="py-16 bg-white">
 
         <div className="container mx-auto px-4 text-center">
 
@@ -204,7 +204,7 @@ export default function InfluencerSection() {
   };
 
   return (
-    <section className="py-8 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <section className="py-8 bg-white">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12 space-y-3">
@@ -229,84 +229,59 @@ export default function InfluencerSection() {
         </div>
 
         {/* Mobile View - Carousel */}
-        <div className="lg:hidden mb-6">
-          {/* Main Video Display */}
-          <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
-            <div className="relative aspect-[9/16] w-full bg-gray-900 overflow-hidden">
-              <video
-                key={selectedVideo?._id}
-                src={selectedVideo?.videoUrl}
-                controls
-                className="w-full h-full object-cover"
-                preload="metadata"
-                onLoadedMetadata={(e) => {
-                  const videoElement = e.currentTarget;
-                  if (videoElement.duration > 0 && videoElement.readyState >= 2) {
-                    videoElement.currentTime = 0.1;
-                  }
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Carousel Navigation */}
-          <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={handlePrevious}
-              className="p-2 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow"
-              disabled={influencerData.length <= 1}
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-700" />
-            </button>
-            
-            <span className="text-sm text-gray-600 font-medium">
-              {currentVideoIndex + 1} / {influencerData.length}
-            </span>
-            
-            <button
-              onClick={handleNext}
-              className="p-2 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow"
-              disabled={influencerData.length <= 1}
-            >
-              <ChevronRight className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
-
-          {/* Video Cards Carousel */}
-          {/* <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-3 pb-2">
-              {influencerData.map((item, index) => (
-                <div
-                  key={item._id}
-                  onClick={() => handleVideoSelect(index)}
-                  className={`flex-shrink-0 w-32 cursor-pointer transition-all duration-300 ${
-                    index === currentVideoIndex 
-                      ? 'ring-2 ring-amber-600 scale-105' 
-                      : 'hover:scale-105'
-                  }`}
-                >
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div className="relative aspect-[9/16] bg-gray-900">
-                      <video
-                        src={item.videoUrl}
-                        className="w-full h-full object-cover"
-                        preload="metadata"
-                        muted
-                        playsInline
-                        onLoadedMetadata={(e) => {
-                          const videoElement = e.currentTarget;
-                          if (videoElement.duration > 0 && videoElement.readyState >= 2) {
-                            videoElement.currentTime = 0.1;
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div> */}
-        </div>
+        {/* Mobile View - Carousel */}
+<div className="lg:hidden mb-6">
+  {/* Main Video Display with Navigation */}
+  <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden mb-6" style={{ minHeight: '400px' }}>
+    {/* Left Navigation Button Container */}
+    <div className="absolute left-2 top-1/2 -translate-y-1/2 z-20">
+      <button
+        onClick={(e) => {
+          handlePrevious();
+          setTimeout(() => e.currentTarget.blur(), 150);
+        }}
+        className="p-2.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 border border-gray-200 focus:outline-none active:scale-95"
+        disabled={influencerData.length <= 1}
+      >
+        <ChevronLeft className="w-5 h-5 text-gray-700" />
+      </button>
+    </div>
+    
+    {/* Right Navigation Button Container */}
+    <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20">
+      <button
+        onClick={(e) => {
+          handleNext();
+          setTimeout(() => e.currentTarget.blur(), 150);
+        }}
+        className="p-2.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 border border-gray-200 focus:outline-none active:scale-95"
+        disabled={influencerData.length <= 1}
+      >
+        <ChevronRight className="w-5 h-5 text-gray-700" />
+      </button>
+    </div>
+    
+    {/* Video Counter */}
+    <div className="absolute top-2 right-2 z-10 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+      {currentVideoIndex + 1} / {influencerData.length}
+    </div>
+    
+    <div className="relative aspect-[9/16] w-full bg-gray-900 overflow-hidden" style={{ minHeight: '400px' }}>
+      <video
+        src={selectedVideo?.videoUrl}
+        controls
+        className="w-full h-full object-cover"
+        preload="metadata"
+        onLoadedMetadata={(e) => {
+          const videoElement = e.currentTarget;
+          if (videoElement.duration > 0 && videoElement.readyState >= 2) {
+            videoElement.currentTime = 0.1;
+          }
+        }}
+      />
+    </div>
+  </div>
+</div>
 
         {/* Desktop View - Original Layout */}
         <div className="hidden lg:block">

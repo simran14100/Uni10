@@ -190,12 +190,10 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`text-sm font-semibold px-3 py-2 rounded-full text-white/90 hover:bg-white/10 transition relative ${
-                    item.isNew ? 'bg-gradient-to-r from-orange-500/20 to-pink-500/20 hover:from-orange-500/30 hover:to-pink-500/30' : ''
-                  }`}
+                  className={`text-sm font-semibold px-3 py-2 rounded-full text-white/90 hover:bg-white/10 transition relative`}
                 >
                   {item.isNew && (
-                    <Sparkles className="absolute -top-1 -right-1 h-3 w-3 text-yellow-400 animate-pulse" />
+                    <Sparkles className="absolute -top-1 -right-1 h-5 w-5 text-yellow-400 animate-pulse" />
                   )}
                   {item.label}
                 </Link>
@@ -384,13 +382,11 @@ export const Navbar = ({ cartItemCount = 0 }: NavbarProps) => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`text-base font-semibold px-3 py-3 rounded-md text-white/90 hover:bg-white/10 transition-colors relative ${
-                    item.isNew ? 'bg-gradient-to-r from-orange-500/20 to-pink-500/20 hover:from-orange-500/30 hover:to-pink-500/30' : ''
-                  }`}
+                  className={`text-base font-semibold px-3 py-3 rounded-md text-white/90 hover:bg-white/10 transition-colors relative`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.isNew && (
-                    <Sparkles className="absolute top-2 right-2 h-3 w-3 text-yellow-400 animate-pulse" />
+                    <Sparkles className="absolute top-2 right-2 h-5 w-5 text-yellow-400 animate-pulse" />
                   )}
                   {item.label}
                 </Link>

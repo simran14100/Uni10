@@ -64,7 +64,7 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
   return (
     <Card className="group overflow-hidden rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 relative bg-white sm:max-w-xs">
       <Link to={linkTo} className="block">
-        <div className="aspect-square overflow-hidden bg-gray-100 relative flex items-center justify-center rounded-t-xl">
+        <div className="aspect-square overflow-hidden bg-white relative flex items-center justify-center rounded-t-xl">
           {isBestSeller && (
             <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md">
               Best Seller
@@ -94,7 +94,7 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
         </div>
       </Link>
       <div className="p-3 sm:p-4 bg-white rounded-b-xl flex flex-col justify-between flex-grow">
-        <p className="text-xs sm:text-sm text-gray-500 uppercase tracking-widest mb-1">
+        <p className="text-xs sm:text-sm text-gray-500 uppercase tracking-widest mb-0.5">
           {category}
         </p>
         <Link to={linkTo}>
@@ -102,17 +102,24 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
             {name}
           </h3>
         </Link>
-        <div className="flex items-center mt-2 mb-2">
-          <p className="text-lg sm:text-xl font-bold text-gray-800 uppercase">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
             {originalPrice && originalPrice > price ? (
               <>
-                <span className="line-through text-gray-400 text-sm sm:text-base mr-1 sm:mr-2 whitespace-nowrap">₹{originalPrice.toLocaleString('en-IN')}</span>
-                <span className="whitespace-nowrap">₹{price.toLocaleString('en-IN')}</span>
+                <span className="text-sm sm:text-base text-gray-400 line-through font-medium">
+                  ₹{originalPrice.toLocaleString('en-IN')}
+                </span>
+                <span className="text-lg sm:text-xl font-bold text-gray-900">
+                  ₹{price.toLocaleString('en-IN')}
+                </span>
               </>
             ) : (
-              <span className="whitespace-nowrap">₹{price.toLocaleString('en-IN')}</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">
+                ₹{price.toLocaleString('en-IN')}
+              </span>
             )}
-          </p>
+          </div>
+         
         </div>
         {/* <div className="flex justify-end mt-auto">
           <Button onClick={handleAdd} size="icon" className="rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-md w-10 h-10 transition-all duration-200 hover:scale-105">
