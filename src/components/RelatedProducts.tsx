@@ -160,16 +160,16 @@ export const RelatedProducts = ({ productId }: { productId: string }) => {
                         </span>
                       </div>
                     )}
-                    {product.isBestSeller && (
+                    {/* {product.isBestSeller && (
                       <Badge className="absolute top-2 left-2 bg-orange-500 hover:bg-orange-600 text-xs sm:text-sm">
                         Best Seller
                       </Badge>
-                    )}
-                    {discountLabel && (
+                    )} */}
+                    {/* {discountLabel && (
                       <Badge className="absolute top-12 left-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs sm:text-sm">
                         {discountLabel}
                       </Badge>
-                    )}
+                    )} */}
                     <button
                       onClick={handleWishlistClick}
                       className="absolute bottom-2 right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-all duration-200 z-10 shadow-md"

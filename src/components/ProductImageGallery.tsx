@@ -2,6 +2,101 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Component-specific CSS to override global styles
+const galleryStyles = `
+  .gallery-icon-btn,
+  .gallery-nav-btn {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  .gallery-icon-btn:hover,
+  .gallery-nav-btn:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  .gallery-icon-btn:active,
+  .gallery-nav-btn:active {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  .gallery-icon-btn:focus,
+  .gallery-nav-btn:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  /* Mobile-specific override with higher specificity */
+  @media (max-width: 768px) {
+    body .gallery-icon-btn,
+    body .gallery-nav-btn,
+    body .gallery-icon-btn:hover,
+    body .gallery-nav-btn:hover,
+    body .gallery-icon-btn:active,
+    body .gallery-nav-btn:active,
+    body .gallery-icon-btn:focus,
+    body .gallery-nav-btn:focus {
+      background-color: transparent !important;
+      background: transparent !important;
+      background-image: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  /* Ultra-high specificity override */
+  html body div[data-gallery="true"] button.gallery-icon-btn,
+  html body div[data-gallery="true"] button.gallery-nav-btn,
+  html body div[data-gallery="true"] button.gallery-icon-btn:hover,
+  html body div[data-gallery="true"] button.gallery-nav-btn:hover,
+  html body div[data-gallery="true"] button.gallery-icon-btn:active,
+  html body div[data-gallery="true"] button.gallery-nav-btn:active,
+  html body div[data-gallery="true"] button.gallery-icon-btn:focus,
+  html body div[data-gallery="true"] button.gallery-nav-btn:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Mobile navigation button position lock - highest specificity */
+  @media (max-width: 768px) {
+    html body div[data-gallery="true"] button.gallery-nav-btn,
+    html body div[data-gallery="true"] button.gallery-nav-btn:hover,
+    html body div[data-gallery="true"] button.gallery-nav-btn:active,
+    html body div[data-gallery="true"] button.gallery-nav-btn:focus {
+      position: absolute !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      transform: scale(1) translateY(-50%) !important;
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      border: none !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+      left: 8px !important;
+      right: auto !important;
+    }
+    
+    html body div[data-gallery="true"] button.gallery-nav-btn:hover {
+      background-color: rgb(255, 255, 255) !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    }
+    
+    html body div[data-gallery="true"] button.gallery-nav-btn:active {
+      background-color: rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+    }
+    
+    html body div[data-gallery="true"] button.gallery-nav-btn:nth-of-type(2),
+    html body div[data-gallery="true"] button.gallery-nav-btn:nth-of-type(2):hover,
+    html body div[data-gallery="true"] button.gallery-nav-btn:nth-of-type(2):active,
+    html body div[data-gallery="true"] button.gallery-nav-btn:nth-of-type(2):focus {
+      left: auto !important;
+      right: 8px !important;
+    }
+  }
+`;
+
 interface ProductImageGalleryProps {
   images?: string[];
   productTitle?: string;
@@ -68,6 +163,99 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   onShareClick,
   isInWishlist = false,
 }) => {
+  console.log('=== ProductImageGallery DEBUG ===');
+  console.log('showWishlistButton:', showWishlistButton);
+  console.log('showShareButton:', showShareButton);
+  console.log('isMobile:', window.innerWidth < 768);
+  
+  // Log when component mounts
+  useEffect(() => {
+    console.log('ProductImageGallery mounted, checking button styles...');
+    
+    // Check if our CSS classes exist
+    const galleryButtons = document.querySelectorAll('.gallery-icon-btn, .gallery-nav-btn');
+    console.log('Found gallery buttons:', galleryButtons.length);
+    
+    galleryButtons.forEach((btn, index) => {
+      const styles = window.getComputedStyle(btn);
+      console.log(`Button ${index + 1} background:`, styles.backgroundColor);
+      console.log(`Button ${index + 1} classes:`, btn.className);
+      
+      // Force override styles directly
+      (btn as HTMLElement).style.setProperty('background-color', 'transparent', 'important');
+      (btn as HTMLElement).style.setProperty('background', 'transparent', 'important');
+      (btn as HTMLElement).style.setProperty('background-image', 'none', 'important');
+      (btn as HTMLElement).style.setProperty('box-shadow', 'none', 'important');
+      
+      // Log after override
+      setTimeout(() => {
+        const newStyles = window.getComputedStyle(btn);
+        console.log(`Button ${index + 1} background AFTER override:`, newStyles.backgroundColor);
+      }, 100);
+    });
+
+    // Add click listeners to track position changes
+    const navButtons = document.querySelectorAll('.gallery-nav-btn');
+    navButtons.forEach((btn, index) => {
+      const button = btn as HTMLElement;
+      
+      // Log initial position
+      const rect = button.getBoundingClientRect();
+      console.log(`Nav Button ${index + 1} initial position:`, {
+        top: rect.top,
+        left: rect.left,
+        transform: window.getComputedStyle(button).transform
+      });
+      
+      // Add mousedown/touchstart listeners
+      const handleInteraction = (e: Event) => {
+        console.log(`=== Nav Button ${index + 1} ${e.type} ===`);
+        const rect = button.getBoundingClientRect();
+        const styles = window.getComputedStyle(button);
+        console.log('Position during interaction:', {
+          top: rect.top,
+          left: rect.left,
+          transform: styles.transform,
+          position: styles.position,
+          computedStyle: styles
+        });
+      };
+      
+      button.addEventListener('mousedown', handleInteraction);
+      button.addEventListener('touchstart', handleInteraction);
+      button.addEventListener('click', handleInteraction);
+      
+      // Check position after a short delay
+      setTimeout(() => {
+        const rectAfter = button.getBoundingClientRect();
+        console.log(`Nav Button ${index + 1} position after delay:`, {
+          top: rectAfter.top,
+          left: rectAfter.left,
+          moved: Math.abs(rectAfter.top - rect.top) > 1
+        });
+      }, 200);
+
+      // Add mutation observer to detect style changes
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+            console.log(`=== Nav Button ${index + 1} Style Mutation ===`);
+            console.log('Attribute changed:', mutation.attributeName);
+            console.log('New style:', button.getAttribute('style'));
+            console.log('New class:', button.className);
+            console.log('Current transform:', window.getComputedStyle(button).transform);
+            console.log('Current position:', button.getBoundingClientRect());
+          }
+        });
+      });
+      
+      observer.observe(button, {
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      });
+    });
+  }, []);
+  
   console.log('images prop:', images);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -91,6 +279,14 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       document.querySelectorAll('button:active').forEach(el => {
         (el as HTMLElement).blur();
       });
+      
+      // Force reset navigation button positions
+      const navButtons = document.querySelectorAll('.gallery-nav-btn');
+      navButtons.forEach((btn) => {
+        const button = btn as HTMLElement;
+        button.style.setProperty('transform', 'translateY(-50%)', 'important');
+        button.style.setProperty('transition', 'none', 'important');
+      });
     };
 
     document.addEventListener('mouseup', handleGlobalMouseUp);
@@ -99,6 +295,55 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     return () => {
       document.removeEventListener('mouseup', handleGlobalMouseUp);
       document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+
+  // Aggressive position locking for navigation buttons
+  useEffect(() => {
+    const lockButtonPositions = () => {
+      const navButtons = document.querySelectorAll('.gallery-nav-btn');
+      navButtons.forEach((btn, index) => {
+        const button = btn as HTMLElement;
+        
+        // Force position and transform
+        button.style.setProperty('position', 'absolute', 'important');
+        button.style.setProperty('top', '50%', 'important');
+        button.style.setProperty('transform', 'translateY(-50%)', 'important');
+        button.style.setProperty('transition', 'transform 0s', 'important');
+        
+        // Specific positioning for left/right buttons
+        if (index === 0) {
+          button.style.setProperty('left', '2px', 'important');
+          button.style.setProperty('right', 'auto', 'important');
+        } else {
+          button.style.setProperty('left', 'auto', 'important');
+          button.style.setProperty('right', '2px', 'important');
+        }
+      });
+    };
+
+    // Initial lock
+    lockButtonPositions();
+    
+    // Continuous monitoring
+    const interval = setInterval(lockButtonPositions, 100);
+    
+    // Also lock on any interaction
+    const handleInteraction = () => {
+      setTimeout(lockButtonPositions, 0);
+      setTimeout(lockButtonPositions, 50);
+      setTimeout(lockButtonPositions, 100);
+    };
+    
+    document.addEventListener('mousedown', handleInteraction);
+    document.addEventListener('touchstart', handleInteraction);
+    document.addEventListener('click', handleInteraction);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('mousedown', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+      document.removeEventListener('click', handleInteraction);
     };
   }, []);
 
@@ -188,10 +433,18 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   };
 
   return (
-    <div className="w-full space-y-4">
+    <>
+      <style>{galleryStyles}</style>
+      {(() => {
+        console.log('=== CSS STYLES INJECTED ===');
+        console.log('Gallery styles length:', galleryStyles.length);
+        console.log('Gallery styles:', galleryStyles);
+        return null;
+      })()}
+      <div className="w-full space-y-4" data-gallery="true">
       {/* Main Image */}
       <div
-        className="relative w-full bg-whiterounded-lg overflow-hidden group cursor-zoom-in"
+        className="relative w-full rounded-lg overflow-hidden group cursor-zoom-in"
         style={{ aspectRatio: '1' }}
       >
         <img
@@ -201,7 +454,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
         />
 
         {/* Wishlist and Share Buttons */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+        <div className="absolute top-3 -right-2 flex flex-col gap-2 z-10">
           {showWishlistButton && (
             <button
               onClick={(e) => {
@@ -209,7 +462,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 e.stopPropagation();
                 onWishlistClick?.();
               }}
-              className="p-2 bg-white/90 hover:bg-white rounded-full transition-all duration-200 shadow-md"
+              className="gallery-icon-btn p-2 rounded-full"
               aria-label="Add to wishlist"
             >
               <Heart
@@ -226,7 +479,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 e.stopPropagation();
                 onShareClick?.();
               }}
-              className="p-2 bg-white/90 hover:bg-white rounded-full transition-all duration-200 shadow-md"
+              className="gallery-icon-btn p-2 rounded-full"
               aria-label="Share product"
             >
               <Share2 className="h-5 w-5" />
@@ -239,14 +492,14 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           <>
             <button
               onClick={() => setSelectedIndex((i) => (i - 1 + validImages.length) % validImages.length)}
-              className="absolute left-3 top-1/2 -translate-y-1/2  text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className="gallery-nav-btn absolute left-3 top-1/2 -translate-y-1/2 text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => setSelectedIndex((i) => (i + 1) % validImages.length)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className="gallery-nav-btn absolute right-3 top-1/2 -translate-y-1/2 text-foreground p-2 rounded-full transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Next image"
             >
               <ChevronRight className="h-5 w-5" />
@@ -300,9 +553,9 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={handlePrevThumbnail}
                       className={cn(
-                        "absolute -left-10 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-md transition-all duration-200 z-10 focus:outline-none border border-border",
+                        "absolute -left-10 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-200 z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 border border-border",
                         canScrollPrev 
-                          ? "opacity-100 bg-background/80 hover:bg-background/95 active:bg-background/80" 
+                          ? "opacity-100" 
                           : "opacity-0 pointer-events-none"
                       )}
                       style={{
@@ -359,9 +612,9 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                       <button
                         onClick={handleNextThumbnail}
                         className={cn(
-                          "absolute -right-10 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-md transition-all duration-200 z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 border border-border",
+                          "absolute -right-10 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-200 z-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 border border-border",
                           canScrollNext 
-                            ? "opacity-100 bg-background/80 hover:bg-background/95 active:bg-background/80" 
+                            ? "opacity-100" 
                             : "opacity-0 pointer-events-none"
                         )}
                         style={{
@@ -390,6 +643,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };

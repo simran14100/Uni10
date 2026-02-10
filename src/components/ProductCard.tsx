@@ -65,16 +65,16 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
     <Card className="group overflow-hidden rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 relative bg-white sm:max-w-xs">
       <Link to={linkTo} className="block">
         <div className="aspect-square overflow-hidden bg-white relative flex items-center justify-center rounded-t-xl">
-          {isBestSeller && (
+          {/* {isBestSeller && (
             <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md">
               Best Seller
             </div>
-          )}
-          {(discountPercentage && discountPercentage > 0) || (discountAmount && discountAmount > 0) ? (
+          )} */}
+          {/* {(discountPercentage && discountPercentage > 0) || (discountAmount && discountAmount > 0) ? (
             <div className={`absolute ${isBestSeller ? 'top-12 left-3' : 'top-3 left-3'} bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md`}>
               {discountPercentage && discountPercentage > 0 ? `-${discountPercentage}%` : discountAmount && discountAmount > 0 ? `-₹${discountAmount}` : ''}
             </div>
-          ) : null}
+          ) : null} */}
           <img
             src={src}
             alt={name}
@@ -83,7 +83,7 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
           />
           <button
             onClick={handleWishlistClick}
-            className="absolute top-3 right-2 p-1.5 bg-white/80 hover:bg-white rounded-full transition-all duration-200 z-10 shadow-md"
+            className="absolute top-3 right-2 p-1.5 rounded-full transition-all duration-200 z-10"
           >
             <Heart
               className="h-3 w-3 sm:h-4 sm:w-4 transition-all"
@@ -98,7 +98,7 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
           {category}
         </p>
         <Link to={linkTo}>
-          <h3 className="font-bold text-sm sm:text-lg text-gray-800 hover:text-primary transition-colors line-clamp-2 min-h-[3rem]">
+          <h3 className="font-bold text-sm sm:text-lg text-gray-800 hover:text-primary transition-colors line-clamp-1 min-h-[1.2rem] sm:min-h-[3rem]">
             {name}
           </h3>
         </Link>

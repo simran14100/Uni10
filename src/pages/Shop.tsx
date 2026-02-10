@@ -691,13 +691,13 @@ const fetchProducts = async () => {
                     value="low-to-high" 
                     className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
                   >
-                    Low to High
+                   Price:  Low to High
                   </SelectItem>
                   <SelectItem 
                     value="high-to-low" 
                     className="cursor-pointer hover:bg-[#ba8c5c]/10 focus:bg-[#ba8c5c]/10 transition-colors"
                   >
-                    High to Low
+                   Price: High to Low
                   </SelectItem>
                 </SelectContent>
               </Select>
