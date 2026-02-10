@@ -24,9 +24,30 @@ interface ProductCardProps {
   isBestSeller?: boolean;
 }
 
-export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, discountPercentage, discountAmount, image, category, to, slug, images, rating, isBestSeller }: ProductCardProps) => {
+export const ProductCard = ({ 
+  id, 
+  name, 
+  price, 
+  originalPrice, 
+  discountedPrice, 
+  discountPercentage, 
+  discountAmount, 
+  image, 
+  category, 
+  to, 
+  slug, 
+  images, 
+  rating, 
+  isBestSeller 
+}: ProductCardProps) => {
   const { user } = useAuth();
-  const { addToCart } = (() => { try { return useCart(); } catch { return { addToCart: () => {} } as any; } })();
+  const { addToCart } = (() => { 
+    try { 
+      return useCart(); 
+    } catch { 
+      return { addToCart: () => {} } as any; 
+    } 
+  })();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const navigate = useNavigate();
 
@@ -62,70 +83,47 @@ export const ProductCard = ({ id, name, price, originalPrice, discountedPrice, d
   const linkTo = to || (slug && String(slug).trim() ? `/products/${slug}` : `/products/${id}`);
 
   return (
-    <Card className="group overflow-hidden rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 relative bg-white sm:max-w-xs">
+    <Card className="group overflow-hidden border-0 shadow-none hover:shadow-md transition-all duration-300 relative bg-white w-full max-w-[280px]">
       <Link to={linkTo} className="block">
-        <div className="aspect-square overflow-hidden bg-white relative flex items-center justify-center rounded-t-xl">
-          {/* {isBestSeller && (
-            <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md">
-              Best Seller
-            </div>
-          )} */}
-          {/* {(discountPercentage && discountPercentage > 0) || (discountAmount && discountAmount > 0) ? (
-            <div className={`absolute ${isBestSeller ? 'top-12 left-3' : 'top-3 left-3'} bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-md`}>
-              {discountPercentage && discountPercentage > 0 ? `-${discountPercentage}%` : discountAmount && discountAmount > 0 ? `-₹${discountAmount}` : ''}
-            </div>
-          ) : null} */}
+        <div className="aspect-square overflow-hidden bg-gray-50 relative flex items-center justify-center rounded-lg mb-3">
           <img
             src={src}
             alt={name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
           />
           <button
             onClick={handleWishlistClick}
-            className="absolute top-3 right-2 p-1.5 rounded-full transition-all duration-200 z-10"
+            className="absolute top-2 right-2 sm:top-3 sm:right-1 p-1.5 sm:p-2 rounded-full hover:bg-black/5 transition-all duration-200 z-10"
+            aria-label={isInWishlist(id) ? "Remove from wishlist" : "Add to wishlist"}
           >
             <Heart
-              className="h-3 w-3 sm:h-4 sm:w-4 transition-all"
+              className="h-4 w-4 sm:h-5 sm:w-5 transition-all"
               fill={isInWishlist(id) ? 'currentColor' : 'none'}
-              color={isInWishlist(id) ? 'hsl(var(--primary))' : 'currentColor'}
+              color="#6b7280"
+              strokeWidth={2}
             />
           </button>
         </div>
       </Link>
-      <div className="p-3 sm:p-4 bg-white rounded-b-xl flex flex-col justify-between flex-grow">
-        <p className="text-xs sm:text-sm text-gray-500 uppercase tracking-widest mb-0.5">
-          {category}
-        </p>
+      
+      <div className="px-1 sm:px-2 pb-2 sm:pb-3">
         <Link to={linkTo}>
-          <h3 className="font-bold text-sm sm:text-lg text-gray-800 hover:text-primary transition-colors line-clamp-1 min-h-[1.2rem] sm:min-h-[3rem]">
+          <h3 className="font-medium text-xs sm:text-sm text-gray-900 hover:text-gray-700 transition-colors truncate mb-1.5 sm:mb-2 leading-tight uppercase tracking-wide">
             {name}
           </h3>
         </Link>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            {originalPrice && originalPrice > price ? (
-              <>
-                <span className="text-sm sm:text-base text-gray-400 line-through font-medium">
-                  ₹{originalPrice.toLocaleString('en-IN')}
-                </span>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">
-                  ₹{price.toLocaleString('en-IN')}
-                </span>
-              </>
-            ) : (
-              <span className="text-lg sm:text-xl font-bold text-gray-900">
-                ₹{price.toLocaleString('en-IN')}
-              </span>
-            )}
-          </div>
-         
+        
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="text-sm sm:text-base font-bold text-gray-900">
+            ₹{price.toLocaleString('en-IN')}
+          </span>
+          {originalPrice && originalPrice > price && (
+            <span className="text-xs sm:text-sm text-gray-400 line-through font-normal">
+              {originalPrice.toLocaleString('en-IN')}
+            </span>
+          )}
         </div>
-        {/* <div className="flex justify-end mt-auto">
-          <Button onClick={handleAdd} size="icon" className="rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-md w-10 h-10 transition-all duration-200 hover:scale-105">
-            <ShoppingCart className="h-4 w-4" />
-          </Button>
-        </div> */}
       </div>
     </Card>
   );

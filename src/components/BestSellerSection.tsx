@@ -4,7 +4,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
-
+import { ArrowRight } from "lucide-react";
 interface Product {
   _id: string;
   id?: string;
@@ -135,15 +135,15 @@ export default function BestSellerSection() {
         </div>
 
         {/* View All Link */}
-        <div className="text-center mt-8">
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            View All Products
-          </Link>
-        </div>
+       <div className="text-center mt-10 md:mt-16">
+                     <Link
+                       to="/shop"
+                       className="inline-flex items-center text-sm font-medium text-primary hover:text-gray-900 transition-colors group"
+                     >
+                       View All Products
+                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                     </Link>
+                   </div>
       </div>
     </section>
   );

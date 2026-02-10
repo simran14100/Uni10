@@ -522,13 +522,15 @@ export default function InfluencerSection() {
         </div>
 
         {/* Show all videos button at the end */}
-        <div className="text-center mt-12">
-          <Link to="/videos">
-            <button className="px-6 py-3 border border-primary text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">
-              Show all videos
-            </button>
-          </Link>
-        </div>
+        <div className="text-center mt-10 md:mt-16">
+                            <Link
+                              to="/videos"
+                              className="inline-flex items-center text-sm font-medium text-primary hover:text-gray-900 transition-colors group"
+                            >
+                              View All Videos
+                              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                          </div>
 
        
 

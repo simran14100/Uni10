@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { User, Package } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
-
+import { ArrowRight } from "lucide-react";
 interface Product {
   _id: string;
   title: string;
@@ -125,13 +125,16 @@ export default function InfluencerImageGrid() {
         )}
         
         {/* Show all influencers button at the end */}
-        <div className="text-center mt-12">
-          <Link to="/all-influencers">
-            <button className="px-6 py-3 border border-primary text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">
-              Show all influencers
-            </button>
-          </Link>
-        </div>
+       
+         <div className="text-center mt-10 md:mt-16">
+                                    <Link
+                                      to="/all-influencers"
+                                      className="inline-flex items-center text-sm font-medium text-primary hover:text-gray-900 transition-colors group"
+                                    >
+                                      View All Influencers
+                                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                  </div>
       </div>
     </section>
   );
