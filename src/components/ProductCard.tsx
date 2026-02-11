@@ -211,7 +211,7 @@ export const ProductCard = ({
             <button
               onClick={handleWishlistClick}
               id={`wishlist-btn-${id}`}
-              className="absolute top-2 right-2 sm:top-3 sm:right-1 p-1.5 sm:p-2 rounded-full hover:bg-black/5 transition-all duration-200 z-10"
+              className="absolute top-2 right-2 sm:top-3 sm:-right-2 p-1.5 sm:p-2 rounded-full hover:bg-black/5 transition-all duration-200 z-10"
               style={{
                 backgroundColor: 'transparent',
                 background: 'transparent',

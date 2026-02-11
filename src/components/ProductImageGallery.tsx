@@ -467,8 +467,8 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
             >
               <Heart
                 className="h-5 w-5 transition-all"
-                fill={isInWishlist ? 'rgb(239, 68, 68)' : 'none'}
-                color={isInWishlist ? 'rgb(239, 68, 68)' : 'rgb(0, 0, 0)'}
+                fill={isInWishlist ? '#000000' : 'none'}
+                color="#000000"
               />
             </button>
           )}

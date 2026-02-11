@@ -11,8 +11,6 @@ import {
 // Add this type for the API utility
 declare const api: (url: string) => Promise<{ok: boolean, json: any}>;
 
-const TRUNCATE_LENGTH = 120;
-
 interface Review {
   _id: string;
   text: string;
@@ -43,90 +41,78 @@ interface ReviewCardProps {
 }
 
 const ReviewCard = ({ review, color, isExpanded, onToggleExpand }: ReviewCardProps) => {
-  const isDark = color === 'footer-dark';
-  const bgGradient = isDark
-    ? 'bg-gradient-to-br from-gray-900 to-black'
-    : 'bg-gradient-to-br from-red-600 to-red-700';
-  const borderColor = isDark ? 'border-red-500/30' : 'border-white/40';
-  const quoteColor = isDark ? 'text-red-500/25' : 'text-white/30';
-  const avatarBg = isDark ? 'bg-red-500/20' : 'bg-white/25';
-
   const needsTruncation = review.text.length > 150;
 
   return (
-    <div className={`relative ${bgGradient} rounded-3xl p-6 sm:p-8 h-full min-h-[320px] flex flex-col shadow-xl`}>
-      {/* Bottom Quote (moved from bottom) */}
-      <Quote className={`absolute top-6 left-6 h-10 w-10 ${quoteColor} transform rotate-180`} />
-
-      {/* Curved Border Frame */}
-      <div className={`absolute top-4 left-4 right-4 bottom-4 border-2 ${borderColor} rounded-3xl pointer-events-none`} />
-
-      {/* Profile Image */}
-      <div className="relative z-10 flex justify-center mb-4 sm:mb-6">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 border-white/90 shadow-xl ring-2 ring-red-500/40">
-          {review.userId?.profileImage ? (
-            <img src={review.userId.profileImage} alt={review.username || review.userId.name || 'Anonymous'} className="w-full h-full object-cover" />
-          ) : (
-            <div className={`w-full h-full ${avatarBg} backdrop-blur-sm flex items-center justify-center text-white text-xl sm:text-2xl font-bold`}>
-              {(review.username || review.userId?.name)?.charAt(0).toUpperCase() || '?'}
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="group relative bg-white backdrop-blur-md rounded-3xl p-8 sm:p-10 h-full min-h-[340px] flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-1 border border-gray-200">
+      {/* Decorative overlay on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/[0.02] to-gray-900/[0.02] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Top Quote Icon */}
+      <Quote className="absolute top-7 left-7 h-9 w-9 text-gray-200 group-hover:text-gray-300 transition-colors duration-300" />
 
       {/* Review Text */}
-      <div className="relative z-10 flex-1 flex flex-col items-center mb-4 sm:mb-6">
-        <p className={`text-white text-sm leading-relaxed text-center px-2 font-medium ${
+      <div className="relative z-10 flex-1 flex flex-col mb-7 pt-10">
+        <p className={`text-gray-700 text-[15.5px] leading-[1.75] font-normal tracking-wide ${
           !isExpanded && needsTruncation 
-            ? 'line-clamp-4 sm:line-clamp-none' 
+            ? 'line-clamp-4 sm:line-clamp-5' 
             : ''
         }`}>
+          <span className="text-gray-400 text-lg leading-none">"</span>
           {review.text}
+          <span className="text-gray-400 text-lg leading-none">"</span>
         </p>
         
         {needsTruncation && (
           <button
             onClick={onToggleExpand}
-            className="sm:hidden mt-2 flex items-center gap-1 text-red-200 hover:text-white text-xs font-medium transition-colors"
+            className="sm:hidden mt-4 flex items-center gap-1.5 text-black hover:text-gray-700 text-sm font-semibold transition-all duration-200 self-start group/btn"
           >
             {isExpanded ? (
               <>
                 <span>Read Less</span>
-                <ChevronUp className="h-3 w-3" />
+                <ChevronUp className="h-3.5 w-3.5 group-hover/btn:transform group-hover/btn:-translate-y-0.5 transition-transform" />
               </>
             ) : (
               <>
                 <span>Read More</span>
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="h-3.5 w-3.5 group-hover/btn:transform group-hover/btn:translate-y-0.5 transition-transform" />
               </>
             )}
           </button>
         )}
       </div>
 
-      {/* User Name and Rating */}
-      <div className="relative z-10 text-center space-y-2">
-        <p className="text-white font-bold text-base sm:text-lg">
+      {/* User Info Section */}
+      <div className="relative z-10 space-y-3 pt-4 border-t border-gray-200">
+        <p className="text-gray-900 font-bold text-base tracking-wide">
           {review.username || review.userId?.name || 'Anonymous'}
         </p>
         
-        {/* Rating Stars */}
-        <div className="flex items-center justify-center gap-1">
+        {/* Rating Stars - Black & White */}
+        <div className="flex items-center gap-1.5">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                i < review.rating 
-                  ? 'fill-yellow-400 text-yellow-400 drop-shadow-sm' 
-                  : 'fill-white/30 text-white/30'
-              }`}
+              className={`h-[18px] w-[18px] transition-all duration-200 ${
+                i < Math.floor(review.rating)
+                  ? 'fill-black text-black' 
+                  : 'fill-gray-200 text-gray-200'
+              } group-hover:scale-110`}
+              style={{ transitionDelay: `${i * 50}ms` }}
             />
           ))}
+          <span className="ml-2 text-sm text-gray-600 font-semibold">
+            {review.rating.toFixed(1)}
+          </span>
         </div>
       </div>
 
-      {/* Top Quote (moved from top) */}
-      <Quote className={`absolute bottom-6 right-6 h-10 w-10 ${quoteColor}`} />
+      {/* Bottom Quote Icon */}
+      <Quote className="absolute bottom-7 right-7 h-9 w-9 text-gray-200 transform rotate-180 group-hover:text-gray-300 transition-colors duration-300" />
+      
+      {/* Subtle corner accent */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-black/5 to-transparent rounded-tr-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </div>
   );
 };
@@ -141,34 +127,50 @@ export default function RecentReviewsSection() {
     const fetchRecentReviews = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Fetching recent reviews...');
+        console.log('🔄 Fetching recent reviews from:', '/api/reviews/recent?limit=6');
         
         if (typeof api === 'function') {
+          console.log('Using api() function...');
           const { ok, json } = await api('/api/reviews/recent?limit=6');
           console.log('📊 API Response:', { ok, json });
+          
           if (ok) {
             console.log('✅ Reviews received:', json.data?.length || 0);
-            setReviews(json.data);
+            setReviews(json.data || []);
           } else {
             console.log('❌ API Error:', json?.message);
             setError(json?.message || 'Failed to fetch recent reviews.');
           }
         } else {
+          console.log('Using fetch()...');
           const response = await fetch('/api/reviews/recent?limit=6');
+          
+          // Check content type before parsing
+          const contentType = response.headers.get('content-type');
+          console.log('📋 Response Status:', response.status);
+          console.log('📋 Content-Type:', contentType);
+          
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('❌ Server returned non-JSON response');
+            console.log('Response preview:', text.substring(0, 200));
+            throw new Error('API endpoint not found or not returning JSON.');
+          }
+          
           const json = await response.json();
-          console.log('📊 Fetch Response:', { status: response.status, json });
+          console.log('📊 Parsed JSON:', json);
           
           if (response.ok) {
             console.log('✅ Reviews received:', json.data?.length || 0);
-            setReviews(json.data);
+            setReviews(json.data || []);
           } else {
-            console.log('❌ Fetch Error:', json?.message);
+            console.log('❌ API Error:', json?.message);
             setError(json?.message || 'Failed to fetch recent reviews.');
           }
         }
       } catch (err: any) {
-        console.log('💥 Exception:', err);
-        setError(err.message || 'An unexpected error occurred.');
+        console.error('💥 Fetch Exception:', err);
+        setError(err.message || 'Failed to load reviews.');
       } finally {
         setLoading(false);
       }
@@ -179,10 +181,18 @@ export default function RecentReviewsSection() {
 
   if (loading) {
     return (
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
-        <div className="container mx-auto text-center">
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-red-600" />
-          <p className="mt-4 text-sm text-gray-600">Loading customer reviews...</p>
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.05) 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }} />
+        
+        <div className="container mx-auto text-center relative z-10">
+          <div className="inline-flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 animate-spin text-black" />
+            <p className="text-sm font-medium text-gray-600 animate-pulse">Loading customer reviews...</p>
+          </div>
         </div>
       </section>
     );
@@ -190,9 +200,64 @@ export default function RecentReviewsSection() {
 
   if (error) {
     return (
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
-        <div className="container mx-auto text-center">
-          <p className="text-red-500 text-sm">Error: {error}</p>
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="bg-white border-2 border-gray-300 rounded-2xl p-8 shadow-xl">
+            <div className="flex items-start gap-4 mb-5">
+              <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border-2 border-gray-300">
+                <span className="text-black text-2xl">⚠️</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-black mb-2">
+                  API Not Connected
+                </h3>
+                <p className="text-gray-700 text-sm mb-3 leading-relaxed">{error}</p>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  This component is ready to use! Just copy it to your project and ensure your backend API is set up.
+                </p>
+              </div>
+            </div>
+            
+            <details className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+              <summary className="cursor-pointer font-bold text-black text-sm mb-3 hover:text-gray-700 transition-colors">
+                📋 Backend Setup Instructions
+              </summary>
+              <div className="space-y-4 mt-4">
+                <div>
+                  <p className="text-xs font-bold text-gray-900 mb-2">1. Create API Endpoint:</p>
+                  <code className="block bg-white p-3 rounded-lg text-xs font-mono border border-gray-300">
+                    GET /api/reviews/recent?limit=6
+                  </code>
+                </div>
+                
+                <div>
+                  <p className="text-xs font-bold text-gray-900 mb-2">2. Return JSON Response:</p>
+                  <pre className="bg-white p-3 rounded-lg text-xs overflow-x-auto border border-gray-300">
+{`{
+  "data": [
+    {
+      "_id": "123",
+      "text": "Great product!",
+      "rating": 5,
+      "username": "John Doe",
+      "userId": {
+        "_id": "456",
+        "name": "John Doe",
+        "email": "john@example.com"
+      },
+      "createdAt": "2024-01-15"
+    }
+  ]
+}`}
+                  </pre>
+                </div>
+                
+                <p className="text-xs text-gray-500 pt-3 border-t border-gray-300">
+                  💡 Once your API is configured, this component will automatically fetch and display reviews dynamically.
+                </p>
+              </div>
+            </details>
+          </div>
         </div>
       </section>
     );
@@ -200,33 +265,47 @@ export default function RecentReviewsSection() {
 
   if (reviews.length === 0) {
     return (
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
         <div className="container mx-auto text-center">
-          <p className="text-gray-500">No reviews yet. Be the first to share your experience!</p>
+          <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-10 border border-gray-200">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-gray-200">
+              <Star className="h-10 w-10 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-bold text-black mb-3">No Reviews Yet</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">Be the first to share your experience!</p>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      {/* Decorative background pattern */}
+      <div className="absolute inset-0 opacity-20" style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.05) 1px, transparent 0)',
+        backgroundSize: '40px 40px'
+      }} />
+      
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full mb-2">
-            <Star className="h-4 w-4 fill-red-600 text-red-600" />
-            <span className="text-sm font-medium text-red-600">Customer Reviews</span>
+        <div className="text-center mb-16 space-y-4">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-full mb-3 shadow-lg">
+            <Star className="h-4 w-4 fill-white text-white" />
+            <span className="text-sm font-semibold tracking-wide">TESTIMONIALS</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-            What Our Customers Say
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black tracking-tight">
+            Our clients always love us
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Real experiences from real customers. See why they love shopping with us.
+          
+          <p className="text-gray-600 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+            Don't just take our word for it - hear from our satisfied customers
           </p>
         </div>
 
         {/* Reviews Slider */}
-        <div className="relative max-w-7xl mx-auto mb-12">
+        <div className="relative max-w-7xl mx-auto mb-16">
           <Carousel opts={{ align: "start", loop: true }} className="w-full">
             <CarouselContent className="-ml-4 md:-ml-6">
               {reviews.map((review, index) => {
@@ -244,7 +323,13 @@ export default function RecentReviewsSection() {
                   });
                 };
                 return (
-                  <CarouselItem key={review._id} className="pl-4 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3">
+                  <CarouselItem 
+                    key={review._id} 
+                    className="pl-4 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3"
+                    style={{ 
+                      animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` 
+                    }}
+                  >
                     <ReviewCard 
                       review={review} 
                       color={color} 
@@ -255,40 +340,59 @@ export default function RecentReviewsSection() {
                 );
               })}
             </CarouselContent>
+            
             {/* Navigation Buttons - Desktop */}
-            <div className="hidden sm:flex gap-2 absolute -top-[72px] right-0">
-              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-red-600 hover:bg-red-50 transition-all" />
-              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-red-600 hover:bg-red-50 transition-all" />
+            <div className="hidden sm:flex gap-3 absolute -top-20 right-0">
+              <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
+              <CarouselNext className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
             </div>
+            
             {/* Navigation Buttons - Mobile */}
-            <div className="flex sm:hidden justify-center gap-2 mt-6">
-              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-red-600 hover:bg-red-50 transition-all" />
-              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2 border-gray-300 hover:border-red-600 hover:bg-red-50 transition-all" />
+            <div className="flex sm:hidden justify-center gap-3 mt-8">
+              <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
+              <CarouselNext className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
             </div>
           </Carousel>
         </div>
 
         {/* Bottom CTA */}
         <div className="text-center">
-          <p className="text-sm text-gray-600 mb-4">
-            Join thousands of satisfied customers
+          <p className="text-sm font-medium text-gray-600 mb-5 tracking-wide">
+            Join thousands of satisfied customers worldwide
           </p>
-          <div className="flex items-center justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+            <div className="flex items-center gap-3">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <Star 
+                    key={i} 
+                    className="h-5 w-5 fill-black text-black" 
+                  />
                 ))}
               </div>
-              <span className="font-semibold text-gray-900">4.9/5</span>
+              <span className="font-bold text-black text-lg">4.9/5</span>
             </div>
-            <div className="h-4 w-px bg-gray-300" />
-            <span className="text-gray-600">
-              Based on {reviews.length}+ reviews
+            <div className="hidden sm:block h-6 w-px bg-gray-400" />
+            <span className="text-gray-700 font-medium">
+              Based on {reviews.length}+ verified reviews
             </span>
           </div>
         </div>
       </div>
+      
+      {/* Add keyframes animation */}
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </section>
   );
-}
+} 

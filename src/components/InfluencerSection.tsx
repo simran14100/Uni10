@@ -247,7 +247,7 @@ export default function InfluencerSection() {
           </div> */}
 
          
-           <div className="text-center mb-12 md:mb-16">
+           <div className="text-center mb-12">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                       <div className="flex-1"></div>
                       <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">

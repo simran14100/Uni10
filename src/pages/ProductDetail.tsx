@@ -797,7 +797,7 @@ const ProductDetail = () => {
                   {title}
                 </h1>
               </div>
-              <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
+              <div className="flex items-baseline gap-2 mb-3 sm:mb-4 justify-between">
   <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
     ₹
     {(() => {
@@ -823,6 +823,16 @@ const ProductDetail = () => {
       });
     })()}
   </p>
+
+  {(product?.averageRating || 4.2) && (
+    <div className="flex flex-col items-start">
+      <div className="flex items-center bg-green-50 px-2 py-1 rounded-md border border-green-100">
+        <span className="text-sm font-bold text-gray-900 leading-none">{product?.averageRating || 4.2}</span>
+        <span className="text-green-600 ml-1" style={{fontSize: '11px'}}>★</span>
+      </div>
+      <span className="text-xs text-gray-500 mt-1">{(product?.reviewCount || 4500) >= 1000 ? `${((product?.reviewCount || 4500) / 1000).toFixed(1)}k` : product?.reviewCount || 4500} Ratings</span>
+    </div>
+  )}
 
   {product?.discount?.value > 0 && (
     <div className="flex items-baseline">
@@ -907,22 +917,34 @@ const ProductDetail = () => {
                   {title}
                 </h1>
               </div>
-            <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
+            <div className="flex items-baseline gap-2 mb-3 sm:mb-4 justify-between">
   {Number(product?.price) > 0 && (
-    <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
-      ₹{(() => {
-        const basePrice = Number(product.price);
-        let finalPrice = basePrice;
+    <>
+      <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
+        ₹{(() => {
+          const basePrice = Number(product.price);
+          let finalPrice = basePrice;
 
-        if (product?.discount?.value > 0 && product.discount.type === "percentage") {
-          finalPrice = basePrice - (basePrice * product.discount.value) / 100;
-        } else if (product?.discount?.value > 0 && product.discount.type === "flat") {
-          finalPrice = Math.max(0, basePrice - product.discount.value);
-        }
+          if (product?.discount?.value > 0 && product.discount.type === "percentage") {
+            finalPrice = basePrice - (basePrice * product.discount.value) / 100;
+          } else if (product?.discount?.value > 0 && product.discount.type === "flat") {
+            finalPrice = Math.max(0, basePrice - product.discount.value);
+          }
 
-        return Math.round(finalPrice).toLocaleString("en-IN");
-      })()}
-    </p>
+          return Math.round(finalPrice).toLocaleString("en-IN");
+        })()}
+      </p>
+
+      {(product?.averageRating || 4.2) && (
+        <div className="flex flex-col items-start">
+          <div className="flex items-center bg-green-50 px-2 py-1 rounded-md border border-green-100">
+            <span className="text-sm font-bold text-gray-900 leading-none">{product?.averageRating || 4.2}</span>
+            <span className="text-green-600 ml-1" style={{fontSize: '11px'}}>★</span>
+          </div>
+          <span className="text-xs text-gray-500 mt-1">{(product?.reviewCount || 4500) >= 1000 ? `${((product?.reviewCount || 4500) / 1000).toFixed(1)}k` : product?.reviewCount || 4500} Ratings</span>
+        </div>
+      )}
+    </>
   )}
 
   {Number(product?.price) > 0 && product?.discount?.value > 0 && (
@@ -1088,29 +1110,32 @@ const ProductDetail = () => {
                           sizeItem.qty > 0 && sizeItem.qty <= 3;
                         return (
                           <div key={sizeItem.code} className="relative pb-2 sm:pb-3">
-                            <button
-                              type="button"
-                              disabled={isOutOfStock}
-                              onClick={() => {
-                                setSelectedSize(sizeItem.code);
-                                setSizeStockError("");
-                              }}
-                              className={cn(
-                                "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded border text-xs font-medium transition-colors",
-                                isOutOfStock
-                                  ? "opacity-50 cursor-not-allowed bg-muted border-border text-muted-foreground"
-                                  : selectedSize === sizeItem.code
-                                  ? "bg-primary text-primary-foreground border-primary"
-                                  : "bg-transparent border-border hover:border-primary"
+                            <div className="relative">
+                              <button
+                                type="button"
+                                disabled={isOutOfStock}
+                                onClick={() => {
+                                  setSelectedSize(sizeItem.code);
+                                  setSizeStockError("");
+                                }}
+                                className={cn(
+                                  "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded border text-xs font-medium transition-colors relative",
+                                  isOutOfStock
+                                    ? "opacity-50 cursor-not-allowed bg-muted border-border text-muted-foreground"
+                                    : selectedSize === sizeItem.code
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "bg-transparent border-border hover:border-primary"
+                                )}
+                              >
+                                {sizeItem.label}
+                              </button>
+                              {/* Strikethrough line for out of stock */}
+                              {isOutOfStock && (
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <div className="w-full h-0.5 bg-gray-400"></div>
+                                </div>
                               )}
-                            >
-                              {sizeItem.label}
-                            </button>
-                            {isOutOfStock && (
-                              <span className="text-[10px] text-destructive font-medium whitespace-nowrap mt-1 block">
-                                Out of stock
-                              </span>
-                            )}
+                            </div>
                             {isLowStock && !isOutOfStock && (
                               <span className="text-[10px] text-orange-600 font-medium whitespace-nowrap mt-1 block">
                                  {sizeItem.qty} left

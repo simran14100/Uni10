@@ -879,7 +879,7 @@ const Index = () => {
       <section className="bg-white py-8 sm:py-16 lg:py-12">
   <div className="container mx-auto px-4 sm:px-6">
     {/* Header */}
-    <div className="flex items-center mb-12 sm:mb-20 justify-center">
+    <div className="flex items-center mb-12 justify-center">
       <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-center">
         <span className="text-black">Collection</span>
       </h2>
@@ -1012,13 +1012,11 @@ const Index = () => {
 
       {/* New Arrivals */}
       <section className="container mx-auto px-4 py-12 md:py-12 bg-white rounded-xl shadow-sm">
-        <div className="text-center mb-8 md:mb-8">
+        <div className="text-center mb-12">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
             New Arrivals
           </h2>
-          <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
-            Discover our latest additions and stay ahead of the trends. Fresh styles just dropped!
-          </p>
+         
         </div>
 
         {newArrivalsLoading ? (

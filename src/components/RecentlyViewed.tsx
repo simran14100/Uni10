@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +119,73 @@ export const RecentlyViewed = ({
     }
   }, [excludeProductId, getList]);
 
+  // Force transparent background for ALL wishlist buttons globally
+  useEffect(() => {
+    const forceTransparentBackground = () => {
+      // Target all wishlist buttons by multiple selectors
+      const selectors = [
+        '[aria-label*="wishlist"]',
+        '[aria-label*="Wishlist"]',
+        'button[class*="p-1.5"][class*="rounded-full"]',
+        'button[class*="p-2"][class*="rounded-full"]',
+        'button:has(svg[class*="lucide-heart"])',
+        'button:has(svg[class*="heart"])'
+      ];
+      
+      selectors.forEach(selector => {
+        const buttons = document.querySelectorAll(selector);
+        buttons.forEach(button => {
+          const btn = button as HTMLElement;
+          btn.style.setProperty('background-color', 'transparent', 'important');
+          btn.style.setProperty('background', 'transparent', 'important');
+          btn.style.setProperty('background-image', 'none', 'important');
+          btn.style.setProperty('box-shadow', 'none', 'important');
+        });
+      });
+    };
+    
+    // Initial force
+    forceTransparentBackground();
+    
+    // Continuous monitoring to fight back
+    const interval = setInterval(forceTransparentBackground, 50);
+    
+    // Also fight back on interactions
+    const handleGlobalInteraction = (e: Event) => {
+      const target = e.target as HTMLElement;
+      const button = target.closest('button');
+      if (button) {
+        const isWishlistBtn = 
+          button.getAttribute('aria-label')?.toLowerCase().includes('wishlist') ||
+          button.className.includes('p-1.5') ||
+          button.className.includes('p-2') ||
+          button.querySelector('svg[class*="heart"]') ||
+          button.querySelector('svg[class*="lucide-heart"]');
+          
+        if (isWishlistBtn) {
+          setTimeout(() => {
+            const btn = button as HTMLElement;
+            btn.style.setProperty('background-color', 'transparent', 'important');
+            btn.style.setProperty('background', 'transparent', 'important');
+            btn.style.setProperty('background-image', 'none', 'important');
+            btn.style.setProperty('box-shadow', 'none', 'important');
+          }, 0);
+        }
+      }
+    };
+    
+    document.addEventListener('mousedown', handleGlobalInteraction);
+    document.addEventListener('touchstart', handleGlobalInteraction);
+    document.addEventListener('click', handleGlobalInteraction);
+    
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('mousedown', handleGlobalInteraction);
+      document.removeEventListener('touchstart', handleGlobalInteraction);
+      document.removeEventListener('click', handleGlobalInteraction);
+    };
+  }, []);
+
   const listToShow = getList().filter(
     (item) => String(item.id) !== String(excludeProductId)
   );
@@ -156,6 +223,42 @@ export const RecentlyViewed = ({
   }
 
   return (
+    <>
+      <style>{`
+        /* Override for ALL wishlist buttons - prevent white background from global p-2 rules */
+        button[aria-label*="wishlist"],
+        button[aria-label*="Wishlist"],
+        button[class*="p-1.5"][class*="rounded-full"],
+        button[class*="p-2"][class*="rounded-full"],
+        button[aria-label*="wishlist"]:hover,
+        button[aria-label*="Wishlist"]:hover,
+        button[class*="p-1.5"][class*="rounded-full"]:hover,
+        button[class*="p-2"][class*="rounded-full"]:hover,
+        button[aria-label*="wishlist"]:active,
+        button[aria-label*="Wishlist"]:active,
+        button[class*="p-1.5"][class*="rounded-full"]:active,
+        button[class*="p-2"][class*="rounded-full"]:active,
+        button[aria-label*="wishlist"]:focus,
+        button[aria-label*="Wishlist"]:focus,
+        button[class*="p-1.5"][class*="rounded-full"]:focus,
+        button[class*="p-2"][class*="rounded-full"]:focus {
+          background-color: transparent !important;
+          background: transparent !important;
+          background-image: none !important;
+          box-shadow: none !important;
+        }
+        
+        /* Ultra-specific override for any button with heart icon */
+        button svg[class*="lucide-heart"],
+        button svg[class*="heart"],
+        button:has(svg[class*="lucide-heart"]),
+        button:has(svg[class*="heart"]) {
+          background-color: transparent !important;
+          background: transparent !important;
+          background-image: none !important;
+          box-shadow: none !important;
+        }
+      `}</style>
     <div className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-border">
       <h2 className="text-xl sm:text-2xl font-bold tracking-tighter mb-6 sm:mb-8 flex items-center gap-2">
         <History className="h-6 w-6 text-muted-foreground" />
@@ -202,13 +305,6 @@ export const RecentlyViewed = ({
                       alt={title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    {stock === 0 && (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <span className="text-white font-semibold text-xs sm:text-sm">
-                          Out of Stock
-                        </span>
-                      </div>
-                    )}
                     {/* {product.isBestSeller && (
                       <Badge className="absolute top-2 left-2 bg-orange-500 hover:bg-orange-600 text-xs sm:text-sm">
                         Best Seller
@@ -221,18 +317,18 @@ export const RecentlyViewed = ({
                     )} */}
                     <button
                       onClick={handleWishlistClick}
-                      className="absolute bottom-2 right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-all duration-200 z-10 shadow-md"
+                      className="absolute top-1 -right-1 p-2 hover:bg-black/5 rounded-full transition-all duration-200 z-10"
+                      style={{
+                        backgroundColor: 'transparent',
+                        background: 'transparent',
+                        backgroundImage: 'none',
+                        boxShadow: 'none'
+                      }}
                     >
                       <Heart
                         className="h-4 w-4 transition-all"
-                        fill={
-                          isInWishlist(id) ? "currentColor" : "none"
-                        }
-                        color={
-                          isInWishlist(id)
-                            ? "hsl(var(--primary))"
-                            : "currentColor"
-                        }
+                        fill={isInWishlist(id) ? '#000000' : 'none'}
+                        color="#000000"
                       />
                     </button>
                   </div>
@@ -265,5 +361,6 @@ export const RecentlyViewed = ({
         })}
       </div>
     </div>
+    </>
   );
 };
