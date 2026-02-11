@@ -192,8 +192,8 @@ const Wishlist = () => {
                       >
                         <Heart
                           className="h-4 w-4 sm:h-5 sm:w-5"
-                          fill="rgb(239, 68, 68)"
-                          color="rgb(239, 68, 68)"
+                          fill="#000000"
+                          color="#000000"
                         />
                       </button>
                     </div>

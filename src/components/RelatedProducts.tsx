@@ -297,13 +297,7 @@ export const RelatedProducts = ({ productId }: { productId: string }) => {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center bg-yellow-50 py-2 px-3 rounded-full border border-yellow-200 mt-2" style={{minWidth: 'auto', width: 'fit-content', maxWidth: 'none'}}>
-                    <span className="text-sm font-bold text-gray-900 leading-none" style={{paddingRight: '2px'}}>4.2</span>
-                    <span className="text-yellow-500 leading-none" style={{fontSize: '14px'}}>★</span>
-                  </div>
-                  <span className="text-xs text-gray-600 mt-1 font-medium">
-                    4.8K Ratings
-                  </span>
+                    
                   </div>
                 </Card>
               </Link>
