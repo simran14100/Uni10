@@ -163,23 +163,19 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   onShareClick,
   isInWishlist = false,
 }) => {
-  console.log('=== ProductImageGallery DEBUG ===');
-  console.log('showWishlistButton:', showWishlistButton);
-  console.log('showShareButton:', showShareButton);
-  console.log('isMobile:', window.innerWidth < 768);
+
   
   // Log when component mounts
   useEffect(() => {
-    console.log('ProductImageGallery mounted, checking button styles...');
+   
     
     // Check if our CSS classes exist
     const galleryButtons = document.querySelectorAll('.gallery-icon-btn, .gallery-nav-btn');
-    console.log('Found gallery buttons:', galleryButtons.length);
+    
     
     galleryButtons.forEach((btn, index) => {
       const styles = window.getComputedStyle(btn);
-      console.log(`Button ${index + 1} background:`, styles.backgroundColor);
-      console.log(`Button ${index + 1} classes:`, btn.className);
+     
       
       // Force override styles directly
       (btn as HTMLElement).style.setProperty('background-color', 'transparent', 'important');
@@ -209,16 +205,10 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       
       // Add mousedown/touchstart listeners
       const handleInteraction = (e: Event) => {
-        console.log(`=== Nav Button ${index + 1} ${e.type} ===`);
+       
         const rect = button.getBoundingClientRect();
         const styles = window.getComputedStyle(button);
-        console.log('Position during interaction:', {
-          top: rect.top,
-          left: rect.left,
-          transform: styles.transform,
-          position: styles.position,
-          computedStyle: styles
-        });
+        
       };
       
       button.addEventListener('mousedown', handleInteraction);
@@ -239,12 +229,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
-            console.log(`=== Nav Button ${index + 1} Style Mutation ===`);
-            console.log('Attribute changed:', mutation.attributeName);
-            console.log('New style:', button.getAttribute('style'));
-            console.log('New class:', button.className);
-            console.log('Current transform:', window.getComputedStyle(button).transform);
-            console.log('Current position:', button.getBoundingClientRect());
+            // Debug logging removed to prevent infinite console spam
           }
         });
       });
@@ -256,7 +241,6 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     });
   }, []);
   
-  console.log('images prop:', images);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [thumbScrollPos, setThumbScrollPos] = useState(0);
@@ -385,8 +369,6 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   const imagesToUse = getImagesForSelectedColor();
   const primaryIndex = getPrimaryImageIndex();
 
-  console.log('imagesToUse:', imagesToUse);
-
   // When color changes, set the main image to the primary image for that color
   useEffect(() => {
     setSelectedIndex(primaryIndex);
@@ -395,9 +377,6 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   const validImages = imagesToUse
     .filter((img) => img && String(img).length > 0)
     .map(resolveImage);
-
-  console.log('validImages:', validImages);
-  console.log('validImages.length:', validImages.length);
 
   if (validImages.length === 0) {
     return (
@@ -436,9 +415,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     <>
       <style>{galleryStyles}</style>
       {(() => {
-        console.log('=== CSS STYLES INJECTED ===');
-        console.log('Gallery styles length:', galleryStyles.length);
-        console.log('Gallery styles:', galleryStyles);
+       
         return null;
       })()}
       <div className="w-full space-y-4" data-gallery="true">

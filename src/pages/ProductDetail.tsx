@@ -480,13 +480,26 @@ const ProductDetail = () => {
   }, [refetchProduct]);
 
   const handleAddToCart = () => {
-    if (!product) return;
+    console.log('=== handleAddToCart START ===');
+    
+    if (!product) {
+      console.log('No product, returning');
+      return;
+    }
 
     const usingSizeInventory =
       product?.trackInventoryBySize &&
       Array.isArray(product?.sizeInventory);
 
+    console.log('Size inventory check:', {
+      usingSizeInventory,
+      trackInventoryBySize: product?.trackInventoryBySize,
+      hasSizeInventory: Array.isArray(product?.sizeInventory),
+      selectedSize
+    });
+
     if (usingSizeInventory && !selectedSize) {
+      console.log('Size required but not selected, showing toast');
       toast({
         title: "Select a size",
         description: "Please choose a size before adding to cart.",
@@ -495,7 +508,15 @@ const ProductDetail = () => {
       return;
     }
 
+    console.log('Color check:', {
+      hasColors: Array.isArray(product.colors),
+      colorsLength: product.colors?.length,
+      selectedColorsLength: selectedColors.length,
+      selectedColors
+    });
+
     if (Array.isArray(product.colors) && product.colors.length > 0 && selectedColors.length === 0) {
+      console.log('Colors required but not selected, showing toast');
       toast({
         title: "Select colors",
         description: "Please choose at least one color before adding to cart.",
@@ -503,6 +524,9 @@ const ProductDetail = () => {
       });
       return;
     }
+
+    console.log('Proceeding with add to cart...');
+    // Rest of the function continues...
 
     const currentStock =
       usingSizeInventory && selectedSize
@@ -744,11 +768,11 @@ const ProductDetail = () => {
       
       {/* Page Header */}
      
-      <section className="w-full px-3 sm:px-4 pt-32 pb-8 sm:pt-36 sm:pb-12 md:pt-40 md:pb-16">
+      <section className="w-full px-3 sm:px-4 pt-24 pb-4 sm:pt-24 sm:pb-8 md:pt-28 md:pb-12">
         <div className="max-w-7xl mx-auto w-full">
           <Link
             to="/shop"
-            className="inline-flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground mb-6 sm:mb-8"
+            className="inline-flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground mb-3 sm:mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" />
             Back to Shop
@@ -788,127 +812,10 @@ const ProductDetail = () => {
               />
             </div>
 
-            <div className="min-w-0 md:hidden p-4 sm:p-5 border border-gray-200 rounded-lg order-2">
-              <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
-                {product.category}
-              </p>
-              <div className="mb-2 sm:mb-3">
-                <h1 className="text-xl sm:text-2xl md:text-4xl font-black tracking-tighter break-words text-gray-900">
-                  {title}
-                </h1>
-              </div>
-              <div className="flex items-baseline gap-2 mb-3 sm:mb-4 justify-between">
-  <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-800">
-    ₹
-    {(() => {
-      const basePrice = Number(product?.price ?? 0);
-      let finalPrice = basePrice;
-
-      if (
-        product?.discount?.value > 0 &&
-        product.discount.type === "percentage"
-      ) {
-        finalPrice =
-          basePrice - (basePrice * product.discount.value) / 100;
-      } else if (
-        product?.discount?.value > 0 &&
-        product.discount.type === "flat"
-      ) {
-        finalPrice = Math.max(0, basePrice - product.discount.value);
-      }
-
-      return finalPrice.toLocaleString("en-IN", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      });
-    })()}
-  </p>
-
-  {(product?.averageRating || 4.2) && (
-    <div className="flex flex-col items-start">
-      <div className="flex items-center bg-green-50 px-2 py-1 rounded-md border border-green-100">
-        <span className="text-sm font-bold text-gray-900 leading-none">{product?.averageRating || 4.2}</span>
-        <span className="text-green-600 ml-1" style={{fontSize: '11px'}}>★</span>
-      </div>
-      <span className="text-xs text-gray-500 mt-1">{(product?.reviewCount || 4500) >= 1000 ? `${((product?.reviewCount || 4500) / 1000).toFixed(1)}k` : product?.reviewCount || 4500} Ratings</span>
-    </div>
-  )}
-
-  {product?.discount?.value > 0 && (
-    <div className="flex items-baseline">
-      <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
-        ₹
-        {Number(product?.price ?? 0).toLocaleString("en-IN", {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        })}
-      </span>
-
-      <span className="text-xs font-medium text-red-600">
-        {product.discount.type === "percentage"
-          ? `${product.discount.value}% OFF`
-          : `₹${product.discount.value} OFF`}
-      </span>
-    </div>
-  )}
-</div>
-
-              <div className="flex items-center justify-between gap-4 mb-2">
-                <div className="flex flex-col gap-1 flex-1">
-                  {product.paragraph1 && (
-                    <div className="flex items-center gap-1 text-xs">
-                      <span className="text-red-800 mt-0.5">
-                        <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M7.49991 0.879059C3.87771 0.879059 0.879059 3.87771 0.879059 7.49991C0.879059 11.1221 3.87771 14.1208 7.49991 14.1208C11.1221 14.1208 14.1208 11.1221 14.1208 7.49991C14.1208 3.87771 11.1221 0.879059 7.49991 0.879059ZM1.82737 7.49991C1.82737 4.40422 4.40422 1.82737 7.49991 1.82737C10.5956 1.82737 13.1724 4.40422 13.1724 7.49991C13.1724 10.5956 10.5956 13.1724 7.49991 13.1724C4.40422 13.1724 1.82737 10.5956 1.82737 7.49991ZM8.24991 4.24991C8.24991 3.8357 7.91422 3.49991 7.49991 3.49991C7.0857 3.49991 6.74991 3.8357 6.74991 4.24991V7.49991C6.74991 7.91412 7.0857 8.24991 7.49991 8.24991C7.91412 8.24991 8.24991 7.91412 8.24991 7.49991V4.24991ZM7.49991 9.74991C7.10287 9.74991 6.77259 10.0551 6.75017 10.4516L6.74991 10.5C6.74991 10.8971 7.05515 11.2274 7.45164 11.2498L7.49991 11.2499C7.89711 11.2499 8.22739 10.9447 8.24982 10.5482L8.24991 10.5C8.24991 10.1029 7.94467 9.77263 7.54818 9.75021L7.49991 9.74991Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
-                        </svg>
-                      </span>
-                      <p className="text-red-800 font-medium">{product.paragraph1}</p>
-                    </div>
-                  )}
-
-                  {product.paragraph2 && (
-                    <div className="flex items-center gap-1 text-xs">
-                      <span className="text-gray-900 mt-0.5">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
-                        </svg>
-                      </span>
-                      <p className="text-gray-900 font-medium">{product.paragraph2}</p>
-                    </div>
-                  )}
-                </div>
-                {/* <ShareButton
-                  productName={title}
-                  productUrl={window.location.href}
-                  productImage={img}
-                /> */}
-              </div>
-              <div className="mb-3 sm:mb-4 hidden sm:block">
-                <Badge
-                  variant={outOfStock ? "destructive" : "secondary"}
-                  className="text-xs sm:text-sm"
-                >
-                  {outOfStock ? "Not Available" : "Available"}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mb-4 sm:mb-6 hidden sm:block">
-                {product.description && product.description.length > 150
-                  ? (<> {`${product.description.substring(0, 150)}...`} <span
-                      className="text-primary text-xs cursor-pointer hover:underline"
-                      onClick={() => {
-                        descriptionRef.current?.scrollIntoView({ behavior: 'smooth' });
-                        setActiveTab("description");
-                      }}
-                    >
-                      Read more
-                    </span></>)
-                  : product.description}
-              </p>
-            </div>
-
+            
             <div className="min-w-0 p-4 sm:p-5 md:p-8 border border-gray-200 rounded-lg order-3 md:order-2">
               {/* Desktop: keep full details in right column */}
-              <div className="hidden md:block">
+              <div className="block md:block">
               <p className="text-xs text-gray-600 uppercase tracking-wider mb-1 break-words">
                 {product.category}
               </p>
@@ -947,7 +854,7 @@ const ProductDetail = () => {
     </>
   )}
 
-  {Number(product?.price) > 0 && product?.discount?.value > 0 && (
+  {/* {Number(product?.price) > 0 && product?.discount?.value > 0 && (
     <div className="flex items-baseline">
       <span className="text-xs sm:text-sm text-gray-500 line-through mr-1">
         ₹{Number(product.price).toLocaleString("en-IN")}
@@ -958,12 +865,9 @@ const ProductDetail = () => {
           : `₹${product.discount.value} OFF`}
       </span>
     </div>
-  )}
+  )} */}
 </div>
-
-              <div className="flex items-center justify-between gap-4 mb-2">
-                <div className="flex flex-col gap-1 flex-1">
-                  {product.paragraph1 && (
+       {/* {product.paragraph1 && (
                     <div className="flex items-center gap-1 text-xs">
                       <span className="text-red-800 mt-0.5">
                         <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -972,11 +876,14 @@ const ProductDetail = () => {
                       </span>
                       <p className="text-red-800 font-medium">{product.paragraph1}</p>
                     </div>
-                  )}
+                  )} */}
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <div className="flex flex-col gap-1 flex-1">
+                 
 
                   {product.paragraph2 && (
                     <div className="flex items-center gap-1 text-xs">
-                      <span className="text-gray-900 mt-0.5">
+                      <span className="text-gray-900 flex items-center">
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                           <path d="M2.5 2C2.22386 2 2 2.22386 2 2.5C2 2.77614 2.22386 3 2.5 3H3.12104L4.5 10.5H12.5L14 4.5H5L4.87896 3.81957C4.82128 3.52339 4.55871 3.31547 4.25 3.31547H2.5ZM5.12104 5.5H12.7639L11.7639 9.5H5.5L5.12104 5.5ZM5.5 12C4.67157 12 4 12.6716 4 13.5C4 14.3284 4.67157 15 5.5 15C6.32843 15 7 14.3284 7 13.5C7 12.6716 6.32843 12 5.5 12ZM11.5 12C10.6716 12 10 12.6716 10 13.5C10 14.3284 10.6716 15 11.5 15C12.3284 15 13 14.3284 13 13.5C13 12.6716 12.3284 12 11.5 12Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
                         </svg>
@@ -1240,60 +1147,93 @@ const ProductDetail = () => {
                     +
                   </Button>
                 </div>
-              </div>
 
-             
+          <div className="space-y-2 sm:space-y-3 mt-6">
+  {(() => {
+    console.log('=== Add to Cart Button Render ===', {
+      outOfStock,
+      selectedSize,
+      selectedColors,
+      productColors: product?.colors,
+      trackInventoryBySize: product?.trackInventoryBySize
+    });
+    
+    return (
+      <Button
+        ref={(buttonRef) => {
+          if (buttonRef) {
+            console.log('Button ref set, current styles:', {
+              className: buttonRef.className,
+              style: buttonRef.style,
+              computedStyle: window.getComputedStyle(buttonRef).backgroundColor,
+              computedColor: window.getComputedStyle(buttonRef).color
+            });
+            
+            // Apply styles immediately
+            buttonRef.style.setProperty('background-color', 'black', 'important');
+            buttonRef.style.setProperty('color', 'white', 'important');
+            buttonRef.style.setProperty('background', 'black', 'important');
+            
+            // Force styles with MutationObserver
+            const observer = new MutationObserver((mutations) => {
+              mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+                  console.log('Button style changed!', {
+                    attribute: mutation.attributeName,
+                    oldValue: mutation.oldValue,
+                    newValue: buttonRef.className,
+                    style: buttonRef.style
+                  });
+                  
+                  // Re-apply our styles
+                  buttonRef.style.setProperty('background-color', 'black', 'important');
+                  buttonRef.style.setProperty('color', 'white', 'important');
+                  buttonRef.style.setProperty('background', 'black', 'important');
+                }
+              });
+            });
+            
+            observer.observe(buttonRef, {
+              attributes: true,
+              attributeOldValue: true,
+              attributeFilter: ['style', 'class']
+            });
+          }
+        }}
+        size="lg"
+        className="w-full text-xs sm:text-sm h-11 sm:h-12 bg-black hover:bg-gray-800 text-white text-sm font-medium !important"
+        disabled={outOfStock}
+        style={{ backgroundColor: 'black', color: 'white' }}
+        onClick={(e) => {
+          console.log('=== Add to Cart Button Clicked ===', {
+            outOfStock,
+            selectedSize,
+            selectedColors,
+            productColors: product?.colors,
+            trackInventoryBySize: product?.trackInventoryBySize
+          });
+          handleAddToCart();
+        }}
+      >
+        <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+        Add to Cart
+      </Button>
+    );
+  })()}
+  
+  {!outOfStock && (
+    <Button
+      size="lg"
+      variant="outline"
+      className="w-full text-xs sm:text-sm h-11 sm:h-12 border-primary text-primary hover:bg-primary/5 text-sm font-medium"
+      onClick={handleBuyNow}
+    >
+      Buy Now
+    </Button>
+  )}
+</div>
 
-              <div className="space-y-2 sm:space-y-3 mt-6">
-                {outOfStock ||
-                (product?.trackInventoryBySize && !selectedSize) ? (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="w-full block">
-                            <Button
-                            size="lg"
-                            className="w-full text-xs sm:text-sm h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium"
-                            disabled
-                          >
-                            <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                            Add to Cart
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {outOfStock
-                          ? "Out of stock"
-                          : "Please select a size"}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ) : (
-                  <Button
-                    size="lg"
-                    className="w-full text-xs sm:text-sm h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium"
-                    onClick={handleAddToCart}
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                    Add to Cart
-                  </Button>
-                )}
-                {!(
-                  outOfStock ||
-                  (product?.trackInventoryBySize && !selectedSize)
-                ) && (
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full text-xs sm:text-sm h-11 sm:h-12 border-primary text-primary hover:bg-primary/5 text-sm font-medium"
-                    onClick={handleBuyNow}
-                  >
-                    Buy Now
-                  </Button>
-                )}
-              </div>
-
-             {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
+             {/* {(product?.sizeFit?.fit || product?.sizeFit?.modelWearingSize) && (
                 <div className="mb-4 text-sm text-gray-900">
                   <div className="font-bold text-base mb-2">Size &amp; Fit</div>
                   {product?.sizeFit?.fit && (
@@ -1307,7 +1247,7 @@ const ProductDetail = () => {
                     </div>
                   )}
                 </div>
-              )}
+              )} */}
         <SimpleCoupon
                 onUseNow={(code) => {
                   navigate(`/cart?coupon=${encodeURIComponent(code)}`);
@@ -1336,12 +1276,7 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto w-full mt-6 sm:mt-8">
-          <RecentlyViewed
-            excludeProductId={product?._id || product?.id || ""}
-          />
-          <RelatedProducts productId={product?._id || product?.id || ""} />
-        </div>
+       
 
         <div className="max-w-7xl mx-auto w-full mt-6 sm:mt-8">
           {/* Mobile Accordion Layout */}
@@ -1784,7 +1719,15 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
-      </section>
+
+         <div className="max-w-7xl mx-auto w-full mt-6 sm:mt-8">
+          <RecentlyViewed
+            excludeProductId={product?._id || product?.id || ""}
+          />
+          <RelatedProducts productId={product?._id || product?.id || ""} />
+        </div>
+      </div>
+    </section>
 
       <ReviewModal
         open={showReviewModal}
