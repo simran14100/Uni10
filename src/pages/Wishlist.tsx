@@ -164,7 +164,7 @@ const Wishlist = () => {
             <Button onClick={() => navigate('/shop')} className="text-xs sm:text-sm">Browse Products</Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {wishlistProducts.map((product) => {
               const id = String(product._id || product.id || '');
               const slug = product.slug || '';

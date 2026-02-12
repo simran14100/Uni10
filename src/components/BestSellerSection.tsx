@@ -137,10 +137,10 @@ export default function BestSellerSection() {
         {/* View All Link */}
        <div className="text-center mt-10 md:mt-16">
                      <Link
-                       to="/shop"
+                       to="/best-sellers"
                        className="inline-flex items-center text-sm font-medium text-primary hover:text-gray-900 transition-colors group"
                      >
-                       View All Products
+                       View All Best Seller 
                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                      </Link>
                    </div>
