@@ -299,9 +299,7 @@ export default function RecentReviewsSection() {
             Our clients always love us
           </h2>
           
-          <p className="text-gray-600 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
-            Don't just take our word for it - hear from our satisfied customers
-          </p>
+         
         </div>
 
         {/* Reviews Slider */}
@@ -343,14 +341,26 @@ export default function RecentReviewsSection() {
             
             {/* Navigation Buttons - Desktop */}
             <div className="hidden sm:flex gap-3 absolute -top-20 right-0">
-              <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
-              <CarouselNext className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
+              <CarouselPrevious 
+                className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white text-black hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" 
+                style={{ backgroundColor: 'white', color: 'black' }}
+              />
+              <CarouselNext 
+                className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white text-black hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" 
+                style={{ backgroundColor: 'white', color: 'black' }}
+              />
             </div>
             
             {/* Navigation Buttons - Mobile */}
             <div className="flex sm:hidden justify-center gap-3 mt-8">
-              <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
-              <CarouselNext className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" />
+              <CarouselPrevious 
+                className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white text-black hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" 
+                style={{ backgroundColor: 'white', color: 'black' }}
+              />
+              <CarouselNext 
+                className="static translate-y-0 h-12 w-12 rounded-full border-2 border-gray-300 bg-white text-black hover:border-black hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" 
+                style={{ backgroundColor: 'white', color: 'black' }}
+              />
             </div>
           </Carousel>
         </div>
