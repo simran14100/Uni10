@@ -402,6 +402,29 @@ export default function RecentReviewsSection() {
             transform: translateY(0);
           }
         }
+        
+        /* Force reset carousel button states */
+        button[class*="CarouselPrevious"],
+        button[class*="CarouselNext"] {
+          background-color: white !important;
+          color: black !important;
+          border-color: #d1d5db !important;
+        }
+        
+        button[class*="CarouselPrevious"]:hover,
+        button[class*="CarouselNext"]:hover {
+          background-color: black !important;
+          color: white !important;
+          border-color: black !important;
+        }
+        
+        button[class*="CarouselPrevious"]:active,
+        button[class*="CarouselNext"]:active {
+          transform: scale(0.95) !important;
+          background-color: black !important;
+          color: white !important;
+          border-color: black !important;
+        }
       `}</style>
     </section>
   );
